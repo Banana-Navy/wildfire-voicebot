@@ -178,6 +178,22 @@ const walloniaStatus = {
       nl: 'In de officiële publicatie die vandaag is gecontroleerd, wordt ‘{place}’ niet genoemd. Daarom kan ik de toegankelijkheid niet bevestigen en ook niet stellen dat deze plaats buiten het maatregelengebied ligt. Volg de plaatselijke signalisatie. Deze informatie kan elke dag wijzigen volgens de officiële richtlijnen.',
       de: 'In der heute geprüften offiziellen Mitteilung wird „{place}“ nicht genannt. Daher kann ich den Zugang weder bestätigen noch behaupten, dass dieser Ort außerhalb des Maßnahmengebiets liegt. Beachten Sie die örtliche Beschilderung. Diese Information kann sich täglich entsprechend den behördlichen Anweisungen ändern.',
     },
+    scope_limited_places: [
+      'Hautes Fagnes',
+      'Les Hautes Fagnes',
+      'Haute Fagne',
+      'Hoge Venen',
+      'Hohes Venn',
+      "Cantonnement forestier d'Elsenborn",
+      'Cantonnement forestier de Malmedy',
+      'Cantonnement forestier de Verviers',
+    ],
+    scope_limited_rule: 'Pour ces zones étendues, la publication renvoie à un périmètre cartographié qui n’est pas disponible sous forme de limites exploitables par l’agent. Utiliser scope_limited_answer_template et ne jamais déclarer toute la zone fermée ou ouverte.',
+    scope_limited_answer_template: {
+      fr: 'La publication officielle signale une interdiction dans un périmètre cartographié concernant « {place} », mais elle ne permet pas de confirmer le statut de toute cette zone. N’entrez dans aucune partie signalée comme interdite et respectez la signalétique locale. Cette information peut changer chaque jour selon les consignes officielles.',
+      nl: 'De officiële publicatie meldt een verbod binnen een afgebakende zone rond ‘{place}’, maar bevestigt niet de status van het volledige gebied. Betreed geen deel dat als verboden is aangeduid en volg de plaatselijke signalisatie. Deze informatie kan elke dag wijzigen volgens de officiële richtlijnen.',
+      de: 'Die offizielle Mitteilung nennt ein Verbot innerhalb eines kartierten Bereichs bei „{place}“, bestätigt aber nicht den Status des gesamten Gebiets. Betreten Sie keinen als gesperrt gekennzeichneten Bereich und beachten Sie die örtliche Beschilderung. Diese Information kann sich täglich entsprechend den behördlichen Anweisungen ändern.',
+    },
     action_templates: {
       closed_natural_area: {
         fr: 'N’entrez pas dans la zone et respectez la signalétique en place.',

@@ -52,7 +52,7 @@ export function dailyAccessTools() {
     ),
     baseWebhook(
       'get_daily_access_status',
-      "À appeler silencieusement après resolve_official_place avec exactement le status_key retourné. Cette source donne le code officiel quotidien, les fermetures explicitement publiées, la date de validité et l'état de fraîcheur. Utilise uniquement les faits renvoyés. Un code de risque ne prouve jamais l'ouverture d'un site. Pour la Wallonie, applique same_entity_rule. Si aucune mesure ne nomme exactement la même entité, utilise no_match_answer_template dans la langue active et ne déduis jamais que le lieu est hors périmètre, non concerné, ouvert ou accessible.",
+      "À appeler silencieusement après resolve_official_place avec exactement le status_key retourné. Cette source donne le code officiel quotidien, les fermetures explicitement publiées, la date de validité et l'état de fraîcheur. Utilise uniquement les faits renvoyés. Un code de risque ne prouve jamais l'ouverture d'un site. Pour la Wallonie, applique d'abord scope_limited_rule lorsque le nom résolu figure dans scope_limited_places, puis same_entity_rule. Si aucune mesure ne nomme exactement la même entité, utilise no_match_answer_template dans la langue active. Ne déduis jamais qu'un lieu ou toute une zone est hors périmètre, non concerné, ouvert, accessible ou fermé.",
       `${STATUS_BASE_URL}/status/{status_key}.json`,
       {
         status_key: parameter(

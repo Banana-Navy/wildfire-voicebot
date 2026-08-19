@@ -73,10 +73,10 @@ const scenarios = [
     forbiddenTools: [],
     validate(answer) {
       const issues = [];
-      if (!/ne (?:peux|permet)[^.]{0,80}confirmer|ni confirmer/iu.test(answer)) {
+      if (!/ne (?:peux|permet)[^.]{0,100}confirmer|ne confirme pas[^.]{0,100}(?:toute|complet)|statut de toute cette zone/iu.test(answer)) {
         issues.push('accès global aux Hautes Fagnes déduit de la carte non lisible');
       }
-      if (/toutes? les Hautes Fagnes[^.]{0,80}(?:fermées?|interdites?)/iu.test(answer)) {
+      if (/(?:toutes? les Hautes Fagnes|réserve naturelle des Hautes Fagnes)[^.]{0,80}(?:fermées?|interdites?)|circulation[^.]{0,80}réserve naturelle des Hautes Fagnes[^.]{0,80}interdite/iu.test(answer)) {
         issues.push('fermeture étendue à toute la réserve sans preuve');
       }
       if (!/change(?:r)? chaque jour|peut changer/iu.test(answer)) {
