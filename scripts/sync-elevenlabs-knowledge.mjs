@@ -40,17 +40,18 @@ conversation.agent.prompt.prompt = systemPrompt;
 conversation.agent.first_message =
   "Bonjour et bienvenue. Goedendag en welkom. Guten Tag und herzlich willkommen. Vous préférez le français, Nederlands oder Deutsch ?";
 conversation.agent.disable_first_message_interruptions = false;
-// The base language must be supported by the multilingual TTS model. Dutch is
-// used for the trilingual selector; FR and DE then switch to native presets.
-conversation.agent.language = 'nl';
+// French is the safe bootstrap language: if language routing ever misses a
+// French first turn, Adrien remains active and a Flemish voice cannot read it.
+// Clear NL/DE choices still switch immediately to their native presets.
+conversation.agent.language = 'fr';
 const presetTemplate = structuredClone(
   conversation.language_presets?.nl ?? conversation.language_presets?.de ?? conversation.language_presets?.fr,
 );
 if (!presetTemplate?.overrides) throw new Error('Impossible de créer les presets de langue.');
 const localized = {
   fr: { voiceId: 'IpTJxgMFj1wbxpha4zxm', modelId: 'eleven_multilingual_v2', stability: 0.50, similarity: 0.82, speed: 0.94 },
-  nl: { voiceId: 'Yv0oyZ3obP9foTH7emqG', stability: 0.62, similarity: 0.82, speed: 0.97 },
-  de: { voiceId: 'FTNCalFNG5bRnkkaP5Ug', stability: 0.62, similarity: 0.82, speed: 0.97 },
+  nl: { voiceId: 'Yv0oyZ3obP9foTH7emqG', modelId: 'eleven_flash_v2_5', stability: 0.62, similarity: 0.82, speed: 0.97 },
+  de: { voiceId: 'FTNCalFNG5bRnkkaP5Ug', modelId: 'eleven_flash_v2_5', stability: 0.62, similarity: 0.82, speed: 0.97 },
 };
 conversation.asr.user_input_audio_format = 'ulaw_8000';
 conversation.asr.keywords = Array.from(new Set([
@@ -61,9 +62,9 @@ conversation.asr.keywords = Array.from(new Set([
   'Torf', 'Torfbrand', 'Hohes Venn', 'Schwelbrand',
 ])).filter((keyword) => !['English', 'anglais', 'Engels', 'peat', 'peat fire', 'High Fens', 'smouldering'].includes(keyword));
 conversation.tts.agent_output_audio_format = 'ulaw_8000';
-conversation.tts.model_id = 'eleven_flash_v2_5';
-conversation.tts.voice_id = 'Yv0oyZ3obP9foTH7emqG';
-conversation.tts.stability = 0.62;
+conversation.tts.model_id = 'eleven_multilingual_v2';
+conversation.tts.voice_id = 'IpTJxgMFj1wbxpha4zxm';
+conversation.tts.stability = 0.50;
 conversation.tts.similarity_boost = 0.82;
 conversation.tts.speed = 0.94;
 conversation.tts.optimize_streaming_latency = 1;
@@ -96,11 +97,11 @@ conversation.agent.prompt.rag = {
   embedding_model: 'multilingual_e5_large_instruct',
   max_documents_length: 18000,
 };
-// Use the same proven model before and after language routing. Keeping Gemini
-// as the base model caused a real French call to duplicate a complete answer
-// and append an English continuation even though the FR preset voice was active.
-conversation.agent.prompt.llm = 'claude-haiku-4-5';
-conversation.agent.prompt.backup_llm_config = { preference: 'override', order: ['claude-sonnet-4-5'] };
+// Language routing is a hard safety gate. Sonnet is used before and after the
+// switch because the lower-capacity model skipped language_detection during a
+// real French call and let the Flemish bootstrap voice speak French.
+conversation.agent.prompt.llm = 'claude-sonnet-4-5';
+conversation.agent.prompt.backup_llm_config = { preference: 'override', order: ['claude-haiku-4-5'] };
 conversation.agent.prompt.temperature = 0;
 conversation.agent.prompt.max_tokens = 180;
 const builtIns = conversation.agent.prompt.built_in_tools ?? {};
@@ -135,14 +136,22 @@ const configureLanguage = (tool) => {
 };
 configureEndCall(builtIns.end_call);
 configureLanguage(builtIns.language_detection);
-conversation.agent.prompt.tools = [
-  ...(conversation.agent.prompt.tools ?? []).filter((tool) =>
-    !['resolve_official_place', 'get_daily_access_status'].includes(tool?.name)),
-  ...dailyAccessTools(),
-];
-for (const tool of conversation.agent.prompt.tools) {
+const expandedTools = conversation.agent.prompt.tools ?? [];
+for (const tool of expandedTools) {
   if (tool?.name === 'end_call') configureEndCall(tool);
   if (tool?.name === 'language_detection') configureLanguage(tool);
+}
+const existingToolIds = conversation.agent.prompt.tool_ids ?? [];
+if (existingToolIds.length > 0) {
+  conversation.agent.prompt.tool_ids = existingToolIds;
+  delete conversation.agent.prompt.tools;
+} else {
+  conversation.agent.prompt.tool_ids = [];
+  conversation.agent.prompt.tools = [
+    ...expandedTools.filter((tool) =>
+      !['resolve_official_place', 'get_daily_access_status'].includes(tool?.name)),
+    ...dailyAccessTools(),
+  ];
 }
 
 conversation.language_presets = {};
@@ -153,8 +162,8 @@ for (const [language, settings] of Object.entries(localized)) {
   preset.overrides.agent.language = language;
   preset.overrides.agent.first_message = conversation.agent.first_message;
   preset.overrides.agent.prompt = {
-    llm: 'claude-haiku-4-5',
-    backup_llm_config: { preference: 'override', order: ['claude-sonnet-4-5'] },
+    llm: 'claude-sonnet-4-5',
+    backup_llm_config: { preference: 'override', order: ['claude-haiku-4-5'] },
   };
   preset.overrides.tts = {
     model_id: settings.modelId ?? conversation.tts.model_id,

@@ -14,12 +14,12 @@ Créé le 17 août 2026 dans le workspace ElevenLabs partagé.
 | Enregistrement audio | Activé pour les appels de test |
 | Conservation des transcriptions | 30 jours maximum |
 | Knowledge Base | `89AM7w3ggzzZpzmAiiRT` |
-| Routage initial | langue technique `nl`, voix Jeroen ; `claude-haiku-4-5`, température 0 |
-| Conversation après sélection | `claude-haiku-4-5` ; secours `claude-sonnet-4-5` |
+| Routage initial | sécurité `fr`, voix Adrien ; `claude-sonnet-4-5`, température 0 |
+| Conversation après sélection | `claude-sonnet-4-5` ; secours `claude-haiku-4-5` |
 | RAG | Désactivé ; base contrôlée injectée intégralement dans le prompt |
 | Voix par langue | FR `Adrien` — français belge ; NL `Jeroen Vlaams` — flamand belge ; DE `Otto` — allemand natif |
-| Modèle vocal | FR `eleven_multilingual_v2` pour le naturel ; accueil, NL et DE `eleven_flash_v2_5` |
-| Réglages de la voix d'ouverture | stabilité `0,62` ; similarité `0,82` ; vitesse `0,94` |
+| Modèle vocal | Accueil et FR `eleven_multilingual_v2` ; NL et DE `eleven_flash_v2_5` |
+| Réglages de la voix d'ouverture | stabilité `0,50` ; similarité `0,82` ; vitesse `0,94` |
 | Réglages après sélection | FR `0,50 / 0,82 / 0,94` ; NL et DE `0,62 / 0,82 / 0,97` (stabilité / similarité / vitesse) |
 | Prise de tour | `turn_v3`, réactivité normale, délai `7 s`, remplissages désactivés |
 
@@ -39,7 +39,7 @@ L'agent ne prétend pas transférer un appel au 112. Tant qu'aucun outil de tran
 
 ## Principes de qualité vocale
 
-Le sélecteur initial commence par un véritable accueil : « Bonjour et bienvenue. Goedendag en welkom. Guten Tag und herzlich willkommen. Vous préférez le français, Nederlands oder Deutsch ? ». Après le choix, un changement de langue obligatoire applique un preset complet avant toute nouvelle parole : `Adrien` en français belge, `Jeroen Vlaams` en flamand belge et `Otto` en allemand. Les trois voix sont masculines, calmes et d'âge moyen apparent. Adrien utilise ici le modèle haute qualité `eleven_multilingual_v2`, avec un rythme intermédiaire et une stabilité réduite pour éviter à la fois la sécheresse robotique et l'effet soporifique. Le preset verrouille la langue, la voix et le modèle de conversation afin qu'une voix flamande ne lise jamais une réponse française ou allemande.
+Le sélecteur initial commence par un véritable accueil : « Bonjour et bienvenue. Goedendag en welkom. Guten Tag und herzlich willkommen. Vous préférez le français, Nederlands oder Deutsch ? ». L'accueil utilise Adrien comme voix de sécurité : même si le premier routage linguistique échoue, une phrase française ne peut plus être lue avec la voix flamande. Après le choix, un changement de langue obligatoire applique un preset complet avant toute nouvelle parole : `Adrien` en français belge, `Jeroen Vlaams` en flamand belge et `Otto` en allemand. Les trois voix sont masculines, calmes et d'âge moyen apparent. Adrien utilise ici le modèle haute qualité `eleven_multilingual_v2`, avec un rythme intermédiaire et une stabilité réduite pour éviter à la fois la sécheresse robotique et l'effet soporifique. Le preset verrouille la langue, la voix et le modèle de conversation.
 
 La ligne se présente uniquement comme « ligne d'information Feux en Milieu Naturel ». Le voicebot ne cite aucune entreprise dans les trois langues. L'optimisation de latence audio est réglée au niveau `1` pour préserver une prosodie plus naturelle dans les trois langues.
 

@@ -43,11 +43,11 @@ const flandersSources = [
 ];
 
 const provinceLabels = {
-  Antwerpen: { fr: 'Anvers', nl: 'Antwerpen', de: 'Antwerpen' },
-  Limburg: { fr: 'Limbourg', nl: 'Limburg', de: 'Limburg' },
-  'Oost-Vlaanderen': { fr: 'Flandre-Orientale', nl: 'Oost-Vlaanderen', de: 'Ostflandern' },
-  'Vlaams-Brabant': { fr: 'Brabant flamand', nl: 'Vlaams-Brabant', de: 'Flämisch-Brabant' },
-  'West-Vlaanderen': { fr: 'Flandre-Occidentale', nl: 'West-Vlaanderen', de: 'Westflandern' },
+  Antwerpen: { fr: 'd’Anvers', nl: 'Antwerpen', de: 'Antwerpen' },
+  Limburg: { fr: 'du Limbourg', nl: 'Limburg', de: 'Limburg' },
+  'Oost-Vlaanderen': { fr: 'de Flandre-Orientale', nl: 'Oost-Vlaanderen', de: 'Ostflandern' },
+  'Vlaams-Brabant': { fr: 'du Brabant flamand', nl: 'Vlaams-Brabant', de: 'Flämisch-Brabant' },
+  'West-Vlaanderen': { fr: 'de Flandre-Occidentale', nl: 'West-Vlaanderen', de: 'Westflandern' },
 };
 
 const riskLabels = {
@@ -105,7 +105,7 @@ for (const [provinceSlug, province] of flandersSources) {
         : null,
     },
     direct_answer: {
-      fr: `Pour la province de ${label.fr}, le code officiel du jour est ${riskLabels[code].fr}. Ce code ne confirme pas à lui seul l’ouverture de chaque forêt ou zone naturelle. ${dailyNotice.fr}`,
+      fr: `Pour la province ${label.fr}, le code officiel du jour est ${riskLabels[code].fr}. Ce code ne confirme pas à lui seul l’ouverture de chaque forêt ou zone naturelle. ${dailyNotice.fr}`,
       nl: `Voor de provincie ${label.nl} geldt vandaag officieel code ${riskLabels[code].nl}. Deze code bevestigt op zichzelf niet dat elk bos of natuurgebied toegankelijk is. ${dailyNotice.nl}`,
       de: `Für die Provinz ${label.de} gilt heute offiziell die Stufe ${riskLabels[code].de}. Dieser Code bestätigt für sich allein nicht, dass jedes Wald- oder Naturgebiet zugänglich ist. ${dailyNotice.de}`,
     },

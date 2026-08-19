@@ -1,15 +1,6 @@
 import { STATUS_BASE_URL } from './access-data.mjs';
 
-const parameter = (description) => ({
-  type: 'string',
-  description,
-  enum: null,
-  is_system_provided: false,
-  dynamic_variable: '',
-  allowed_values_dynamic_variable: '',
-  constant_value: '',
-  is_omitted: false,
-});
+const parameter = (description) => ({ type: 'string', description });
 
 const baseWebhook = (name, description, url, pathParams) => ({
   type: 'webhook',
@@ -31,10 +22,7 @@ const baseWebhook = (name, description, url, pathParams) => ({
     kind: 'webhook',
     url,
     method: 'GET',
-    path_params_schema: {
-      properties: pathParams,
-      required: Object.keys(pathParams),
-    },
+    path_params_schema: pathParams,
     query_params_schema: null,
     request_body_schema: null,
     response_body_schema: null,

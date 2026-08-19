@@ -8,7 +8,7 @@ if (!apiKey) throw new Error('ELEVENLABS_API_KEY est absent.');
 const agentId = 'agent_2201m07k477kepfsq9p5h8bh4x1g';
 const root = resolve(import.meta.dirname, '..');
 const voices = {
-  base: 'Yv0oyZ3obP9foTH7emqG',
+  base: 'IpTJxgMFj1wbxpha4zxm',
   fr: 'IpTJxgMFj1wbxpha4zxm',
   nl: 'Yv0oyZ3obP9foTH7emqG',
   de: 'FTNCalFNG5bRnkkaP5Ug',
@@ -16,7 +16,7 @@ const voices = {
 const scenarios = {
   fr: {
     messages: ['Français'],
-    expectedVoices: [voices.base, voices.fr],
+    expectedVoices: [voices.fr],
     validate(responses) {
       return responses[1]?.text?.startsWith("Très bien, merci. Vous êtes sur la ligne d'information Feux en Milieu Naturel,")
         ? []
@@ -25,7 +25,7 @@ const scenarios = {
   },
   nl: {
     messages: ['Nederlands'],
-    expectedVoices: [voices.nl],
+    expectedVoices: [voices.base, voices.nl],
     validate(responses) {
       return responses[1]?.text?.startsWith('Prima. U bent verbonden met de informatielijn')
         ? []
@@ -43,7 +43,7 @@ const scenarios = {
   },
   'fr-urgence': {
     messages: ["Français. Je panique. Je vois des flammes et beaucoup de fumée juste devant moi. Pouvez-vous prévenir les pompiers ?"],
-    expectedVoices: [voices.base, voices.fr],
+    expectedVoices: [voices.fr],
     validate(responses) {
       const last = responses.at(-1)?.text ?? '';
       return last.startsWith('Raccrochez et appelez immédiatement le cent douze.')
@@ -53,7 +53,7 @@ const scenarios = {
   },
   'nl-direct': {
     messages: ['Ik wil informatie over rook bij een natuurbrand.', 'Wat moet ik doen als rook mijn woning bereikt?'],
-    expectedVoices: [voices.nl],
+    expectedVoices: [voices.base, voices.nl],
     validate(responses) {
       const presentation = responses[1]?.text ?? '';
       return presentation.startsWith('Prima. U bent verbonden met de informatielijn')
@@ -63,7 +63,7 @@ const scenarios = {
   },
   'fr-switch-de': {
     messages: ['Français', "Je voudrais des informations.", 'Pouvons-nous continuer en allemand ?', 'Wie verhindere ich einen Waldbrand bei einer Wanderung?'],
-    expectedVoices: [voices.base, voices.fr, voices.de],
+    expectedVoices: [voices.fr, voices.de],
     validate(responses) {
       const afterSwitch = responses[3]?.text ?? '';
       const final = responses.at(-1)?.text ?? '';
@@ -75,6 +75,49 @@ const scenarios = {
         issues.push({ type: 'german_not_used_after_switch', value: `${afterSwitch} ${final}` });
       }
       return issues;
+    },
+  },
+  'fr-access-kalmthout': {
+    messages: ['Français', "La Kalmthoutse Heide est-elle accessible aujourd'hui ?"],
+    expectedVoices: [voices.fr],
+    expectedTools: ['resolve_official_place', 'get_daily_access_status'],
+    validate(responses) {
+      const answer = responses.at(-1)?.text ?? '';
+      const issues = [];
+      if (!/code officiel|niveau officiel|vigilance officielle/iu.test(answer)) {
+        issues.push({ type: 'missing_daily_official_risk', value: answer });
+      }
+      if (!/ne confirme pas|ne permet pas de confirmer/iu.test(answer)) {
+        issues.push({ type: 'individual_opening_inferred_from_province_code', value: answer });
+      }
+      if (!/change(?:r)? chaque jour|changer quotidiennement/iu.test(answer)) {
+        issues.push({ type: 'missing_daily_change_notice', value: answer });
+      }
+      if (/consultez|site (?:web|officiel)|rendez-vous sur/iu.test(answer)) {
+        issues.push({ type: 'unnecessary_website_referral', value: answer });
+      }
+      return issues;
+    },
+  },
+  'nl-access-zonienwoud': {
+    messages: ['Nederlands', 'Is het Zoniënwoud vandaag toegankelijk?'],
+    expectedVoices: [voices.base, voices.nl],
+    expectedTools: ['resolve_official_place'],
+    forbiddenTools: ['get_daily_access_status'],
+    validate(responses) {
+      const answer = responses.at(-1)?.text ?? '';
+      return /Brussel/iu.test(answer) && /Vlaams-Brabant/iu.test(answer)
+        ? []
+        : [{ type: 'ambiguous_place_not_clarified', value: answer }];
+    },
+  },
+  'fr-natural-choice': {
+    messages: ['Oui, bonjour. Euh, on va continuer en français, ça va ?'],
+    expectedVoices: [voices.fr],
+    validate(responses) {
+      return responses[1]?.text?.startsWith("Très bien, merci. Vous êtes sur la ligne d'information Feux en Milieu Naturel,")
+        ? []
+        : [{ type: 'natural_french_choice_not_routed', value: responses[1]?.text ?? null }];
     },
   },
 };
@@ -190,7 +233,8 @@ async function run(scenarioName, scenario) {
           sentMessages += 1;
           const audioBytes = (audioByEvent.get(response.event_id) ?? [])
             .reduce((total, chunk) => total + chunk.length, 0);
-          const playbackDelayMs = Math.max(1800, Math.ceil(audioBytes / 8) + 500);
+          const estimatedSpeechMs = Math.ceil(response.agent_response.length / 17 * 1000) + 1_000;
+          const playbackDelayMs = Math.max(1_800, Math.ceil(audioBytes / 8) + 500, estimatedSpeechMs);
           setTimeout(() => connection.sendMessage({ type: 'user_message', text: message }), playbackDelayMs);
         } else {
           clearTimeout(closeTimer);
@@ -245,6 +289,8 @@ async function run(scenarioName, scenario) {
   await writeFile(resolve(directory, 'session.json'), `${JSON.stringify(session, null, 2)}\n`);
   const usedVoices = serverConversation.metadata?.charging?.tts_usage?.per_voice_usage
     ?.map(({ voice_id: voiceId }) => voiceId) ?? [];
+  const calledTools = serverConversation.transcript
+    ?.flatMap(({ tool_calls: toolCalls = [] }) => toolCalls.map(({ tool_name: toolName }) => toolName)) ?? [];
   const missingVoices = scenario.expectedVoices.filter((voiceId) => !usedVoices.includes(voiceId));
   const languageDetection = serverConversation.metadata?.features_usage?.language_detection;
   const issues = fluencyIssues(responses);
@@ -255,10 +301,17 @@ async function run(scenarioName, scenario) {
   for (const voiceId of missingVoices) {
     issues.push({ type: 'expected_voice_not_used', value: voiceId });
   }
+  for (const toolName of scenario.expectedTools ?? []) {
+    if (!calledTools.includes(toolName)) issues.push({ type: 'expected_tool_not_used', value: toolName });
+  }
+  for (const toolName of scenario.forbiddenTools ?? []) {
+    if (calledTools.includes(toolName)) issues.push({ type: 'forbidden_tool_used', value: toolName });
+  }
   const quality = {
     language_detection_used: languageDetection?.used === true,
     expected_voice_ids: scenario.expectedVoices,
     used_voice_ids: usedVoices,
+    called_tools: calledTools,
     fluency_issues: issues,
     passed: issues.length === 0,
   };
