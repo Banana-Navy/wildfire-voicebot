@@ -180,9 +180,9 @@ const walloniaStatus = {
       de: 'In der heute geprüften offiziellen Mitteilung wird „{place}“ nicht genannt. Daher kann ich den Zugang weder bestätigen noch behaupten, dass dieser Ort außerhalb des Maßnahmengebiets liegt. Beachten Sie die örtliche Beschilderung. Diese Information kann sich täglich entsprechend den behördlichen Anweisungen ändern.',
     },
     no_match_follow_up_template: {
-      fr: 'C’est exact. Je ne peux pas confirmer si « {place} » est ouvert ou fermé aujourd’hui. Respectez la signalétique locale. Cette information peut changer chaque jour selon les consignes officielles.',
-      nl: 'Dat klopt. Ik kan vandaag niet bevestigen of ‘{place}’ open of gesloten is. Volg de plaatselijke signalisatie. Deze informatie kan elke dag wijzigen volgens de officiële richtlijnen.',
-      de: 'Das ist richtig. Ich kann heute nicht bestätigen, ob „{place}“ geöffnet oder gesperrt ist. Beachten Sie die örtliche Beschilderung. Diese Information kann sich täglich entsprechend den behördlichen Anweisungen ändern.',
+      fr: 'J’ai déjà consulté la publication officielle disponible aujourd’hui. Elle ne permet pas de confirmer si « {place} » est ouvert ou fermé. Respectez la signalétique locale. Cette information peut changer chaque jour selon les consignes officielles.',
+      nl: 'Ik heb de officiële publicatie die vandaag beschikbaar is al gecontroleerd. Daarmee kan ik niet bevestigen of ‘{place}’ open of gesloten is. Volg de plaatselijke signalisatie. Deze informatie kan elke dag wijzigen volgens de officiële richtlijnen.',
+      de: 'Ich habe die heute verfügbare amtliche Mitteilung bereits geprüft. Damit kann ich nicht bestätigen, ob „{place}“ geöffnet oder gesperrt ist. Beachten Sie die örtliche Beschilderung. Diese Information kann sich täglich entsprechend den behördlichen Anweisungen ändern.',
     },
     scope_limited_places: [
       'Hautes Fagnes',
@@ -200,7 +200,7 @@ const walloniaStatus = {
       nl: 'De officiële publicatie meldt een verbod binnen een afgebakende zone rond ‘{place}’, maar bevestigt niet de status van het volledige gebied. Betreed geen deel dat als verboden is aangeduid en volg de plaatselijke signalisatie. Deze informatie kan elke dag wijzigen volgens de officiële richtlijnen.',
       de: 'Die offizielle Mitteilung nennt ein Verbot innerhalb eines kartierten Bereichs bei „{place}“, bestätigt aber nicht den Status des gesamten Gebiets. Betreten Sie keinen als gesperrt gekennzeichneten Bereich und beachten Sie die örtliche Beschilderung. Diese Information kann sich täglich entsprechend den behördlichen Anweisungen ändern.',
     },
-    response_rule: 'Après un résultat quotidien frais, répondre directement sans renvoyer vers un site, une commune, une province ou d’autres canaux. Pour une relance sur un lieu non confirmé, utiliser no_match_follow_up_template sans ajout.',
+    response_rule: 'Après un résultat quotidien frais, répondre directement sans renvoyer vers un site, une commune, une province ou d’autres canaux. Pour toute relance répétée sur un lieu non confirmé, y compris chaque demande explicite de site ou de source où vérifier, répéter no_match_follow_up_template sans ajout et ne citer aucune autre source. Cette règle reste verrouillée jusqu’au changement de sujet ou à la fin de l’appel.',
     action_templates: {
       closed_natural_area: {
         fr: 'N’entrez pas dans la zone et respectez la signalétique en place.',
