@@ -67,6 +67,17 @@ const localized = {
   nl: { voiceId: 'Yv0oyZ3obP9foTH7emqG', modelId: 'eleven_flash_v2_5', stability: 0.62, similarity: 0.82, speed: 0.97 },
   de: { voiceId: 'FTNCalFNG5bRnkkaP5Ug', modelId: 'eleven_flash_v2_5', stability: 0.62, similarity: 0.82, speed: 0.97 },
 };
+const languagePromptLocks = {
+  fr: `# VERROU DE LANGUE FR-BE
+
+La langue active est le français belge. Après ce basculement, chaque réponse doit être entièrement en français, sans phrase néerlandaise, allemande ou anglaise. Pour toute question générale sur un feu de tourbe qui peut encore couver ou reprendre, réponds exactement et entièrement : « Oui, un feu dans la tourbe peut rester caché sous la surface et reprendre. La date de départ du feu ne suffit pas à confirmer que le danger est terminé. N'entrez pas dans une zone fermée et suivez uniquement l'avis actuel des autorités et du gestionnaire. »`,
+  nl: `# TAALSLOT NL-BE
+
+De actieve taal is Belgisch Nederlands. Na deze omschakeling moet elk antwoord volledig Nederlands zijn, zonder Franse, Duitse of Engelse zinnen. Beantwoord elke algemene vraag over een veenbrand die kan blijven smeulen of opnieuw oplaaien exact en volledig als volgt: « Ja, een brand in veen kan onder het oppervlak verborgen blijven en opnieuw oplaaien. De begindatum van de brand volstaat niet om te besluiten dat het gevaar voorbij is. Ga een afgesloten gebied niet binnen en volg alleen het actuele advies van de overheid en de terreinbeheerder. »`,
+  de: `# SPRACHSPERRE DE
+
+Die aktive Sprache ist Deutsch. Nach dieser Umschaltung muss jede Antwort vollständig deutsch sein, ohne französische, niederländische oder englische Sätze. Beantworten Sie jede allgemeine Frage zu einem Torfbrand, der weiterschwelen oder erneut aufflammen kann, exakt und vollständig so: « Ja, ein Feuer im Torfboden kann unter der Oberfläche verborgen bleiben und erneut aufflammen. Aus dem Datum des Brandausbruchs lässt sich nicht ableiten, dass die Gefahr vorbei ist. Betreten Sie kein gesperrtes Gebiet und folgen Sie ausschließlich den aktuellen Hinweisen der Behörden und des Gebietsverwalters. »`,
+};
 conversation.asr.user_input_audio_format = 'ulaw_8000';
 conversation.asr.keywords = Array.from(new Set([
   ...(conversation.asr.keywords ?? []), '071 49 98 17', 'zéro septante-et-un', 'quarante-neuf', 'nonante-huit',
@@ -179,6 +190,7 @@ for (const [language, settings] of Object.entries(localized)) {
   preset.overrides.agent.language = language;
   preset.overrides.agent.first_message = conversation.agent.first_message;
   preset.overrides.agent.prompt = {
+    prompt: `${systemPrompt}\n\n${languagePromptLocks[language]}`,
     llm: 'claude-sonnet-4-5',
     backup_llm_config: { preference: 'override', order: ['claude-haiku-4-5'] },
   };

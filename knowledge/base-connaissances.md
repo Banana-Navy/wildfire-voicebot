@@ -173,11 +173,9 @@ Si le statut quotidien est indisponible ou périmé, dire uniquement dans la lan
 
 ### Réponse obligatoire — le feu est ancien, est-il encore dangereux ?
 
-**Français** : « Oui, un feu dans la tourbe peut rester caché sous la surface et reprendre. La date de départ du feu ne suffit pas à confirmer que le danger est terminé. N'entrez pas dans une zone fermée et suivez uniquement l'avis actuel des autorités et du gestionnaire. »
+Un feu dans la tourbe peut rester caché sous la surface et reprendre. La date de départ ne suffit pas à confirmer que le danger est terminé. Ne jamais transformer cette règle en durée prévisible ni considérer l'absence de flammes comme une preuve de sécurité.
 
-**Nederlands** : « Ja, een brand in veen kan onder het oppervlak verborgen blijven en opnieuw oplaaien. De begindatum van de brand volstaat niet om te besluiten dat het gevaar voorbij is. Ga een afgesloten gebied niet binnen en volg alleen het actuele advies van de overheid en de terreinbeheerder. »
-
-**Deutsch** : « Ja, ein Feuer im Torfboden kann unter der Oberfläche verborgen bleiben und erneut aufflammen. Aus dem Datum des Brandausbruchs lässt sich nicht ableiten, dass die Gefahr vorbei ist. Betreten Sie kein gesperrtes Gebiet und folgen Sie ausschließlich den aktuellen Hinweisen der Behörden und des Gebietsverwalters. »
+La formulation parlée fixe n'est volontairement pas dupliquée dans cette base partagée. Elle est fournie uniquement par le verrou du preset linguistique actif afin d'empêcher tout mélange FR/NL/DE. Utiliser ce modèle de preset mot pour mot, sans traduction ni assemblage.
 
 ### Détection et triage
 
