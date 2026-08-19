@@ -27,6 +27,8 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - name: Install browser for official anti-bot challenge fallback
+        run: npx playwright install --with-deps chromium
       - name: Test official source parsers
         run: npm run test:access-data
       - name: Refresh official daily access data
