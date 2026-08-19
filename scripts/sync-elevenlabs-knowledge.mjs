@@ -63,7 +63,7 @@ const presetTemplate = structuredClone(
 );
 if (!presetTemplate?.overrides) throw new Error('Impossible de créer les presets de langue.');
 const localized = {
-  fr: { voiceId: 'IpTJxgMFj1wbxpha4zxm', modelId: 'eleven_multilingual_v2', stability: 0.50, similarity: 0.82, speed: 0.94 },
+  fr: { voiceId: 'IpTJxgMFj1wbxpha4zxm', modelId: 'eleven_multilingual_v2', stability: 0.40, similarity: 0.76, speed: 0.99 },
   nl: { voiceId: 'Yv0oyZ3obP9foTH7emqG', modelId: 'eleven_flash_v2_5', stability: 0.62, similarity: 0.82, speed: 0.97 },
   de: { voiceId: 'FTNCalFNG5bRnkkaP5Ug', modelId: 'eleven_flash_v2_5', stability: 0.62, similarity: 0.82, speed: 0.97 },
 };
@@ -72,21 +72,21 @@ const languagePromptLocks = {
 
 La langue active est le français belge. Après ce basculement, chaque réponse doit être entièrement en français, sans phrase néerlandaise, allemande ou anglaise.
 
-Pour tout signalement de flammes, de fumée proche, de feu ou de danger direct, réponds exactement et entièrement : « Raccrochez et appelez immédiatement le cent douze. Cette ligne ne peut pas transmettre votre signalement aux secours. Éloignez-vous du feu et de la fumée sans vous exposer. » Arrête immédiatement après la troisième phrase. N'ajoute aucune information à communiquer au 112, aucune question et aucune quatrième phrase, que l'appelant semble calme, paniqué ou confus.
+Pour tout signalement de flammes, de fumée proche, de feu ou de danger direct, réponds exactement et entièrement : « Raccrochez et appelez immédiatement le cent douze. Cette ligne ne peut pas transmettre votre signalement aux secours. Éloignez-vous du feu et de la fumée sans vous exposer. » Arrête immédiatement après la troisième phrase. N'ajoute aucune information à communiquer au 112, aucune question, aucune quatrième phrase et aucune balise audio entre crochets telle que [urgent], que l'appelant semble calme, paniqué ou confus.
 
 Pour toute question générale sur un feu de tourbe qui peut encore couver ou reprendre, réponds exactement et entièrement : « Oui, un feu dans la tourbe peut rester caché sous la surface et reprendre. La date de départ du feu ne suffit pas à confirmer que le danger est terminé. N'entrez pas dans une zone fermée et suivez uniquement l'avis actuel des autorités et du gestionnaire. »`,
   nl: `# TAALSLOT NL-BE
 
 De actieve taal is Belgisch Nederlands. Na deze omschakeling moet elk antwoord volledig Nederlands zijn, zonder Franse, Duitse of Engelse zinnen.
 
-Antwoord bij elke melding van vlammen, nabije rook, brand of direct gevaar exact en volledig: « Hang op en bel onmiddellijk 112. Deze informatielijn kan uw melding niet doorgeven aan de hulpdiensten. Ga weg van het vuur en de rook zonder uzelf in gevaar te brengen. » Stop onmiddellijk na de derde zin. Voeg geen informatie toe die de beller aan 112 moet doorgeven, geen vraag en geen vierde zin, ongeacht of de beller kalm, in paniek of verward lijkt.
+Antwoord bij elke melding van vlammen, nabije rook, brand of direct gevaar exact en volledig: « Hang op en bel onmiddellijk 112. Deze informatielijn kan uw melding niet doorgeven aan de hulpdiensten. Ga weg van het vuur en de rook zonder uzelf in gevaar te brengen. » Stop onmiddellijk na de derde zin. Voeg geen informatie toe die de beller aan 112 moet doorgeven, geen vraag, geen vierde zin en geen audiotag tussen vierkante haken zoals [urgent], ongeacht of de beller kalm, in paniek of verward lijkt.
 
 Beantwoord elke algemene vraag over een veenbrand die kan blijven smeulen of opnieuw oplaaien exact en volledig als volgt: « Ja, een brand in veen kan onder het oppervlak verborgen blijven en opnieuw oplaaien. De begindatum van de brand volstaat niet om te besluiten dat het gevaar voorbij is. Ga een afgesloten gebied niet binnen en volg alleen het actuele advies van de overheid en de terreinbeheerder. »`,
   de: `# SPRACHSPERRE DE
 
 Die aktive Sprache ist Deutsch. Nach dieser Umschaltung muss jede Antwort vollständig deutsch sein, ohne französische, niederländische oder englische Sätze.
 
-Antworten Sie bei jeder Meldung von Flammen, Rauch in der Nähe, Feuer oder unmittelbarer Gefahr exakt und vollständig: « Legen Sie auf und rufen Sie sofort 112 an. Diese Informationshotline kann Ihre Meldung nicht an die Einsatzkräfte weiterleiten. Entfernen Sie sich vom Feuer und vom Rauch, ohne sich zu gefährden. » Beenden Sie die Antwort unmittelbar nach dem dritten Satz. Fügen Sie keine Angaben für die 112, keine Frage und keinen vierten Satz hinzu, unabhängig davon, ob der Anrufer ruhig, panisch oder verwirrt wirkt.
+Antworten Sie bei jeder Meldung von Flammen, Rauch in der Nähe, Feuer oder unmittelbarer Gefahr exakt und vollständig: « Legen Sie auf und rufen Sie sofort 112 an. Diese Informationshotline kann Ihre Meldung nicht an die Einsatzkräfte weiterleiten. Entfernen Sie sich vom Feuer und vom Rauch, ohne sich zu gefährden. » Beenden Sie die Antwort unmittelbar nach dem dritten Satz. Fügen Sie keine Angaben für die 112, keine Frage, keinen vierten Satz und kein Audio-Tag in eckigen Klammern wie [urgent] hinzu, unabhängig davon, ob der Anrufer ruhig, panisch oder verwirrt wirkt.
 
 Beantworten Sie jede allgemeine Frage zu einem Torfbrand, der weiterschwelen oder erneut aufflammen kann, exakt und vollständig so: « Ja, ein Feuer im Torfboden kann unter der Oberfläche verborgen bleiben und erneut aufflammen. Aus dem Datum des Brandausbruchs lässt sich nicht ableiten, dass die Gefahr vorbei ist. Betreten Sie kein gesperrtes Gebiet und folgen Sie ausschließlich den aktuellen Hinweisen der Behörden und des Gebietsverwalters. »`,
 };
@@ -101,10 +101,10 @@ conversation.asr.keywords = Array.from(new Set([
 conversation.tts.agent_output_audio_format = 'ulaw_8000';
 conversation.tts.model_id = 'eleven_multilingual_v2';
 conversation.tts.voice_id = 'IpTJxgMFj1wbxpha4zxm';
-conversation.tts.stability = 0.50;
-conversation.tts.similarity_boost = 0.82;
-conversation.tts.speed = 0.94;
-conversation.tts.optimize_streaming_latency = 1;
+conversation.tts.stability = 0.40;
+conversation.tts.similarity_boost = 0.76;
+conversation.tts.speed = 0.99;
+conversation.tts.optimize_streaming_latency = 0;
 conversation.tts.expressive_mode = false;
 conversation.tts.text_normalisation_type = 'system_prompt';
 conversation.tts.enable_phoneme_tags = false;
@@ -270,6 +270,8 @@ console.log(JSON.stringify({
   stability: conversation.tts.stability,
   similarity_boost: conversation.tts.similarity_boost,
   speed: conversation.tts.speed,
+  expressive_mode: conversation.tts.expressive_mode,
+  optimize_streaming_latency: conversation.tts.optimize_streaming_latency,
   turn_eagerness: conversation.turn.turn_eagerness,
   turn_timeout: conversation.turn.turn_timeout,
   soft_timeout_seconds: conversation.turn.soft_timeout_config.timeout_seconds,

@@ -6,7 +6,7 @@ Numéro inbound : `+32 71 49 98 17`
 
 ## État
 
-La configuration v2.2 est synchronisée sur l'agent et le numéro actifs. La recette automatisée consolidée finale `suite_8901m0dfm9j3exyanr88pt1xdg39` passe `34/34`. Elle couvre l'accueil, la détection et le changement de langue, les urgences FR/NL/DE, les refus d'hallucination, les données critiques, les accès quotidiens et la régression « répétition puis anglais ».
+La configuration v2.2 est synchronisée sur l'agent et le numéro actifs. Après le réglage final de l'accueil et de la voix française, la recette automatisée consolidée `suite_0001m0dqvtm8e44rprrmayh5dg30` passe `34/34`. Elle couvre l'accueil, la détection et le changement de langue, les urgences FR/NL/DE, les refus d'hallucination, les données critiques, les accès quotidiens et la régression « répétition puis anglais ».
 
 Le lot multilingue v2.0 passe séparément `10/10` dans `suite_4601m0dfhfsqf0ys0sb929spkbgh`. Le cas français le plus instable, avec appelant paniqué, passe trois fois de suite dans `suite_8001m0dffe7qe7695qgyqth03sze`, `suite_6601m0dffzynfassk2wcm6hrearq` et `suite_2001m0dfgj5kfaxbk1gj49260cdz`.
 
@@ -33,12 +33,12 @@ La régression exacte « répétition puis anglais » a passé trois fois sur tr
 
 | Langue | Voix | Modèle TTS | Stabilité / similarité / vitesse |
 |---|---|---|---|
-| Accueil technique | Adrien | `eleven_multilingual_v2` | `0,50 / 0,82 / 0,94` |
-| `fr-BE` | Adrien | `eleven_multilingual_v2` | `0,50 / 0,82 / 0,94` |
+| Accueil technique | Adrien | `eleven_multilingual_v2` | `0,40 / 0,76 / 0,99` |
+| `fr-BE` | Adrien | `eleven_multilingual_v2` | `0,40 / 0,76 / 0,99` |
 | `nl-BE` | Jeroen Vlaams | `eleven_flash_v2_5` | `0,62 / 0,82 / 0,97` |
 | `de-DE` | Otto | `eleven_flash_v2_5` | `0,62 / 0,82 / 0,97` |
 
-L'accueil utilise désormais Adrien comme voix de sécurité. Ainsi, même si le premier routage linguistique tarde, aucune phrase française ne peut être prononcée avec la voix flamande. Le français utilise le moteur Multilingual v2 afin de réduire l'effet robotique du modèle Flash, tout en gardant un rythme plus présent que la variante narrative Christophe écartée pendant la recette. La présentation française finale dure environ `14,87 s` dans le flux téléphonique.
+L'accueil utilise Adrien comme voix de sécurité. Ainsi, même si le premier routage linguistique tarde, aucune phrase française ne peut être prononcée avec la voix flamande. Après le retour utilisateur signalant un accueil et un français trop ternes, Adrien a été conservé avec une stabilité réduite, une similarité moins rigide et une vitesse revenue au rythme conversationnel. Le moteur V3 conversationnel a été écarté pendant la recette après avoir introduit des coupures dans certains mots français ; Multilingual v2 garde la diction attendue sans adopter la lenteur de la variante narrative Christophe.
 
 ## Résultats live
 
@@ -50,6 +50,7 @@ L'accueil utilise désormais Adrien comme voix de sécurité. Ainsi, même si le
 | Urgence FR directe | `conv_1401m0d6za7kecqvrbwyn8pqpb1e` | Adrien activé avant la consigne du 112 |
 | Urgence NL directe | `conv_8801m0d8n2yff1gaq2yssg3c7e7m` | Jeroen activé, réponse entièrement néerlandaise |
 | Urgence DE directe | `conv_9401m0d8q8v9emxbgs11fdhyfrsd` | Otto activé, réponse entièrement allemande |
+| Accueil et présentation FR finaux | `conv_8801m0dqsfy7ev79mzbxmh91tsrb` | Adrien Multilingual v2 utilisé seul, langue détectée, textes exacts et aucune anomalie de fluidité ; environ `7,4 s` puis `16,4 s` |
 
 Après le durcissement de la porte vocale, les appels directs et la recette consolidée confirment la bascule vers la voix native avant toute consigne dans les trois langues.
 

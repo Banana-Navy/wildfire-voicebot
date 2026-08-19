@@ -33,11 +33,11 @@ L'agent est une ligne d'information et d'orientation. Il ne reçoit pas officiel
 
 | Langue | Voix | Profil vérifié | Réglages |
 |---|---|---|---|
-| `fr-BE` | Adrien — `IpTJxgMFj1wbxpha4zxm` | Homme, âge moyen, belge, calme, informatif | `0,50 / 0,82 / 0,94`, `eleven_multilingual_v2` |
+| `fr-BE` | Adrien — `IpTJxgMFj1wbxpha4zxm` | Homme, âge moyen, belge, chaleureux, informatif | `0,40 / 0,76 / 0,99`, `eleven_multilingual_v2` |
 | `nl-BE` | Jeroen Vlaams — `Yv0oyZ3obP9foTH7emqG` | Homme, âge moyen, flamand, calme, information et IVR | `0,62 / 0,82 / 0,97` |
 | `de-DE` | Otto — `FTNCalFNG5bRnkkaP5Ug` | Homme, âge moyen, allemand standard, calme | `0,62 / 0,82 / 0,97` |
 
-Les valeurs indiquent stabilité, similarité et vitesse. L'accueil trilingue utilise Adrien à une vitesse de `0,94` : la voix de sécurité initiale est ainsi francophone et ne peut plus lire une phrase française avec un accent flamand si le routage tarde. Après la sélection, Jeroen prend immédiatement le relais en néerlandais et Otto en allemand. Les trois voix conservent le même profil perceptif, mais le français utilise des réglages propres et un modèle plus qualitatif afin d'équilibrer présence, naturel et rythme.
+Les valeurs indiquent stabilité, similarité et vitesse. L'accueil trilingue utilise Adrien à une vitesse de `0,99` : la voix de sécurité initiale est ainsi francophone et ne peut plus lire une phrase française avec un accent flamand si le routage tarde. La stabilité réduite et la similarité moins rigide rendent la prosodie plus vivante, tandis que Multilingual v2 conserve une diction française fiable. Après la sélection, Jeroen prend immédiatement le relais en néerlandais et Otto en allemand. Les trois voix conservent le même profil perceptif.
 
 ## Messages localisés verrouillés
 
@@ -55,7 +55,8 @@ Les valeurs indiquent stabilité, similarité et vitesse. L'accueil trilingue ut
 
 ## Choix techniques
 
-- `eleven_multilingual_v2` est utilisé en français pour une prosodie plus organique ; `eleven_flash_v2_5` reste utilisé pour l'accueil, le néerlandais et l'allemand.
+- `eleven_multilingual_v2` est utilisé pour l'accueil et le français afin de préserver une diction fiable avec une prosodie naturelle ; `eleven_flash_v2_5` reste utilisé pour le néerlandais et l'allemand afin de préserver leurs voix natives déjà validées.
+- Les balises audio entre crochets restent interdites dans toutes les réponses.
 - Le format audio reste en µ-law 8 kHz, adapté à la téléphonie.
 - La normalisation des nombres et dates est pilotée par le prompt afin de préserver la prononciation propre à chaque langue.
 - Les dictionnaires phonétiques ne sont pas activés sans validation humaine d'une prononciation fautive : sur Flash v2.5, les alias sont préférables aux phonèmes non anglophones et une substitution incorrecte serait plus risquée que la prononciation native de la voix.
@@ -65,5 +66,6 @@ Les valeurs indiquent stabilité, similarité et vitesse. L'accueil trilingue ut
 
 - [Voix spécifiques par langue et détection](https://elevenlabs.io/docs/eleven-agents/customization/voice/customization/language)
 - [Conception d'une voix conversationnelle](https://elevenlabs.io/docs/eleven-agents/customization/voice/best-practices/conversational-voice-design)
+- [Réglages de stabilité, similarité et vitesse](https://elevenlabs.io/docs/api-reference/voices/settings/get)
 - [Prononciation des nombres, dates et acronymes](https://elevenlabs.io/docs/help-center/product/speech-synthesis/text-to-speech/why-are-numbers-dates-symbols-and-acronyms-not-properly-pronounced-or-spoken-in-the-correct-language)
 - [Dictionnaires de prononciation](https://elevenlabs.io/docs/eleven-agents/customization/voice/pronunciation-dictionary)
