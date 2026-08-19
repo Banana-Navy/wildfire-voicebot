@@ -27,11 +27,18 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - name: Install browser for official anti-bot challenge fallback
-        run: npx playwright install --with-deps chromium
       - name: Test official source parsers
         run: npm run test:access-data
-      - name: Refresh official daily access data
+      - name: Refresh official daily access data without browser
+        id: direct-refresh
+        continue-on-error: true
+        run: npm run refresh:daily-access
+      - name: Install browser after an official anti-bot challenge
+        if: steps.direct-refresh.outcome == 'failure'
+        timeout-minutes: 8
+        run: npx playwright install --with-deps chromium
+      - name: Retry official daily access refresh with browser fallback
+        if: steps.direct-refresh.outcome == 'failure'
         run: npm run refresh:daily-access
       - name: Validate daily snapshot
         run: npm run validate:daily-access
