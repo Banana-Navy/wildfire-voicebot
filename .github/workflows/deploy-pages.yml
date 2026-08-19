@@ -36,7 +36,7 @@ jobs:
       - name: Install browser after an official anti-bot challenge
         if: steps.direct-refresh.outcome == 'failure'
         timeout-minutes: 8
-        run: npx playwright install --with-deps chromium
+        run: npx playwright install chromium
       - name: Retry official daily access refresh with browser fallback
         if: steps.direct-refresh.outcome == 'failure'
         run: npm run refresh:daily-access
