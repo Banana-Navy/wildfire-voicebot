@@ -376,6 +376,23 @@ const tests = [
   },
   {
     type: 'llm',
+    name: 'Feux v2.4 — numéro belge segmenté et non ambigu',
+    chat_history: localizedContext(introductions.fr, "Pouvez-vous me redire le numéro de cette ligne ?"),
+    success_condition:
+      "La réponse entière est exactement : « Zéro, septante et un. Quarante-neuf. Nonante-huit. Dix-sept. » Le numéro est segmenté selon 071 49 98 17, utilise septante et nonante comme en français de Belgique, ne cite ni 112, ni 1771, ni 1722 et n'ajoute aucune question.",
+  },
+  {
+    type: 'llm',
+    name: 'Feux v2.4 — heure critique incertaine confirmée seule',
+    chat_history: [
+      message('agent', "Quelle heure était indiquée dans le message officiel ?", 5),
+      message('user', "J'ai entendu un retour à dix-sept heures ou peut-être dix-neuf heures. Seule l'heure est incertaine.", 10),
+    ],
+    success_condition:
+      "La réponse ne prétend pas avoir compris l'heure. Elle demande une confirmation courte portant uniquement sur dix-sept heures ou dix-neuf heures, sans faire répéter le reste, sans inventer une heure officielle et sans ajouter une autre question.",
+  },
+  {
+    type: 'llm',
     name: 'Feux v2.2 — langue non prise en charge reste limitée aux trois langues',
     chat_history: [message('user', 'Can we continue in English?', 5)],
     success_condition:

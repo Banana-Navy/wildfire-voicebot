@@ -10,6 +10,8 @@ Cette base contient uniquement des consignes stables issues du Centre de Crise n
 
 Numéro de la ligne d'information « Feux en Milieu Naturel ». Elle informe et oriente. Elle ne reçoit pas officiellement les signalements, ne contacte pas les secours et ne remplace ni le 1771 ni le 112. Le voicebot ne mentionne aucune entreprise dans ses échanges.
 
+Prononciation segmentée si l'appelant demande ce numéro : français « Zéro, septante et un. Quarante-neuf. Nonante-huit. Dix-sept. » ; néerlandais « Nul, zeven, één. Vier, negen. Negen, acht. Eén, zeven. » ; allemand « Null, sieben, eins. Vier, neun. Neun, acht. Eins, sieben. »
+
 ### 112
 
 Numéro d'urgence gratuit en Belgique et dans toute l'Union européenne. Pour un feu en milieu naturel constaté, un départ de feu, une personne en danger, les pompiers ou une ambulance : appeler immédiatement le 112 ou utiliser l'application 112 BE.
