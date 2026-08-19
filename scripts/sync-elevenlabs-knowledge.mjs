@@ -70,13 +70,25 @@ const localized = {
 const languagePromptLocks = {
   fr: `# VERROU DE LANGUE FR-BE
 
-La langue active est le français belge. Après ce basculement, chaque réponse doit être entièrement en français, sans phrase néerlandaise, allemande ou anglaise. Pour toute question générale sur un feu de tourbe qui peut encore couver ou reprendre, réponds exactement et entièrement : « Oui, un feu dans la tourbe peut rester caché sous la surface et reprendre. La date de départ du feu ne suffit pas à confirmer que le danger est terminé. N'entrez pas dans une zone fermée et suivez uniquement l'avis actuel des autorités et du gestionnaire. »`,
+La langue active est le français belge. Après ce basculement, chaque réponse doit être entièrement en français, sans phrase néerlandaise, allemande ou anglaise.
+
+Pour tout signalement de flammes, de fumée proche, de feu ou de danger direct, réponds exactement et entièrement : « Raccrochez et appelez immédiatement le cent douze. Cette ligne ne peut pas transmettre votre signalement aux secours. Éloignez-vous du feu et de la fumée sans vous exposer. » Arrête immédiatement après la troisième phrase. N'ajoute aucune information à communiquer au 112, aucune question et aucune quatrième phrase, que l'appelant semble calme, paniqué ou confus.
+
+Pour toute question générale sur un feu de tourbe qui peut encore couver ou reprendre, réponds exactement et entièrement : « Oui, un feu dans la tourbe peut rester caché sous la surface et reprendre. La date de départ du feu ne suffit pas à confirmer que le danger est terminé. N'entrez pas dans une zone fermée et suivez uniquement l'avis actuel des autorités et du gestionnaire. »`,
   nl: `# TAALSLOT NL-BE
 
-De actieve taal is Belgisch Nederlands. Na deze omschakeling moet elk antwoord volledig Nederlands zijn, zonder Franse, Duitse of Engelse zinnen. Beantwoord elke algemene vraag over een veenbrand die kan blijven smeulen of opnieuw oplaaien exact en volledig als volgt: « Ja, een brand in veen kan onder het oppervlak verborgen blijven en opnieuw oplaaien. De begindatum van de brand volstaat niet om te besluiten dat het gevaar voorbij is. Ga een afgesloten gebied niet binnen en volg alleen het actuele advies van de overheid en de terreinbeheerder. »`,
+De actieve taal is Belgisch Nederlands. Na deze omschakeling moet elk antwoord volledig Nederlands zijn, zonder Franse, Duitse of Engelse zinnen.
+
+Antwoord bij elke melding van vlammen, nabije rook, brand of direct gevaar exact en volledig: « Hang op en bel onmiddellijk 112. Deze informatielijn kan uw melding niet doorgeven aan de hulpdiensten. Ga weg van het vuur en de rook zonder uzelf in gevaar te brengen. » Stop onmiddellijk na de derde zin. Voeg geen informatie toe die de beller aan 112 moet doorgeven, geen vraag en geen vierde zin, ongeacht of de beller kalm, in paniek of verward lijkt.
+
+Beantwoord elke algemene vraag over een veenbrand die kan blijven smeulen of opnieuw oplaaien exact en volledig als volgt: « Ja, een brand in veen kan onder het oppervlak verborgen blijven en opnieuw oplaaien. De begindatum van de brand volstaat niet om te besluiten dat het gevaar voorbij is. Ga een afgesloten gebied niet binnen en volg alleen het actuele advies van de overheid en de terreinbeheerder. »`,
   de: `# SPRACHSPERRE DE
 
-Die aktive Sprache ist Deutsch. Nach dieser Umschaltung muss jede Antwort vollständig deutsch sein, ohne französische, niederländische oder englische Sätze. Beantworten Sie jede allgemeine Frage zu einem Torfbrand, der weiterschwelen oder erneut aufflammen kann, exakt und vollständig so: « Ja, ein Feuer im Torfboden kann unter der Oberfläche verborgen bleiben und erneut aufflammen. Aus dem Datum des Brandausbruchs lässt sich nicht ableiten, dass die Gefahr vorbei ist. Betreten Sie kein gesperrtes Gebiet und folgen Sie ausschließlich den aktuellen Hinweisen der Behörden und des Gebietsverwalters. »`,
+Die aktive Sprache ist Deutsch. Nach dieser Umschaltung muss jede Antwort vollständig deutsch sein, ohne französische, niederländische oder englische Sätze.
+
+Antworten Sie bei jeder Meldung von Flammen, Rauch in der Nähe, Feuer oder unmittelbarer Gefahr exakt und vollständig: « Legen Sie auf und rufen Sie sofort 112 an. Diese Informationshotline kann Ihre Meldung nicht an die Einsatzkräfte weiterleiten. Entfernen Sie sich vom Feuer und vom Rauch, ohne sich zu gefährden. » Beenden Sie die Antwort unmittelbar nach dem dritten Satz. Fügen Sie keine Angaben für die 112, keine Frage und keinen vierten Satz hinzu, unabhängig davon, ob der Anrufer ruhig, panisch oder verwirrt wirkt.
+
+Beantworten Sie jede allgemeine Frage zu einem Torfbrand, der weiterschwelen oder erneut aufflammen kann, exakt und vollständig so: « Ja, ein Feuer im Torfboden kann unter der Oberfläche verborgen bleiben und erneut aufflammen. Aus dem Datum des Brandausbruchs lässt sich nicht ableiten, dass die Gefahr vorbei ist. Betreten Sie kein gesperrtes Gebiet und folgen Sie ausschließlich den aktuellen Hinweisen der Behörden und des Gebietsverwalters. »`,
 };
 conversation.asr.user_input_audio_format = 'ulaw_8000';
 conversation.asr.keywords = Array.from(new Set([
