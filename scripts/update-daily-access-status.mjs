@@ -9,6 +9,7 @@ import {
   parseFlandersWarningApi,
   parseWalloniaAccessArticle,
   parseWalloniaGlobalAlert,
+  parseWalloniaTranslationLinks,
   slugify,
   STATUS_BASE_URL,
   unique,
@@ -129,6 +130,8 @@ let walloniaArticleUrl = null;
 let walloniaArticleHtml = null;
 let walloniaArticleUpdatedAt = null;
 let walloniaExtracts = [];
+let walloniaArticleUrlDe = null;
+let walloniaExtractsDe = [];
 
 if (hasWildfireAlert && activeAlertHref) {
   walloniaArticleUrl = new URL(activeAlertHref, walloniaNewsUrl).href;
@@ -138,6 +141,14 @@ if (hasWildfireAlert && activeAlertHref) {
   walloniaExtracts = parsedArticle.extracts;
   if (walloniaExtracts.length === 0) {
     throw new Error(`Alerte incendie wallonne détectée mais aucune mesure d’accès n’a pu être extraite de ${walloniaArticleUrl}.`);
+  }
+  const translationLinks = parseWalloniaTranslationLinks(walloniaArticleHtml);
+  if (translationLinks.de) {
+    walloniaArticleUrlDe = new URL(translationLinks.de, walloniaArticleUrl).href;
+    walloniaExtractsDe = parseWalloniaAccessArticle(await fetchText(walloniaArticleUrlDe)).extracts;
+    if (walloniaExtractsDe.length === 0) {
+      throw new Error(`Traduction officielle allemande détectée mais aucune mesure d’accès n’a pu être extraite de ${walloniaArticleUrlDe}.`);
+    }
   }
 }
 
@@ -155,17 +166,25 @@ const walloniaStatus = {
   },
   active_wildfire_alert: hasWildfireAlert,
   official_access_extracts_fr: walloniaExtracts,
+  official_access_extracts_de: walloniaExtractsDe,
   access: {
     rule: hasWildfireAlert
       ? 'N’affirmer une interdiction, une fermeture ou une autorisation que si le lieu demandé est explicitement nommé dans les extraits officiels actuels. Ne jamais étendre un périmètre par déduction.'
       : 'Aucune mesure régionale active n’est publiée dans le bandeau officiel suivi. Cela ne confirme pas l’ouverture d’un site et n’exclut pas une décision communale ou locale.',
-    no_match_rule: 'Si le lieu n’est pas explicitement nommé, dire qu’aucune mesure régionale correspondante n’a été trouvée dans la publication du jour, sans affirmer que le lieu est ouvert.',
+    same_entity_rule: 'Une simple chaîne de caractères identique ne suffit pas : une mesure visant un cantonnement forestier, une route ou un barrage ne doit jamais être appliquée à la commune du même nom.',
+    no_match_rule: 'Si aucune mesure ne nomme exactement la même entité que le lieu résolu, utiliser le modèle no_match_answer_template. Ne jamais dire que le lieu ne fait pas partie du périmètre, n’est pas concerné, est accessible ou est ouvert.',
+    no_match_answer_template: {
+      fr: 'La publication officielle vérifiée aujourd’hui ne nomme pas « {place} ». Je ne peux donc ni confirmer son accès, ni affirmer que ce lieu se trouve hors du périmètre des mesures. Respectez toute signalétique locale. Cette information peut changer chaque jour selon les consignes officielles.',
+      nl: 'In de officiële publicatie die vandaag is gecontroleerd, wordt ‘{place}’ niet genoemd. Daarom kan ik de toegankelijkheid niet bevestigen en ook niet stellen dat deze plaats buiten het maatregelengebied ligt. Volg de plaatselijke signalisatie. Deze informatie kan elke dag wijzigen volgens de officiële richtlijnen.',
+      de: 'In der heute geprüften offiziellen Mitteilung wird „{place}“ nicht genannt. Daher kann ich den Zugang weder bestätigen noch behaupten, dass dieser Ort außerhalb des Maßnahmengebiets liegt. Beachten Sie die örtliche Beschilderung. Diese Information kann sich täglich entsprechend den behördlichen Anweisungen ändern.',
+    },
   },
   daily_change_notice: dailyNotice,
   source: {
     authority: 'Service public de Wallonie',
     index_url: walloniaNewsUrl,
     article_url: walloniaArticleUrl,
+    article_url_de: walloniaArticleUrlDe,
     article_updated_at: walloniaArticleUpdatedAt,
   },
 };
@@ -221,7 +240,23 @@ for (const [statusKey, status] of Object.entries(statuses)) {
 
 const aliases = new Map();
 for (const entry of registry.entries) {
-  for (const alias of unique([entry.canonical_name, ...entry.aliases])) {
+  const baseAliases = unique([entry.canonical_name, ...entry.aliases]);
+  const municipalityAliases = entry.category === 'municipality'
+    ? baseAliases.flatMap((alias) => [
+        `forêt de ${alias}`,
+        `bois de ${alias}`,
+        `forêt communale de ${alias}`,
+        `zone naturelle de ${alias}`,
+        `commune de ${alias}`,
+        `bos van ${alias}`,
+        `natuurgebied van ${alias}`,
+        `gemeente ${alias}`,
+        `Wald bei ${alias}`,
+        `Naturgebiet bei ${alias}`,
+        `Gemeinde ${alias}`,
+      ])
+    : [];
+  for (const alias of unique([...baseAliases, ...municipalityAliases])) {
     const slug = slugify(alias);
     if (!slug) continue;
     const candidates = aliases.get(slug) ?? [];

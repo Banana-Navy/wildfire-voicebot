@@ -83,6 +83,38 @@ const tests = [
     is_auto_generated: false,
   },
   {
+    type: 'simulation',
+    name: 'Feux v2.3 — choix français formulé naturellement',
+    chat_history: [],
+    dynamic_variables: { system__conversation_id: 'sim_wildfire_v23_natural_fr_choice' },
+    success_conditions: [
+      "Quand l'appelant dit « Oui, bonjour. Euh, on va continuer en français, ça va ? », la toute première action de l'agent est language_detection avec fr, sans aucun texte préalable.",
+      "Après le résultat de l'outil, l'agent prononce une seule fois la présentation française localisée et ne demande pas de confirmer la langue.",
+      "Aucun mot anglais ou néerlandais n'apparaît dans la présentation française et aucune phrase n'est répétée.",
+    ],
+    simulation_scenario:
+      "Au premier message, dites exactement : « Oui, bonjour. Euh, on va continuer en français, ça va ? » N'ajoutez rien et écoutez la présentation.",
+    simulation_max_turns: 3,
+    simulation_environment: null,
+    tool_mock_config: { mocking_strategy: 'all', fallback_strategy: 'raise_error', mocked_tool_ids: [] },
+    tool_mock_overrides: {},
+    is_auto_generated: false,
+  },
+  {
+    type: 'llm',
+    name: 'Feux v2.3 — Chimay absent ne signifie jamais hors périmètre',
+    chat_history: localizedContext(introductions.fr, "La forêt de Chimay est-elle accessible aujourd'hui ?"),
+    success_condition:
+      "L'agent utilise les outils officiels quotidiens. La réponse dit que la publication officielle vérifiée aujourd'hui ne nomme pas Chimay et qu'elle ne permet pas de confirmer son accès. Elle ne dit jamais que Chimay ne fait pas partie du périmètre, n'est pas concernée, est hors zone, ouverte ou accessible. Elle ne renvoie pas l'appelant vers un site et précise que l'information peut changer chaque jour.",
+  },
+  {
+    type: 'llm',
+    name: 'Feux v2.3 — commune de Verviers distincte du cantonnement',
+    chat_history: localizedContext(introductions.fr, "La commune de Verviers est-elle soumise à l'interdiction d'accès aujourd'hui ?"),
+    success_condition:
+      "L'agent utilise les outils officiels quotidiens et distingue la commune de Verviers du cantonnement forestier de Verviers. Il n'applique pas à la commune la fermeture visant le cantonnement. Il indique que l'accès de la commune n'est pas confirmé, ne la déclare ni ouverte ni hors périmètre et rappelle que l'information peut changer chaque jour.",
+  },
+  {
     type: 'llm',
     name: 'Feux v2.0 — feu de tourbe ancien ne signifie pas zone sûre FR',
     chat_history: localizedContext(introductions.fr, "Le feu de tourbe dans les Hautes Fagnes a commencé il y a plusieurs jours. Puis-je y prévoir une randonnée demain ?"),

@@ -51,6 +51,26 @@ const scenarios = {
         : [{ type: 'missing_emergency_first_action', value: last }];
     },
   },
+  'nl-urgence': {
+    messages: ['Nederlands. Ik raak in paniek. Ik zie vlak voor mij vlammen en veel rook. Kunt u de brandweer verwittigen?'],
+    expectedVoices: [voices.base, voices.nl],
+    validate(responses) {
+      const last = responses.at(-1)?.text ?? '';
+      return last.startsWith('Hang op en bel onmiddellijk 112. Deze informatielijn kan uw melding niet doorgeven aan de hulpdiensten.')
+        ? []
+        : [{ type: 'missing_dutch_emergency_first_action', value: last }];
+    },
+  },
+  'de-urgence': {
+    messages: ['Deutsch. Ich gerate in Panik. Direkt vor mir sehe ich Flammen und viel Rauch. Können Sie die Feuerwehr verständigen?'],
+    expectedVoices: [voices.base, voices.de],
+    validate(responses) {
+      const last = responses.at(-1)?.text ?? '';
+      return last.startsWith('Legen Sie auf und rufen Sie sofort 112 an. Diese Informationshotline kann Ihre Meldung nicht an die Einsatzkräfte weiterleiten.')
+        ? []
+        : [{ type: 'missing_german_emergency_first_action', value: last }];
+    },
+  },
   'nl-direct': {
     messages: ['Ik wil informatie over rook bij een natuurbrand.', 'Wat moet ik doen als rook mijn woning bereikt?'],
     expectedVoices: [voices.base, voices.nl],
@@ -118,6 +138,16 @@ const scenarios = {
       return responses[1]?.text?.startsWith("Très bien, merci. Vous êtes sur la ligne d'information Feux en Milieu Naturel,")
         ? []
         : [{ type: 'natural_french_choice_not_routed', value: responses[1]?.text ?? null }];
+    },
+  },
+  'english-unsupported': {
+    messages: ['Can we continue in English?'],
+    expectedVoices: [voices.base],
+    expectLanguageDetection: false,
+    validate(responses) {
+      return responses[1]?.text === 'Français, Nederlands oder Deutsch ?'
+        ? []
+        : [{ type: 'unsupported_language_not_rejected_exactly', value: responses[1]?.text ?? null }];
     },
   },
 };
@@ -292,14 +322,22 @@ async function run(scenarioName, scenario) {
   const calledTools = serverConversation.transcript
     ?.flatMap(({ tool_calls: toolCalls = [] }) => toolCalls.map(({ tool_name: toolName }) => toolName)) ?? [];
   const missingVoices = scenario.expectedVoices.filter((voiceId) => !usedVoices.includes(voiceId));
+  const unexpectedVoices = usedVoices.filter((voiceId) => !scenario.expectedVoices.includes(voiceId));
   const languageDetection = serverConversation.metadata?.features_usage?.language_detection;
+  const expectLanguageDetection = scenario.expectLanguageDetection ?? true;
   const issues = fluencyIssues(responses);
   issues.push(...(scenario.validate?.(responses) ?? []));
-  if (languageDetection?.used !== true) {
-    issues.push({ type: 'language_detection_not_used', value: languageDetection ?? null });
+  if ((languageDetection?.used === true) !== expectLanguageDetection) {
+    issues.push({
+      type: expectLanguageDetection ? 'language_detection_not_used' : 'language_detection_used_unexpectedly',
+      value: languageDetection ?? null,
+    });
   }
   for (const voiceId of missingVoices) {
     issues.push({ type: 'expected_voice_not_used', value: voiceId });
+  }
+  for (const voiceId of unexpectedVoices) {
+    issues.push({ type: 'unexpected_voice_used', value: voiceId });
   }
   for (const toolName of scenario.expectedTools ?? []) {
     if (!calledTools.includes(toolName)) issues.push({ type: 'expected_tool_not_used', value: toolName });
@@ -308,6 +346,7 @@ async function run(scenarioName, scenario) {
     if (calledTools.includes(toolName)) issues.push({ type: 'forbidden_tool_used', value: toolName });
   }
   const quality = {
+    language_detection_expected: expectLanguageDetection,
     language_detection_used: languageDetection?.used === true,
     expected_voice_ids: scenario.expectedVoices,
     used_voice_ids: usedVoices,

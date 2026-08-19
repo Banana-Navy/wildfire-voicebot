@@ -37,7 +37,7 @@ export function dailyAccessTools() {
   return [
     baseWebhook(
       'resolve_official_place',
-      "À utiliser silencieusement pour toute question sur le niveau de vigilance ou l'accès actuel à une forêt, réserve, zone naturelle, commune, province, route ou barrage en Belgique. Transforme uniquement le nom prononcé en minuscules sans accents, avec des tirets à la place des espaces et apostrophes. Exemple : « Fagne de Malchamps » devient « fagne-de-malchamps ». N'invente jamais un autre lieu. Attends le résultat avant toute réponse. Si ambiguous vaut true, demande seulement la commune ou la province.",
+      "À utiliser silencieusement pour toute question sur le niveau de vigilance ou l'accès actuel à une forêt, réserve, zone naturelle, commune, province, route ou barrage en Belgique. Transforme uniquement le nom prononcé en minuscules sans accents, avec des tirets à la place des espaces et apostrophes; retire seulement un article initial comme la, le, les, de ou het. Exemple : « la forêt de Chimay » devient « foret-de-chimay ». N'invente jamais un autre lieu. Attends le résultat avant toute réponse. Si ambiguous vaut true, demande seulement la commune ou la province.",
       `${STATUS_BASE_URL}/places/{place_slug}.json`,
       {
         place_slug: parameter(
@@ -47,7 +47,7 @@ export function dailyAccessTools() {
     ),
     baseWebhook(
       'get_daily_access_status',
-      "À appeler silencieusement après resolve_official_place avec exactement le status_key retourné. Cette source donne le code officiel quotidien, les fermetures explicitement publiées, la date de validité et l'état de fraîcheur. Utilise uniquement les faits renvoyés. Un code de risque ne prouve jamais l'ouverture d'un site. Pour la Wallonie, n'étends jamais une interdiction à un lieu absent des extraits officiels.",
+      "À appeler silencieusement après resolve_official_place avec exactement le status_key retourné. Cette source donne le code officiel quotidien, les fermetures explicitement publiées, la date de validité et l'état de fraîcheur. Utilise uniquement les faits renvoyés. Un code de risque ne prouve jamais l'ouverture d'un site. Pour la Wallonie, applique same_entity_rule. Si aucune mesure ne nomme exactement la même entité, utilise no_match_answer_template dans la langue active et ne déduis jamais que le lieu est hors périmètre, non concerné, ouvert ou accessible.",
       `${STATUS_BASE_URL}/status/{status_key}.json`,
       {
         status_key: parameter(

@@ -6,6 +6,7 @@ const headers = { 'xi-api-key': apiKey, 'content-type': 'application/json' };
 const introductions = {
   fr: "Très bien, merci. Vous êtes sur la ligne d'information Feux en Milieu Naturel, et cet appel est enregistré. Cette ligne vous informe et vous oriente, mais elle ne transmet aucun signalement. En cas de danger immédiat, raccrochez et appelez le cent douze. Souhaitez-vous signaler un feu, ou obtenir des informations ?",
   nl: 'Prima. U bent verbonden met de informatielijn voor bos- en natuurbranden. Dit gesprek wordt opgenomen. Deze lijn stuurt geen meldingen door. Is er onmiddellijk gevaar, hang dan op en bel 112. Belt u om een brand te melden, of wilt u informatie?',
+  de: 'Sehr gern. Sie sind mit der Informationshotline für Wald- und Vegetationsbrände verbunden. Dieses Gespräch wird aufgezeichnet. Diese Hotline leitet keine Notrufe weiter. Bei unmittelbarer Gefahr legen Sie auf und rufen Sie 112 an. Möchten Sie einen Brand melden oder Informationen erhalten?',
 };
 
 const scenarios = [
@@ -35,6 +36,99 @@ const scenarios = [
       return /Brussel/iu.test(answer) && /Vlaams-Brabant/iu.test(answer)
         ? []
         : ['le lieu ambigu n’a pas été clarifié'];
+    },
+  },
+  {
+    name: 'fr-chimay-sans-deduction',
+    language: 'fr',
+    placeSlug: 'chimay',
+    request: "La forêt de Chimay est-elle accessible aujourd'hui ?",
+    expectedTools: ['resolve_official_place', 'get_daily_access_status'],
+    forbiddenTools: [],
+    validate(answer) {
+      const issues = [];
+      if (!/publication officielle|mesure régionale/iu.test(answer) || !/Chimay/iu.test(answer)) {
+        issues.push('absence de la publication officielle non explicitée pour Chimay');
+      }
+      if (!/ne (?:peux|permet) (?:donc )?(?:pas )?confirmer|ne peux donc ni confirmer/iu.test(answer)) {
+        issues.push('accès de Chimay non laissé explicitement non confirmé');
+      }
+      if (/ne fait pas partie|n['’]est pas concern|hors (?:du )?périmètre|(?:est|reste) (?:accessible|ouvert)/iu.test(answer)) {
+        issues.push('exclusion ou ouverture déduite sans preuve cartographique');
+      }
+      if (!/change(?:r)? chaque jour|peut changer/iu.test(answer)) {
+        issues.push('avis de changement quotidien absent');
+      }
+      return issues;
+    },
+  },
+  {
+    name: 'fr-hautes-fagnes-fermeture-nommee',
+    language: 'fr',
+    placeSlug: 'hautes-fagnes',
+    request: "Les Hautes Fagnes sont-elles accessibles aujourd'hui ?",
+    expectedTools: ['resolve_official_place', 'get_daily_access_status'],
+    forbiddenTools: [],
+    validate(answer) {
+      const issues = [];
+      if (!/(?:accès|circulation)[^.]{0,90}interdit|interdit[^.]{0,90}(?:accès|circulation)/iu.test(answer)) {
+        issues.push('interdiction officiellement nommée absente');
+      }
+      if (!/change(?:r)? chaque jour|peut changer/iu.test(answer)) {
+        issues.push('avis de changement quotidien absent');
+      }
+      return issues;
+    },
+  },
+  {
+    name: 'fr-verviers-commune-pas-cantonnement',
+    language: 'fr',
+    placeSlug: 'verviers',
+    request: "La commune de Verviers est-elle soumise à l'interdiction d'accès aujourd'hui ?",
+    expectedTools: ['resolve_official_place', 'get_daily_access_status'],
+    forbiddenTools: [],
+    validate(answer) {
+      const issues = [];
+      if (!/Verviers/iu.test(answer) || !/ne (?:peux|permet)[^.]{0,60}confirmer|ni confirmer/iu.test(answer)) {
+        issues.push('homonymie commune-cantonnement non laissée non confirmée');
+      }
+      if (/commune[^.]{0,90}(?:interdite|fermée|soumise)|(?:interdite|fermée)[^.]{0,90}commune/iu.test(answer)) {
+        issues.push('fermeture du cantonnement appliquée à tort à la commune');
+      }
+      return issues;
+    },
+  },
+  {
+    name: 'nl-kalmthoutse-heide',
+    language: 'nl',
+    placeSlug: 'kalmthoutse-heide',
+    request: 'Is de Kalmthoutse Heide vandaag toegankelijk?',
+    expectedTools: ['resolve_official_place', 'get_daily_access_status'],
+    forbiddenTools: [],
+    validate(answer) {
+      const issues = [];
+      if (!/code oranje|officiële code/iu.test(answer)) issues.push('officiële Vlaamse code ontbreekt');
+      if (!/bevestigt niet|niet bevestigen/iu.test(answer)) issues.push('individuele toegang wordt ten onrechte afgeleid');
+      if (!/elke dag wijzigen|dagelijks wijzigen/iu.test(answer)) issues.push('dagelijkse wijzigingsmelding ontbreekt');
+      if (/\b(?:cette|information est|province d['’]|accès)\b/iu.test(answer)) issues.push('Franse woorden in Nederlands antwoord');
+      return issues;
+    },
+  },
+  {
+    name: 'de-fagne-de-malchamps',
+    language: 'de',
+    placeSlug: 'fagne-de-malchamps',
+    request: 'Ist die Fagne de Malchamps heute zugänglich?',
+    expectedTools: ['resolve_official_place', 'get_daily_access_status'],
+    forbiddenTools: [],
+    validate(answer) {
+      const issues = [];
+      if (!/(?:Zugang|Betreten)[^.]{0,90}(?:untersagt|gesperrt)|(?:untersagt|gesperrt)[^.]{0,90}(?:Zugang|Betreten)/iu.test(answer)) {
+        issues.push('offizielle Sperrung fehlt im deutschen Antworttext');
+      }
+      if (!/täglich|jeden Tag/iu.test(answer)) issues.push('täglicher Änderungshinweis fehlt');
+      if (/\b(?:cette|aujourd['’]hui|accès|interdit)\b/iu.test(answer)) issues.push('französische Wörter in deutscher Antwort');
+      return issues;
     },
   },
 ];
@@ -69,7 +163,9 @@ async function simulate(scenario) {
             prompt: {
               prompt: scenario.language === 'fr'
                 ? "Vous simulez un appelant. Après la réponse à votre question, dites seulement merci et terminez. N'ajoutez aucune nouvelle demande."
-                : 'U simuleert een beller. Zeg na het antwoord alleen bedankt en beëindig het gesprek. Stel geen nieuwe vraag.',
+                : scenario.language === 'nl'
+                  ? 'U simuleert een beller. Zeg na het antwoord alleen bedankt en beëindig het gesprek. Stel geen nieuwe vraag.'
+                  : 'Sie simulieren einen Anrufer. Sagen Sie nach der Antwort nur danke und beenden Sie das Gespräch. Stellen Sie keine weitere Frage.',
               llm: 'claude-haiku-4-5',
               temperature: 0,
               max_tokens: 40,

@@ -70,6 +70,15 @@ export function parseWalloniaGlobalAlert(html) {
   };
 }
 
+export function parseWalloniaTranslationLinks(html) {
+  const links = {};
+  for (const match of html.matchAll(/<spw-link\b[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/spw-link>/gi)) {
+    const label = stripHtml(match[2]);
+    if (/Klicken Sie hier|auf Deutsch/i.test(label)) links.de = match[1];
+  }
+  return links;
+}
+
 export function parseWalloniaAccessArticle(html) {
   const updatedMatch = html.match(/<time[^>]+datetime="([^"]+)"[^>]*>[\s\S]*?Mis à jour[^<]*<\/time>/i)
     ?? html.match(/<time[^>]+datetime="([^"]+)"/i);
@@ -78,9 +87,11 @@ export function parseWalloniaAccessArticle(html) {
   const blockPattern = /<(p|li|blockquote)\b[^>]*>([\s\S]*?)<\/\1>/gi;
   for (const match of currentArticleHtml.matchAll(blockPattern)) {
     const text = stripHtml(match[2]);
-    const isAccessMeasure = /\b(?:acc[eè]s|circulation|ferm[eé]e?s?|interdit(?:e|es|s)?|interdiction|[eé]vacuation|r[eé]int[eé]grer|retour)\b/i.test(text);
-    const namesAPlace = /\b(?:for[eê]ts?|r[eé]serves?|fagnes?|barrages?|routes?|villages?|cantonnements?|communes?|domaines?|tour panoramique|N\s?\d{2,3}|Sourbrodt|Küchelscheid|Leykaul|Bütgenbach|Waimes|Baelen|Verviers|Malmedy|Elsenborn|Eupen|Gileppe|Spa)\b/i.test(text);
-    if (isAccessMeasure && namesAPlace && text.length >= 25 && text.length <= 1_200) extracts.push(text);
+    const isAccessMeasure = /\b(?:acc[eè]s|circulation|ferm[eé]e?s?|interdit(?:e|es|s)?|interdiction|p[eé]rim[eè]tre|[eé]vacuation|r[eé]int[eé]grer|retour|zugang|verkehr|freigegeben|gesperrt|sperrung|untersagt|perimeter|betroffen|evakuier\w*|zur[üu]ckkehr\w*)\b/i.test(text);
+    const namesAPlace = /\b(?:for[eê]ts?|r[eé]serves?|fagnes?|barrages?|routes?|villages?|cantonnements?|communes?|domaines?|tour panoramique|w[aä]ld(?:er|ern)?|naturschutzgebiete(?:n)?|forst[aä]mter?|talsperren?|stra(?:ß|ss)en|gemeinden?|aussichtsturm|N\s?\d{2,3}|Sourbrodt|Küchelscheid|Leykaul|Bütgenbach|Waimes|Weismes|Baelen|Verviers|Malmedy|Elsenborn|Eupen|Gileppe|Spa)\b/i.test(text);
+    const historicalEvacuationOnly = /(?:ont d[uû] [eê]tre [eé]vacu[eé]s?|mussten[\s\S]{0,80}evakuiert)/i.test(text)
+      && !/(?:r[eé]int[eé]grer|retour|zur[üu]ckkehr\w*|wieder in (?:ihre|die) (?:Wohnungen|H[aä]user))/i.test(text);
+    if (isAccessMeasure && namesAPlace && !historicalEvacuationOnly && text.length >= 25 && text.length <= 1_200) extracts.push(text);
   }
   return {
     updatedAt: updatedMatch?.[1] ?? null,

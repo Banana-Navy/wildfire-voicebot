@@ -28,8 +28,15 @@ const wallonia = await readJson('status', 'wallonia-regional.json');
 assert.equal(wallonia.valid_for_date, manifest.valid_for_date);
 assert.equal(wallonia.source_health, 'ok');
 assert.ok(Array.isArray(wallonia.official_access_extracts_fr));
+assert.ok(Array.isArray(wallonia.official_access_extracts_de));
+assert.match(wallonia.access.no_match_answer_template.fr, /ni confirmer son accès, ni affirmer/);
+assert.match(wallonia.access.no_match_answer_template.nl, /niet bevestigen/);
+assert.match(wallonia.access.no_match_answer_template.de, /weder bestätigen/);
 if (wallonia.active_wildfire_alert) {
   assert.ok(wallonia.official_access_extracts_fr.length > 0, 'Alerte wallonne sans mesure extraite.');
+  if (wallonia.source.article_url_de) {
+    assert.ok(wallonia.official_access_extracts_de.length > 0, 'Traduction allemande sans mesure extraite.');
+  }
 }
 
 const expectedPlaces = {
@@ -38,6 +45,7 @@ const expectedPlaces = {
   'hohes-venn': 'wallonia-regional',
   n68: 'wallonia-regional',
   anvers: 'flanders-antwerpen',
+  'foret-de-chimay': 'wallonia-regional',
 };
 for (const [slug, statusKey] of Object.entries(expectedPlaces)) {
   const place = await readJson('places', `${slug}.json`);
