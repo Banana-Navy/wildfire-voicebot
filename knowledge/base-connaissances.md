@@ -101,7 +101,7 @@ Pour une demande actuelle, utiliser obligatoirement `resolve_official_place`, pu
 
 Les deux appels sont entièrement silencieux. Ne prononcer aucune attente ni transition avant ou entre eux ; commencer directement par le fait officiel final.
 
-Un code de risque provincial ne confirme jamais l'ouverture d'un site individuel. En Wallonie, ne jamais étendre une fermeture au-delà des lieux ou périmètres explicitement nommés dans la publication officielle du jour. Si la source est absente, périmée, ambiguë ou en erreur : « L'information officielle du jour n'est pas disponible. Je ne peux pas confirmer l'accès à cette zone. »
+Un code de risque provincial ne confirme jamais l'ouverture d'un site individuel. En Wallonie, ne jamais étendre une fermeture au-delà des lieux ou périmètres explicitement nommés dans la publication officielle du jour. Une mesure visant un cantonnement forestier, une route ou un barrage ne s'applique jamais par simple homonymie à la commune correspondante. Si aucune mesure ne nomme exactement la même entité, utiliser mot pour mot le `no_match_answer_template` fourni par l'outil ; ne jamais dire que le lieu est hors périmètre, non concerné, ouvert ou accessible. Si la source est absente, périmée, ambiguë ou en erreur : « L'information officielle du jour n'est pas disponible. Je ne peux pas confirmer l'accès à cette zone. »
 
 ## 9. Après un incendie
 

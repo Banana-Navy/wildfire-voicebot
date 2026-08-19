@@ -10,6 +10,10 @@ const root = resolve(import.meta.dirname, '..');
 const agentId = 'agent_2201m07k477kepfsq9p5h8bh4x1g';
 const documentId = '89AM7w3ggzzZpzmAiiRT';
 const headers = { 'xi-api-key': apiKey, 'content-type': 'application/json' };
+const dailyAccessToolIds = {
+  resolve_official_place: 'tool_2601m0d59rbff80b5havcr1fb286',
+  get_daily_access_status: 'tool_7301m0d59rbgec9b0ywzzxq0dv2r',
+};
 const knowledgeFiles = [
   'knowledge/base-connaissances.md',
 ];
@@ -30,6 +34,20 @@ const documentResponse = await fetch(`https://api.elevenlabs.io/v1/convai/knowle
 });
 const document = await documentResponse.json();
 if (!documentResponse.ok) throw new Error(`Mise à jour KB impossible (${documentResponse.status}): ${JSON.stringify(document)}`);
+
+for (const tool of dailyAccessTools()) {
+  const toolId = dailyAccessToolIds[tool.name];
+  if (!toolId) throw new Error(`Identifiant distant absent pour l'outil ${tool.name}.`);
+  const toolResponse = await fetch(`https://api.elevenlabs.io/v1/convai/tools/${toolId}`, {
+    method: 'PATCH',
+    headers,
+    body: JSON.stringify({ tool_config: tool }),
+  });
+  const updatedTool = await toolResponse.json();
+  if (!toolResponse.ok) {
+    throw new Error(`Mise à jour de l'outil ${tool.name} impossible (${toolResponse.status}): ${JSON.stringify(updatedTool)}`);
+  }
+}
 
 const agentResponse = await fetch(`https://api.elevenlabs.io/v1/convai/agents/${agentId}`, { headers });
 const agent = await agentResponse.json();
@@ -224,6 +242,7 @@ console.log(JSON.stringify({
   language_tts_models: Object.fromEntries(Object.entries(localized).map(([language, settings]) => [language, settings.modelId ?? conversation.tts.model_id])),
   bootstrap_llm: conversation.agent.prompt.llm,
   language_llms: Object.fromEntries(Object.keys(localized).map((language) => [language, conversation.language_presets[language].overrides.agent.prompt.llm])),
+  daily_access_tool_ids: dailyAccessToolIds,
   tts_model: conversation.tts.model_id,
   stability: conversation.tts.stability,
   similarity_boost: conversation.tts.similarity_boost,

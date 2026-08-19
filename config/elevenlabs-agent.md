@@ -27,7 +27,9 @@ La base ElevenLabs est synchronisée uniquement depuis `knowledge/base-connaissa
 
 Les données variables du jour ne sont jamais copiées dans cette base statique. Un workflow GitHub Actions les relit chaque matin auprès des sources officielles, valide leur structure puis publie un instantané daté sur GitHub Pages. L'agent résout d'abord le lieu prononcé, puis lit le statut correspondant. Toute donnée d'une autre date belge, au-delà du délai de fraîcheur de 36 heures, ambiguë ou en erreur est refusée.
 
-Le registre couvre les 565 communes Statbel, les cinq provinces flamandes, les cinq provinces wallonnes, 333 domaines naturels de l'Agentschap voor Natuur en Bos, 680 zones naturelles publiées par le SPW et les lieux explicitement nommés dans les mesures actives suivies. Un code provincial indique le risque mais ne confirme jamais à lui seul qu'un site individuel est ouvert.
+Le registre couvre les 565 communes Statbel, les cinq provinces flamandes, les cinq provinces wallonnes, 333 domaines naturels de l'Agentschap voor Natuur en Bos, 680 zones naturelles publiées par le SPW et les lieux explicitement nommés dans les mesures actives suivies. Il génère aussi des variantes orales sûres telles que « forêt de Chimay », « bos van… » et « Wald bei… » afin de résoudre une demande naturelle sans inventer un autre lieu. Un code provincial indique le risque mais ne confirme jamais à lui seul qu'un site individuel est ouvert.
+
+Pour la Wallonie, le workflow lit la publication française et sa traduction allemande officielle lorsqu'elle est disponible. Une commune reste distincte d'un cantonnement forestier, d'une route ou d'un barrage homonyme. Lorsqu'aucune mesure ne nomme exactement l'entité demandée, l'agent dit que l'accès n'est pas confirmé ; il ne transforme jamais cette absence en preuve que le lieu est hors périmètre ou ouvert.
 
 ## Téléphonie connectée
 

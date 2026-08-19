@@ -4,6 +4,7 @@ import {
   parseFlandersWarningApi,
   parseWalloniaAccessArticle,
   parseWalloniaGlobalAlert,
+  parseWalloniaTranslationLinks,
   slugify,
 } from './lib/access-data.mjs';
 
@@ -44,6 +45,7 @@ assert.equal(alert.href, '/fr/actualites/incendie-dans-les-fagnes');
 
 const walloniaArticleFixture = `
   <time datetime="2026-08-19T12:00:00Z">Mis à jour le 19 août</time>
+  <h2><spw-link href="/de/brand-im-hohen-venn" target="_blank">Klicken Sie hier, um die Meldung auf Deutsch anzuzeigen</spw-link></h2>
   <p>La circulation du public dans les forêts et réserves naturelles du périmètre est interdite.</p>
   <p>Ce périmètre concerne les cantonnements forestiers de Verviers, Malmedy et Elsenborn. Ces mesures d'interdiction restent applicables.</p>
   <li>Les routes N68, N672 et N676 sont fermées à la circulation.</li>
@@ -54,8 +56,22 @@ assert.equal(article.updatedAt, '2026-08-19T12:00:00Z');
 assert.equal(article.extracts.length, 3);
 assert.match(article.extracts[0], /circulation du public/i);
 assert.match(article.extracts[2], /N68/);
+assert.deepEqual(parseWalloniaTranslationLinks(walloniaArticleFixture), {
+  de: '/de/brand-im-hohen-venn',
+});
+
+const germanArticleFixture = `
+  <time datetime="2026-08-19T12:00:00Z">Aktualisiert am 19. August</time>
+  <p>Der Zugang zu den Wäldern und Naturschutzgebieten im Perimeter ist untersagt.</p>
+  <p>Die Forstämter Verviers, Malmedy und Elsenborn sind betroffen.</p>
+  <li>Die Straßen N68 und N672 sind für den Verkehr gesperrt.</li>
+  <p>Am Wochenende mussten Unterkünfte in Waimes und Bütgenbach evakuiert werden.</p>`;
+const germanArticle = parseWalloniaAccessArticle(germanArticleFixture);
+assert.equal(germanArticle.extracts.length, 3);
+assert.match(germanArticle.extracts[0], /Zugang/);
+assert.match(germanArticle.extracts[2], /gesperrt/);
 
 assert.equal(slugify('Forêt de Soignes'), 'foret-de-soignes');
 assert.equal(slugify('Barrage d\'Eupen'), 'barrage-d-eupen');
 
-console.log(JSON.stringify({ tests: 12, result: 'ok' }, null, 2));
+console.log(JSON.stringify({ tests: 17, result: 'ok' }, null, 2));
