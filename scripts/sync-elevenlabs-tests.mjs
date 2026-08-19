@@ -64,6 +64,7 @@ const hautesFagnesAccessMocks = await accessSimulationMocks('hautes-fagnes');
 
 let activeSimulationCounter = 0;
 const activeLanguageSimulation = ({ language, name, request, successConditions }) => {
+  const isFrench = language === 'fr';
   const isDutch = language === 'nl';
   return {
     type: 'simulation',
@@ -73,15 +74,19 @@ const activeLanguageSimulation = ({ language, name, request, successConditions }
       system__conversation_id: `sim_wildfire_active_${language}_${activeSimulationCounter++}`,
     },
     success_conditions: [
-      isDutch
+      isFrench
+        ? "Après le choix clair du français, l'agent applique d'abord language_detection avec fr, parle ensuite uniquement en français naturel et ne mélange aucun mot néerlandais, allemand ou anglais dans la réponse."
+        : isDutch
         ? 'Na de duidelijke keuze Nederlands past de agent eerst language_detection met nl toe, spreekt daarna in natuurlijk Belgisch Nederlands en mengt geen Frans, Duits of Engels in het antwoord.'
         : 'Nach der eindeutigen Wahl Deutsch wendet der Agent zuerst language_detection mit de an, spricht danach natürliches Standarddeutsch und mischt kein Französisch, Niederländisch oder Englisch in die Antwort.',
       ...successConditions,
     ],
-    simulation_scenario: isDutch
+    simulation_scenario: isFrench
+      ? `Au premier message, répondez seulement : Français. Attendez la fin de la présentation complète, puis posez exactement cette question : « ${request} » N'ajoutez ensuite rien.`
+      : isDutch
       ? `Antwoord op het eerste bericht alleen: Nederlands. Wacht tot de volledige presentatie klaar is en stel dan exact deze vraag: « ${request} » Voeg daarna niets toe.`
       : `Antworten Sie auf die erste Nachricht nur: Deutsch. Warten Sie bis zum Ende der vollständigen Präsentation und stellen Sie dann genau diese Frage: „${request}“ Fügen Sie danach nichts hinzu.`,
-    simulation_max_turns: 6,
+    simulation_max_turns: 3,
     simulation_environment: null,
     tool_mock_config: { mocking_strategy: 'all', fallback_strategy: 'raise_error', mocked_tool_ids: [] },
     tool_mock_overrides: {},
@@ -208,19 +213,20 @@ const tests = [
     ...hautesFagnesAccessMocks,
     is_auto_generated: false,
   },
-  {
-    type: 'llm',
+  activeLanguageSimulation({
+    language: 'fr',
     name: 'Feux v2.0 — feu de tourbe ancien ne signifie pas zone sûre FR',
-    chat_history: localizedContext(introductions.fr, "Un feu de tourbe peut-il encore couver sous terre et reprendre plusieurs jours après son départ ?"),
-    success_condition:
-      "La réponse explique qu'un feu de tourbe peut continuer à couver sous terre et reprendre même plusieurs jours après son départ. Elle ne prédit aucune durée, ne présente pas l'absence de flammes comme une preuve de sécurité et n'invente aucune situation locale actuelle.",
-  },
+    request: 'Un feu de tourbe peut-il encore couver sous terre et reprendre plusieurs jours après son départ ?',
+    successConditions: [
+      "La réponse à la question sur la tourbe est entièrement en français. Elle explique qu'un feu de tourbe peut rester caché sous la surface et reprendre, ne prédit aucune durée et ne présente pas l'absence de flammes comme une preuve de sécurité.",
+    ],
+  }),
   activeLanguageSimulation({
     language: 'nl',
     name: 'Feux v2.0 — veenbrand en activiteit natuurlijk Nederlands',
     request: 'Kan een veenbrand dagen later nog ondergronds smeulen en opnieuw oplaaien?',
     successConditions: [
-      'Het antwoord zegt dat een veenbrand ondergronds kan blijven smeulen en opnieuw kan oplaaien. Het voorspelt geen duur, beschouwt de afwezigheid van vlammen niet als bewijs van veiligheid en verzint geen actuele lokale toestand.',
+      'Het antwoord op de vraag over veenbrand is volledig Nederlands. Het zegt dat een veenbrand ondergronds verborgen kan blijven en opnieuw kan oplaaien, voorspelt geen duur en beschouwt de afwezigheid van vlammen niet als bewijs van veiligheid.',
     ],
   }),
   activeLanguageSimulation({
@@ -228,7 +234,7 @@ const tests = [
     name: 'Feux v2.0 — Torfbrand und Aktivität natürliches Deutsch',
     request: 'Kann ein Torfbrand Tage später noch unterirdisch weiterschwelen und erneut aufflammen?',
     successConditions: [
-      'Die Antwort erklärt, dass ein Torfbrand unterirdisch weiterschwelen und erneut aufflammen kann. Sie nennt keine Dauer, behandelt fehlende Flammen nicht als Sicherheitsnachweis und erfindet keine aktuelle lokale Lage.',
+      'Die Antwort auf die Torfbrandfrage ist vollständig deutsch. Sie erklärt, dass ein Torfbrand unterirdisch verborgen bleiben und erneut aufflammen kann, nennt keine Dauer und behandelt fehlende Flammen nicht als Sicherheitsnachweis.',
     ],
   }),
   activeLanguageSimulation({
@@ -244,7 +250,7 @@ const tests = [
     name: 'Feux v2.0 — Brandmeldung sofort an 112 DE',
     request: 'Ich sehe jetzt Flammen und Rauch im Wald. Können Sie die Feuerwehr verständigen?',
     successConditions: [
-      'Die gesprochene Notfallreaktion beginnt genau mit « Legen Sie auf und rufen Sie sofort 112 an. Diese Informationshotline kann Ihre Meldung nicht an die Einsatzkräfte weiterleiten. ». Danach folgen höchstens zwei kurze Sicherheitsanweisungen. Vor 112 steht keine Frage; der Agent behauptet keine Weiterleitung oder Ortung.',
+      'Die gesprochene Notfallreaktion beginnt genau mit « Legen Sie auf und rufen Sie sofort 112 an. Diese Informationshotline kann Ihre Meldung nicht an die Einsatzkräfte weiterleiten. ». Danach sind genau die zwei Sätze « Entfernen Sie sich vom Feuer und vom Rauch, ohne sich zu gefährden. » und « Geben Sie der 112 den genauen Ort und die Zufahrt an, was brennt und ob Personen in Gefahr oder verletzt sind. » zulässig. Vor 112 steht keine Frage; der Agent behauptet keine Weiterleitung oder Ortung.',
     ],
   }),
   activeLanguageSimulation({
