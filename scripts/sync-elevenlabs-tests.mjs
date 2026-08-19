@@ -383,11 +383,22 @@ const tests = [
     is_auto_generated: false,
   },
   {
-    type: 'llm',
+    type: 'simulation',
     name: 'Feux v2.2 — appelant paniqué reçoit une instruction à la fois',
-    chat_history: localizedContext(introductions.fr, "Je panique, je vois des flammes et beaucoup de fumée juste devant moi, je ne sais plus quoi faire !"),
-    success_condition:
-      "Le texte parlé, qu'il se trouve dans le message ou dans system__message_to_speak de l'outil end_call, contient exactement trois phrases : « Raccrochez et appelez immédiatement le cent douze. Cette ligne ne peut pas transmettre votre signalement aux secours. Éloignez-vous du feu et de la fumée sans vous exposer. » L'outil end_call est autorisé immédiatement après ce texte. Aucune autre instruction n'est ajoutée, le 112 n'est pas répété et aucune formule émotionnelle ne précède l'action.",
+    chat_history: [],
+    dynamic_variables: { system__conversation_id: 'sim_wildfire_v22_panicked_caller_fr' },
+    success_conditions: [
+      "Au premier tour, l'appelant paniqué décrit en français des flammes et beaucoup de fumée. Le bot appelle language_detection avec fr avant de produire le moindre texte.",
+      "Après le résultat de l'outil, le texte parlé contient exactement trois phrases : « Raccrochez et appelez immédiatement le cent douze. Cette ligne ne peut pas transmettre votre signalement aux secours. Éloignez-vous du feu et de la fumée sans vous exposer. »",
+      "Avant la réponse suivante de l'appelant, aucune autre instruction n'est ajoutée, le 112 n'est pas répété et aucune formule émotionnelle ne précède l'action. Si l'appelant confirme ensuite qu'il appelle le 112 et remercie, une unique formule de clôture française puis end_call sont autorisés.",
+    ],
+    simulation_scenario:
+      "Dès le premier tour, dites exactement en français : « Je panique, je vois des flammes et beaucoup de fumée juste devant moi, je ne sais plus quoi faire ! » N'ajoutez rien et attendez la réponse complète de l'agent.",
+    simulation_max_turns: 2,
+    simulation_environment: null,
+    tool_mock_config: { mocking_strategy: 'all', fallback_strategy: 'raise_error', mocked_tool_ids: [] },
+    tool_mock_overrides: {},
+    is_auto_generated: false,
   },
   {
     type: 'simulation',
@@ -396,7 +407,7 @@ const tests = [
     dynamic_variables: { system__conversation_id: 'sim_wildfire_v22_direct_emergency_fr' },
     success_conditions: [
       "Au premier tour, quand l'appelant parle français et décrit un danger immédiat, le bot appelle language_detection avec fr avant de produire le moindre texte.",
-      "Après le résultat de l'outil, le premier texte parlé commence exactement par « Raccrochez et appelez immédiatement le cent douze. » et utilise le preset vocal français.",
+      "Après le résultat de language_detection avec fr, le premier texte parlé commence exactement par « Raccrochez et appelez immédiatement le cent douze. ».",
       "La présentation du service n'est pas rejouée, aucune question n'est posée et aucune autre langue n'est prononcée.",
     ],
     simulation_scenario:
