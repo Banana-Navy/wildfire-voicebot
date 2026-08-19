@@ -7,6 +7,9 @@ if (!apiKey) throw new Error('ELEVENLABS_API_KEY est absent.');
 
 const agentId = 'agent_2201m07k477kepfsq9p5h8bh4x1g';
 const root = resolve(import.meta.dirname, '..');
+const outputRoot = process.env.ELEVENLABS_VALIDATION_OUTPUT_ROOT
+  ? resolve(process.env.ELEVENLABS_VALIDATION_OUTPUT_ROOT)
+  : resolve(root, 'artifacts/audio/live-v2.2-goal');
 const voices = {
   base: 'IpTJxgMFj1wbxpha4zxm',
   fr: 'IpTJxgMFj1wbxpha4zxm',
@@ -214,7 +217,7 @@ async function conversationDetails(conversationId) {
 }
 
 async function run(scenarioName, scenario) {
-  const directory = resolve(root, 'artifacts/audio/live-v2.2-goal', scenarioName);
+  const directory = resolve(outputRoot, scenarioName);
   await mkdir(directory, { recursive: true });
   const connection = await WebSocketConnection.create({ signedUrl: await signedUrl(), connectionType: 'websocket' });
   const events = [];
