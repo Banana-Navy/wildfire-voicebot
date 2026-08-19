@@ -27,10 +27,10 @@ const systemPrompt = await readFile(resolve(root, 'agent/system-prompt.md'), 'ut
 const conversation = structuredClone(reference.conversation_config);
 conversation.agent.first_message =
   "Bonjour et bienvenue. Goedendag en welkom. Guten Tag und herzlich willkommen. Vous préférez le français, Nederlands oder Deutsch ?";
-conversation.agent.language = 'nl';
+conversation.agent.language = 'fr';
 conversation.agent.disable_first_message_interruptions = false;
 conversation.agent.prompt.prompt = systemPrompt;
-conversation.agent.prompt.llm = 'claude-haiku-4-5';
+conversation.agent.prompt.llm = 'claude-sonnet-4-5';
 conversation.agent.prompt.temperature = 0;
 conversation.agent.prompt.max_tokens = 180;
 conversation.agent.prompt.enable_reasoning_summary = false;
@@ -38,7 +38,7 @@ conversation.agent.prompt.thinking_budget = null;
 conversation.agent.prompt.reasoning_effort = null;
 conversation.agent.prompt.backup_llm_config = {
   preference: 'override',
-  order: ['claude-sonnet-4-5'],
+  order: ['claude-haiku-4-5'],
 };
 conversation.agent.prompt.tools = dailyAccessTools();
 conversation.agent.prompt.tool_ids = [];
@@ -93,8 +93,8 @@ const presetTemplate = structuredClone(
 if (!presetTemplate?.overrides) throw new Error('Impossible de créer les presets de langue.');
 const presetMessages = {
   fr: { voiceId: 'IpTJxgMFj1wbxpha4zxm', modelId: 'eleven_multilingual_v2', stability: 0.50, similarity: 0.82, speed: 0.94 },
-  nl: { voiceId: 'Yv0oyZ3obP9foTH7emqG', stability: 0.62, similarity: 0.82, speed: 0.97 },
-  de: { voiceId: 'FTNCalFNG5bRnkkaP5Ug', stability: 0.62, similarity: 0.82, speed: 0.97 },
+  nl: { voiceId: 'Yv0oyZ3obP9foTH7emqG', modelId: 'eleven_flash_v2_5', stability: 0.62, similarity: 0.82, speed: 0.97 },
+  de: { voiceId: 'FTNCalFNG5bRnkkaP5Ug', modelId: 'eleven_flash_v2_5', stability: 0.62, similarity: 0.82, speed: 0.97 },
 };
 conversation.language_presets = {};
 for (const [language, settings] of Object.entries(presetMessages)) {
@@ -104,8 +104,8 @@ for (const [language, settings] of Object.entries(presetMessages)) {
   preset.overrides.agent.language = language;
   preset.overrides.agent.first_message = conversation.agent.first_message;
   preset.overrides.agent.prompt = {
-    llm: 'claude-haiku-4-5',
-    backup_llm_config: { preference: 'override', order: ['claude-sonnet-4-5'] },
+    llm: 'claude-sonnet-4-5',
+    backup_llm_config: { preference: 'override', order: ['claude-haiku-4-5'] },
   };
   preset.overrides.tts = {
     model_id: settings.modelId ?? conversation.tts.model_id,
@@ -143,10 +143,10 @@ conversation.turn.soft_timeout_config = {
 conversation.conversation.max_duration_seconds = 1200;
 conversation.conversation.file_input.enabled = false;
 conversation.tts.agent_output_audio_format = 'ulaw_8000';
-conversation.tts.model_id = 'eleven_flash_v2_5';
-conversation.tts.voice_id = 'Yv0oyZ3obP9foTH7emqG';
+conversation.tts.model_id = 'eleven_multilingual_v2';
+conversation.tts.voice_id = 'IpTJxgMFj1wbxpha4zxm';
 conversation.tts.speed = 0.94;
-conversation.tts.stability = 0.62;
+conversation.tts.stability = 0.50;
 conversation.tts.similarity_boost = 0.82;
 conversation.tts.optimize_streaming_latency = 1;
 conversation.tts.expressive_mode = false;
