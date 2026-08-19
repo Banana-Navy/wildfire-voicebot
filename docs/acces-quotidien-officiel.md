@@ -18,6 +18,7 @@ Le workflow [`.github/workflows/refresh-daily-access.yml`](../.github/workflows/
 Le collecteur [`scripts/update-daily-access-status.mjs`](../scripts/update-daily-access-status.mjs) :
 
 - lit les cinq codes provinciaux publiés par l'Agentschap voor Natuur en Bos ;
+- ouvre la page flamande avec Chromium lorsque le site officiel présente son challenge JavaScript aux IP de l'automatisation ;
 - recherche une alerte incendie active dans le bandeau officiel wallon et extrait uniquement les paragraphes portant sur l'accès, la circulation, les fermetures ou les retours ;
 - publie la limite de couverture bruxelloise sans inventer de code quotidien ;
 - refuse de publier si une structure obligatoire disparaît ou devient invalide ;

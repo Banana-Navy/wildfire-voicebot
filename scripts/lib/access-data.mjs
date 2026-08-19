@@ -142,6 +142,22 @@ export async function fetchJson(url, options) {
   }
 }
 
+export async function fetchBrowserText(url, { selector, timeoutMs = 35_000 } = {}) {
+  const { chromium } = await import('playwright');
+  const browser = await chromium.launch({ headless: true });
+  try {
+    const page = await browser.newPage({
+      locale: 'nl-BE',
+      timezoneId: 'Europe/Brussels',
+    });
+    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: timeoutMs });
+    if (selector) await page.waitForSelector(selector, { timeout: timeoutMs });
+    return await page.content();
+  } finally {
+    await browser.close();
+  }
+}
+
 export function unique(values) {
   return [...new Set(values.filter(Boolean))];
 }

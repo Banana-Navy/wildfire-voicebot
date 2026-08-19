@@ -2,6 +2,7 @@ import { mkdir, readFile, rename, rm, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import {
   brusselsDate,
+  fetchBrowserText,
   fetchJson,
   fetchText,
   parseFlandersProvinceWarning,
@@ -58,10 +59,18 @@ const riskLabels = {
 
 const flandersStatuses = {};
 const flandersWarningsUrl = 'https://www.natuurenbos.be/waarschuwingen';
-const flandersWarningsHtml = await fetchText(flandersWarningsUrl);
+let flandersWarningsHtml = await fetchText(flandersWarningsUrl);
+let flandersPageMode = 'direct_http';
+const initialFlanders = parseFlandersProvinceWarning(flandersWarningsHtml, 'antwerpen');
+if (!riskLabels[initialFlanders.code] || initialFlanders.officialTextNl.length < 20) {
+  flandersWarningsHtml = await fetchBrowserText(flandersWarningsUrl, {
+    selector: 'a[href="/waarschuwingen/antwerpen"]',
+  });
+  flandersPageMode = 'official_page_browser';
+}
 for (const [provinceSlug, province] of flandersSources) {
   let { code, officialTextNl } = parseFlandersProvinceWarning(flandersWarningsHtml, provinceSlug);
-  let sourceMode = 'public_warning_page';
+  let sourceMode = flandersPageMode;
   let apiUrl = null;
   if (!riskLabels[code] || officialTextNl.length < 20) {
     apiUrl = `https://natuurenbos.be/api/anb/waarschuwingen?provincie=${provinceSlug}`;
