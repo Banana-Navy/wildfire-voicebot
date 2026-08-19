@@ -2,8 +2,10 @@ import { mkdir, readFile, rename, rm, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import {
   brusselsDate,
+  fetchJson,
   fetchText,
   parseFlandersProvinceWarning,
+  parseFlandersWarningApi,
   parseWalloniaAccessArticle,
   parseWalloniaGlobalAlert,
   slugify,
@@ -58,7 +60,14 @@ const flandersStatuses = {};
 const flandersWarningsUrl = 'https://www.natuurenbos.be/waarschuwingen';
 const flandersWarningsHtml = await fetchText(flandersWarningsUrl);
 for (const [provinceSlug, province] of flandersSources) {
-  const { code, officialTextNl } = parseFlandersProvinceWarning(flandersWarningsHtml, provinceSlug);
+  let { code, officialTextNl } = parseFlandersProvinceWarning(flandersWarningsHtml, provinceSlug);
+  let sourceMode = 'public_warning_page';
+  let apiUrl = null;
+  if (!riskLabels[code] || officialTextNl.length < 20) {
+    apiUrl = `https://natuurenbos.be/api/anb/waarschuwingen?provincie=${provinceSlug}`;
+    ({ code, officialTextNl } = parseFlandersWarningApi(await fetchJson(apiUrl)));
+    sourceMode = 'official_api_fallback';
+  }
   if (!riskLabels[code] || officialTextNl.length < 20) {
     throw new Error(`Code flamand absent ou invalide pour ${province} sur ${flandersWarningsUrl}.`);
   }
@@ -94,6 +103,8 @@ for (const [provinceSlug, province] of flandersSources) {
     source: {
       authority: 'Agentschap voor Natuur en Bos — Vlaamse overheid',
       url: flandersWarningsUrl,
+      api_url: apiUrl,
+      retrieval_mode: sourceMode,
       explanatory_url: 'https://www.vlaanderen.be/natuur-milieu-en-klimaat/bomen-en-planten/brandpreventie-in-bossen-en-natuurgebieden-in-vlaanderen',
     },
   };

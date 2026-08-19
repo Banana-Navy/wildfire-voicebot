@@ -31,11 +31,14 @@ export function stripHtml(value = '') {
 }
 
 export function parseFlandersProvinceWarning(html, provinceSlug) {
-  const marker = `href="/waarschuwingen/${provinceSlug}"`;
-  const markerIndex = html.indexOf(marker);
+  const marker = new RegExp(
+    `href=["'](?:https?:\\/\\/[^"']+)?\\/waarschuwingen\\/${provinceSlug}["']`,
+    'i',
+  ).exec(html);
+  const markerIndex = marker?.index ?? -1;
   const nextRowIndex = html.indexOf(
     'anb-waarschuwing--provincie views-row',
-    markerIndex + marker.length,
+    markerIndex + (marker?.[0].length ?? 0),
   );
   const block = markerIndex >= 0
     ? html.slice(markerIndex, nextRowIndex >= 0 ? nextRowIndex : markerIndex + 8_000)
@@ -45,6 +48,14 @@ export function parseFlandersProvinceWarning(html, provinceSlug) {
     officialTextNl: stripHtml(
       block.match(/anb-waarschuwing__content__description[^>]*>([\s\S]*?)<\/div>\s*<\/div>/i)?.[1] ?? '',
     ),
+  };
+}
+
+export function parseFlandersWarningApi(payload) {
+  const warning = Array.isArray(payload) ? payload[0] : null;
+  return {
+    code: warning?.status_lower?.toLowerCase() ?? warning?.status?.toLowerCase() ?? null,
+    officialTextNl: stripHtml(warning?.text ?? warning?.html ?? ''),
   };
 }
 
