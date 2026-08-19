@@ -1,8 +1,10 @@
-name: Deploy GitHub Pages
+name: Refresh daily official access data
 
 on:
-  push:
-    branches: [main]
+  schedule:
+    # 06:15 in Brussels during summer, 05:15 during winter. The data carries
+    # an explicit Europe/Brussels date and a 36-hour freshness deadline.
+    - cron: '15 4 * * *'
   workflow_dispatch:
 
 permissions:
@@ -15,11 +17,12 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  deploy:
+  refresh-and-deploy:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -29,15 +32,15 @@ jobs:
       - run: npm ci
       - name: Test official source parsers
         run: npm run test:access-data
-      - name: Refresh official daily access data
+      - name: Read and validate official daily sources
         run: npm run refresh:daily-access
-      - name: Validate daily snapshot
+      - name: Validate generated snapshot
         run: npm run validate:daily-access
       - run: npm run build
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
-      - name: Deploy
+      - name: Deploy verified snapshot
         id: deployment
         uses: actions/deploy-pages@v4

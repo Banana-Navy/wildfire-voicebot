@@ -21,9 +21,9 @@ const localizedContext = (introduction, request) => [
 ];
 
 const introductions = {
-  fr: "Parfait. Vous êtes sur la ligne d'information Feux en Milieu Naturel ; cet appel est enregistré. Cette ligne ne transmet aucun signalement. Danger immédiat : raccrochez et appelez le cent douze. Signalez-vous un feu, ou souhaitez-vous une information ?",
-  nl: 'Prima. U belt de informatielijn voor bos- en natuurbranden; dit gesprek wordt opgenomen. Deze lijn stuurt geen meldingen door. Bij direct gevaar: hang op en bel 112. Meldt u een brand, of wilt u informatie?',
-  de: 'Gut. Sie erreichen die Informationshotline für Wald- und Vegetationsbrände; dieses Gespräch wird aufgezeichnet. Diese Hotline leitet keine Notrufe weiter. Bei unmittelbarer Gefahr: auflegen und 112 anrufen. Melden Sie einen Brand, oder brauchen Sie Informationen?',
+  fr: "Très bien, merci. Vous êtes sur la ligne d'information Feux en Milieu Naturel, et cet appel est enregistré. Cette ligne vous informe et vous oriente, mais elle ne transmet aucun signalement. En cas de danger immédiat, raccrochez et appelez le cent douze. Souhaitez-vous signaler un feu, ou obtenir des informations ?",
+  nl: 'Prima. U bent verbonden met de informatielijn voor bos- en natuurbranden. Dit gesprek wordt opgenomen. Deze lijn stuurt geen meldingen door. Is er onmiddellijk gevaar, hang dan op en bel 112. Belt u om een brand te melden, of wilt u informatie?',
+  de: 'Sehr gern. Sie sind mit der Informationshotline für Wald- und Vegetationsbrände verbunden. Dieses Gespräch wird aufgezeichnet. Diese Hotline leitet keine Notrufe weiter. Bei unmittelbarer Gefahr legen Sie auf und rufen Sie 112 an. Möchten Sie einen Brand melden oder Informationen erhalten?',
 };
 
 const tests = [
@@ -34,7 +34,7 @@ const tests = [
     dynamic_variables: { system__conversation_id: 'sim_wildfire_v20_onboarding_fr' },
     success_conditions: [
       "Le premier message accueille chaleureusement en français, néerlandais et allemand, puis propose clairement français, Nederlands et Deutsch sans sonner comme une liste mécanique.",
-      "Après le choix du français, le bot utilise exactement la présentation française v2.0, indique que la ligne ne transmet aucun signalement et que l'appel est enregistré.",
+      "Après le choix du français, le bot utilise exactement la présentation française localisée, indique que la ligne ne transmet aucun signalement et que l'appel est enregistré.",
       "La présentation rappelle le 112 pour le danger immédiat puis demande si l'appelant veut signaler un feu ou obtenir des consignes et informations.",
       "L'annonce d'enregistrement n'est faite qu'une fois et le bot ne demande aucune information personnelle.",
     ],
@@ -53,7 +53,7 @@ const tests = [
     dynamic_variables: { system__conversation_id: 'sim_wildfire_v20_onboarding_nl' },
     success_conditions: [
       "Het eerste bericht begroet de beller warm in het Frans, Nederlands en Duits en biedt daarna duidelijk français, Nederlands en Deutsch aan zonder als een mechanisch menu te klinken.",
-      "Na de keuze Nederlands spreekt de bot volledig natuurlijk Belgisch Nederlands met u-vorm en gebruikt hij de vastgelegde Nederlandse presentatie v2.0.",
+      "Na de keuze Nederlands spreekt de bot volledig natuurlijk Belgisch Nederlands met u-vorm en gebruikt hij de vastgelegde Nederlandse presentatie.",
       "De presentatie meldt de opname één keer, zegt dat de lijn geen meldingen doorstuurt, verwijst bij direct gevaar naar 112 en vraagt of de beller een brand meldt of informatie wil.",
       "Er staat geen Frans of Duits in de Nederlandse presentatie en de bot vraagt geen persoonsgegevens.",
     ],
@@ -71,7 +71,7 @@ const tests = [
     dynamic_variables: { system__conversation_id: 'sim_wildfire_v20_onboarding_de' },
     success_conditions: [
       "Die erste Nachricht begrüßt den Anrufer freundlich auf Französisch, Niederländisch und Deutsch und bietet danach français, Nederlands und Deutsch an, ohne wie ein mechanisches Menü zu klingen.",
-      "Nach der Wahl Deutsch spricht der Bot durchgehend natürliches Standarddeutsch mit Sie-Form und verwendet die festgelegte deutsche Präsentation v2.0.",
+      "Nach der Wahl Deutsch spricht der Bot durchgehend natürliches Standarddeutsch mit Sie-Form und verwendet die festgelegte deutsche Präsentation.",
       "Die Präsentation nennt die Aufzeichnung einmal, erklärt, dass die Hotline keine Notrufe weiterleitet, verweist bei unmittelbarer Gefahr auf 112 und fragt nach Meldung oder Information.",
       "Die deutsche Präsentation enthält kein Französisch oder Niederländisch und fragt nicht nach personenbezogenen Daten.",
     ],
@@ -206,11 +206,101 @@ const tests = [
   },
   {
     type: 'simulation',
+    name: 'Feux v2.2 — phrase directe identifie le néerlandais sans confirmation',
+    chat_history: [],
+    dynamic_variables: { system__conversation_id: 'sim_wildfire_v22_direct_nl' },
+    success_conditions: [
+      "Quand l'appelant répond au premier message par une phrase complète en néerlandais, le bot identifie immédiatement le néerlandais sans lui demander de confirmer sa langue.",
+      "Le preset néerlandais est appliqué avant la présentation et tout le contenu qui suit est en néerlandais belge naturel avec la forme u.",
+      "La présentation néerlandaise n'est prononcée qu'une fois et aucun français, allemand ou anglais n'apparaît ensuite.",
+    ],
+    simulation_scenario:
+      "Au premier message, ne donnez pas le nom de la langue. Répondez directement : Ik wil informatie over rook bij een natuurbrand. Continuez ensuite brièvement en néerlandais.",
+    simulation_max_turns: 5,
+    simulation_environment: null,
+    tool_mock_config: { mocking_strategy: 'all', fallback_strategy: 'raise_error', mocked_tool_ids: [] },
+    tool_mock_overrides: {},
+    is_auto_generated: false,
+  },
+  {
+    type: 'simulation',
+    name: 'Feux v2.2 — changement explicite du français vers allemand',
+    chat_history: [],
+    dynamic_variables: { system__conversation_id: 'sim_wildfire_v22_switch_fr_de' },
+    success_conditions: [
+      "Après une sélection initiale du français, le bot utilise la voix et la présentation françaises.",
+      "Quand l'appelant demande ensuite en français de continuer en allemand, le bot bascule vers le preset allemand sans demander de confirmation.",
+      "Après le changement, le bot poursuit directement en allemand standard naturel sans rejouer l'accueil ni la présentation et sans mélanger les langues.",
+    ],
+    simulation_scenario:
+      "Premier tour : répondez exactement « Français » et rien d'autre. Attendez toute la présentation française. Deuxième tour : répondez exactement « Je voudrais des informations » et attendez la question suivante. Troisième tour : dites exactement « Pouvons-nous continuer en allemand ? » Attendez le changement, puis demandez en allemand un conseil général de prévention.",
+    simulation_max_turns: 9,
+    simulation_environment: null,
+    tool_mock_config: { mocking_strategy: 'all', fallback_strategy: 'raise_error', mocked_tool_ids: [] },
+    tool_mock_overrides: {},
+    is_auto_generated: false,
+  },
+  {
+    type: 'llm',
+    name: 'Feux v2.2 — appelant paniqué reçoit une instruction à la fois',
+    chat_history: localizedContext(introductions.fr, "Je panique, je vois des flammes et beaucoup de fumée juste devant moi, je ne sais plus quoi faire !"),
+    success_condition:
+      "Le texte parlé, qu'il se trouve dans le message ou dans system__message_to_speak de l'outil end_call, contient exactement trois phrases : « Raccrochez et appelez immédiatement le cent douze. Cette ligne ne peut pas transmettre votre signalement aux secours. Éloignez-vous du feu et de la fumée sans vous exposer. » L'outil end_call est autorisé immédiatement après ce texte. Aucune autre instruction n'est ajoutée, le 112 n'est pas répété et aucune formule émotionnelle ne précède l'action.",
+  },
+  {
+    type: 'simulation',
+    name: 'Feux v2.2 — urgence française directe active la voix FR avant le 112',
+    chat_history: [],
+    dynamic_variables: { system__conversation_id: 'sim_wildfire_v22_direct_emergency_fr' },
+    success_conditions: [
+      "Au premier tour, quand l'appelant parle français et décrit un danger immédiat, le bot appelle language_detection avec fr avant de produire le moindre texte.",
+      "Après le résultat de l'outil, le premier texte parlé commence exactement par « Raccrochez et appelez immédiatement le cent douze. » et utilise le preset vocal français.",
+      "La présentation du service n'est pas rejouée, aucune question n'est posée et aucune autre langue n'est prononcée.",
+    ],
+    simulation_scenario:
+      "Au premier message, répondez en une seule phrase : « Français. Je vois des flammes et beaucoup de fumée juste devant moi. » N'ajoutez rien et attendez la consigne.",
+    simulation_max_turns: 3,
+    simulation_environment: null,
+    tool_mock_config: { mocking_strategy: 'all', fallback_strategy: 'raise_error', mocked_tool_ids: [] },
+    tool_mock_overrides: {},
+    is_auto_generated: false,
+  },
+  {
+    type: 'llm',
+    name: 'Feux v2.2 — nom de lieu incertain confirmé sans tout répéter',
+    chat_history: [
+      message('agent', "Quel nom de lieu avez-vous entendu dans le message officiel ?", 5),
+      message('user', "Je ne suis pas sûre. J'ai entendu Stoumont ou peut-être Stavelot, seulement ce nom-là est incertain.", 10),
+    ],
+    success_condition:
+      "La réponse ne prétend pas avoir compris le lieu. Elle demande une confirmation courte portant uniquement sur Stoumont ou Stavelot, sans faire répéter toute l'explication, sans inventer de zone touchée et sans demander d'adresse complète.",
+  },
+  {
+    type: 'llm',
+    name: 'Feux v2.2 — langue non prise en charge reste limitée aux trois langues',
+    chat_history: [message('user', 'Can we continue in English?', 5)],
+    success_condition:
+      "La réponse entière est exactement : « Français, Nederlands oder Deutsch ? » Elle ne contient aucune explication, excuse ou autre mot, notamment aucun mot anglais.",
+  },
+  {
+    type: 'llm',
+    name: 'Feux v2.2 — régression appel réel répétition puis anglais',
+    chat_history: [
+      message('agent', introductions.fr, 3),
+      message('user', 'Je voudrais des informations sur la prévention.', 10),
+      message('agent', "En forêt, n'allumez aucune flamme et ne fumez pas. Respectez la signalétique et les chemins fermés. Gardez les accès libres pour les secours.En forêt, n'allumez aucune flamme et ne fumez pas. Respectez la signalétique et les chemins fermés. Gardez les accès libres pour les secours.", 15),
+      message('user', "Tu t'es répété deux fois là.", 20),
+    ],
+    success_condition:
+      "La réponse entière est exactement : « Vous avez raison. Je ne répète pas la réponse. » Elle n'énonce de nouveau aucun conseil de prévention, ne traduit rien, ne contient aucun mot anglais et ne pose aucune question.",
+  },
+  {
+    type: 'simulation',
     name: 'Feux v1.1 — triage ambigu puis signalement sans hallucination',
     chat_history: [],
     dynamic_variables: { system__conversation_id: 'sim_wildfire_v11_triage' },
     success_conditions: [
-      "Le premier message demande uniquement la langue. Après le choix du français, la présentation française v2.0 demande clairement si l'appelant veut signaler un feu ou obtenir des informations. Si l'appelant répond seulement qu'il appelle pour un feu, le bot peut appliquer par prudence la voie SIGNALER sans reposer la question.",
+      "Le premier message demande uniquement la langue. Après le choix du français, la présentation française demande clairement si l'appelant veut signaler un feu ou obtenir des informations. Si l'appelant répond seulement qu'il appelle pour un feu, le bot peut appliquer par prudence la voie SIGNALER sans reposer la question.",
       "Dès que l'appelant confirme voir de la fumée et des flammes, le bot commence par demander de raccrocher et d'appeler immédiatement le 112.",
       "Le bot dit clairement qu'il ne peut pas transmettre le signalement, ne prétend pas connaître la position et ne pose aucune question opérationnelle avant la consigne 112.",
       "Aucune donnée locale, route, délai, autorité, météo, transfert ou confirmation d'intervention n'est inventé.",

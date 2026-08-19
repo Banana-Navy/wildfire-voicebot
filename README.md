@@ -30,6 +30,7 @@ La démonstration vocale utilise par défaut l'agent ElevenLabs `Feux en Milieu 
 
 - `docs/plan-voicebot.md` : parcours, règles de triage, architecture et feuille de route.
 - `docs/sources-officielles.md` : registre des sources belges et européennes.
+- `docs/acces-quotidien-officiel.md` : cron, sources variables, registre des lieux et comportement en cas de panne.
 - `knowledge/base-connaissances.md` : contenu contrôlé destiné au bot.
 - `agent/system-prompt.md` : prompt système de référence.
 - `src/` : landing page et démonstrateur navigateur.
@@ -42,3 +43,4 @@ La démonstration vocale utilise par défaut l'agent ElevenLabs `Feux en Milieu 
 - Il ne fournit ni prévision de propagation, ni itinéraire improvisé, ni conseil de lutte contre un feu établi.
 - Les réponses sont courtes et répétables dans les trois langues nationales : français, néerlandais et allemand.
 - Les feux de tourbe et les Hautes Fagnes ont un module dédié : combustion souterraine, reprise possible après plusieurs jours et vérification obligatoire des avis et fermetures du jour.
+- Les questions d'accès et de vigilance utilisent un instantané officiel daté, renouvelé quotidiennement. Un niveau de risque ne vaut jamais confirmation d'ouverture.

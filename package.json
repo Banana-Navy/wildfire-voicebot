@@ -6,7 +6,11 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "refresh:place-registry": "node scripts/refresh-place-registry.mjs --confirm",
+    "refresh:daily-access": "node scripts/update-daily-access-status.mjs",
+    "test:access-data": "node scripts/test-daily-access-parsers.mjs",
+    "validate:daily-access": "node scripts/validate-daily-access-snapshot.mjs"
   },
   "dependencies": {
     "@elevenlabs/client": "1.12.0"

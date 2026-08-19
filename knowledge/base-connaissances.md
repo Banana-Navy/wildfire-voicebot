@@ -1,8 +1,8 @@
-# Base opérationnelle contrôlée — Feux en Milieu Naturel Belgique v2.0
+# Base opérationnelle contrôlée — Feux en Milieu Naturel Belgique v2.2
 
-Dernière vérification : 17 août 2026.
+Dernière vérification des consignes stables : 19 août 2026.
 
-Cette base contient uniquement des consignes stables issues du Centre de Crise national, du SPF Intérieur/112 et des autorités régionales belges. Elle ne contient aucun incident historique et aucune donnée locale en temps réel.
+Cette base contient uniquement des consignes stables issues du Centre de Crise national, du SPF Intérieur/112 et des autorités régionales belges. Les niveaux de vigilance et mesures d'accès du jour ne sont jamais conservés ici : ils proviennent exclusivement des outils quotidiens officiels, avec date de validité et délai de fraîcheur.
 
 ## 1. Numéros et canaux
 
@@ -95,9 +95,11 @@ Ne donner les détails suivants que si l'appelant en demande davantage :
 
 ## 8. Codes de risque et fermetures
 
-Les niveaux de risque, drapeaux, interdictions et fermetures changent selon la Région, la province, la commune et la zone naturelle. Cette base ne confirme jamais leur état actuel.
+Les niveaux de risque, drapeaux, interdictions et fermetures changent selon la Région, la province, la commune et la zone naturelle. Cette base statique ne confirme jamais leur état actuel.
 
-Réponse autorisée : « Je n'ai pas accès au niveau de risque ou aux fermetures en temps réel. Vérifiez le site officiel de la commune, de la province ou du gestionnaire de la zone et respectez la signalétique sur place. Si vous voyez un feu, appelez le 112. »
+Pour une demande actuelle, utiliser obligatoirement `resolve_official_place`, puis `get_daily_access_status`. Donner directement le statut explicitement publié et le niveau officiel lorsqu'il existe, sans renvoyer l'appelant vers un site si le résultat est frais. Terminer par une phrase courte indiquant que l'information a été vérifiée aujourd'hui et peut changer chaque jour selon les consignes officielles.
+
+Un code de risque provincial ne confirme jamais l'ouverture d'un site individuel. En Wallonie, ne jamais étendre une fermeture au-delà des lieux ou périmètres explicitement nommés dans la publication officielle du jour. Si la source est absente, périmée, ambiguë ou en erreur : « L'information officielle du jour n'est pas disponible. Je ne peux pas confirmer l'accès à cette zone. »
 
 ## 9. Après un incendie
 
@@ -127,7 +129,7 @@ Prononcer exactement ces deux phrases, puis arrêter la réponse après « inacc
 
 ### Route ou chemin sûr
 
-« Je ne peux pas confirmer un itinéraire sûr ni l'ouverture d'une route. Suivez uniquement les indications des services de secours, de la police ou de l'autorité locale. »
+Si une fermeture de route est explicitement présente dans le résultat quotidien frais, la restituer sans proposer d'itinéraire de remplacement. Sinon : « Je ne peux pas confirmer un itinéraire sûr ni l'ouverture d'une route. Suivez uniquement les indications des services de secours, de la police ou de l'autorité locale. »
 
 ### Ordre d'évacuation
 
@@ -159,11 +161,9 @@ Dans les Hautes Fagnes, le drapeau rouge signifie que certaines zones sensibles 
 
 ### Réponse obligatoire — peut-on prévoir une promenade ou une activité ?
 
-**Français** : « Un feu de tourbe peut continuer à couver sous terre et reprendre, même plusieurs jours après son départ. Je ne peux donc pas confirmer qu'une activité dans les Hautes Fagnes est sûre. Vérifiez le jour même les cartes et avis du Service public de Wallonie, puis respectez les panneaux et toute fermeture sur place. »
+Avant de répondre, appeler obligatoirement les deux outils quotidiens pour « Hautes Fagnes », « Hoge Venen » ou « Hohes Venn ». Donner d'abord l'interdiction ou l'absence de confirmation exactement telle qu'elle ressort du statut frais, puis ajouter dans la langue active qu'un feu de tourbe peut continuer à couver sous terre et reprendre. Terminer par l'avis quotidien fourni par l'outil. Ne jamais renvoyer vers un site lorsque le statut frais est disponible.
 
-**Nederlands** : « Een veenbrand kan ondergronds blijven smeulen en opnieuw oplaaien, zelfs meerdere dagen na het ontstaan. Daarom kan ik niet bevestigen dat een activiteit in de Hoge Venen veilig is. Controleer op de dag zelf de kaarten en berichten van de Waalse overheid en respecteer alle borden en afsluitingen ter plaatse. »
-
-**Deutsch** : « Ein Torfbrand kann unterirdisch weiterschwelen und erneut aufflammen, selbst mehrere Tage nach seinem Ausbruch. Deshalb kann ich nicht bestätigen, dass eine Aktivität im Hohen Venn sicher ist. Prüfen Sie am selben Tag die Karten und Hinweise des Öffentlichen Dienstes der Wallonie und beachten Sie alle Schilder und Sperrungen vor Ort. »
+Si le statut quotidien est indisponible ou périmé, dire uniquement dans la langue active que l'accès ne peut pas être confirmé aujourd'hui et qu'un feu de tourbe peut reprendre sous la surface ; respecter toute fermeture et signalétique sur place.
 
 ### Réponse obligatoire — le feu est ancien, est-il encore dangereux ?
 

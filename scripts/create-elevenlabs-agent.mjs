@@ -1,5 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
+import { dailyAccessTools } from './lib/elevenlabs-access-tools.mjs';
 
 const apiKey = process.env.ELEVENLABS_API_KEY;
 if (!apiKey) throw new Error('ELEVENLABS_API_KEY est absent.');
@@ -26,10 +27,10 @@ const systemPrompt = await readFile(resolve(root, 'agent/system-prompt.md'), 'ut
 const conversation = structuredClone(reference.conversation_config);
 conversation.agent.first_message =
   "Bonjour et bienvenue. Goedendag en welkom. Guten Tag und herzlich willkommen. Vous préférez le français, Nederlands oder Deutsch ?";
-conversation.agent.language = 'en';
+conversation.agent.language = 'nl';
 conversation.agent.disable_first_message_interruptions = false;
 conversation.agent.prompt.prompt = systemPrompt;
-conversation.agent.prompt.llm = 'gemini-2.5-flash';
+conversation.agent.prompt.llm = 'claude-haiku-4-5';
 conversation.agent.prompt.temperature = 0;
 conversation.agent.prompt.max_tokens = 180;
 conversation.agent.prompt.enable_reasoning_summary = false;
@@ -37,9 +38,9 @@ conversation.agent.prompt.thinking_budget = null;
 conversation.agent.prompt.reasoning_effort = null;
 conversation.agent.prompt.backup_llm_config = {
   preference: 'override',
-  order: ['claude-haiku-4-5'],
+  order: ['claude-sonnet-4-5'],
 };
-conversation.agent.prompt.tools = [];
+conversation.agent.prompt.tools = dailyAccessTools();
 conversation.agent.prompt.tool_ids = [];
 conversation.agent.prompt.mcp_server_ids = [];
 conversation.agent.prompt.native_mcp_server_ids = [];
@@ -66,15 +67,20 @@ if (conversation.agent.prompt.built_in_tools.end_call) {
     "Lorsque l'appelant confirme qu'il raccroche, demande à terminer ou n'a plus de question, " +
     "prononce exactement une fois la clôture de la langue active : « Merci de votre appel. », " +
     "« Bedankt voor uw oproep. » ou « Vielen Dank für Ihren Anruf. ». " +
-    "Utilise cette même phrase dans system__message_to_speak, termine immédiatement et n'ajoute rien.";
+    "Utilise cette même phrase dans system__message_to_speak, termine immédiatement et n'ajoute rien. " +
+    "N'appelle jamais cet outil automatiquement après une consigne d'urgence ou une orientation vers le 112; attends une confirmation explicite de l'appelant.";
   conversation.agent.prompt.built_in_tools.end_call.pre_tool_speech = 'off';
   conversation.agent.prompt.built_in_tools.end_call.force_pre_tool_speech = false;
   conversation.agent.prompt.built_in_tools.end_call.tool_call_sound = null;
 }
 if (conversation.agent.prompt.built_in_tools.language_detection) {
   conversation.agent.prompt.built_in_tools.language_detection.description =
-    "Change la langue uniquement au choix initial de l'appelant ou s'il demande explicitement une autre langue. " +
-    "Ne rappelle jamais cet outil lorsque l'appelant continue dans la langue déjà active.";
+    "PORTE ABSOLUE AU PREMIER TOUR : dès que fr, nl ou de est identifiable, ta seule sortie avant tout texte doit être cet outil. " +
+    "Cette règle s'applique aussi à un danger immédiat : appelle silencieusement l'outil, puis donne le 112 comme premier texte avec la voix native. " +
+    "PORTE ABSOLUE EN COURS D'APPEL : si l'appelant parle clairement dans une autre langue prise en charge ou demande explicitement ce changement, ta seule sortie avant tout texte doit être cet outil. " +
+    "Ne réponds jamais dans la nouvelle langue avec la voix actuelle. Après le résultat, poursuis sans rejouer l'accueil ou la présentation. " +
+    "Ne rappelle jamais cet outil lorsque l'appelant continue dans la langue active et ne rejoue pas la présentation après un changement en cours d'appel. " +
+    "Ne sélectionne et ne parle jamais anglais. Pour toute langue non prise en charge, n'appelle pas cet outil; dis exactement et uniquement : Français, Nederlands oder Deutsch ?";
   conversation.agent.prompt.built_in_tools.language_detection.pre_tool_speech = 'off';
   conversation.agent.prompt.built_in_tools.language_detection.interruption_mode = 'disable_during_tool_and_turn';
   conversation.agent.prompt.built_in_tools.language_detection.force_pre_tool_speech = false;
@@ -86,9 +92,9 @@ const presetTemplate = structuredClone(
 );
 if (!presetTemplate?.overrides) throw new Error('Impossible de créer les presets de langue.');
 const presetMessages = {
-  fr: { voiceId: 'IpTJxgMFj1wbxpha4zxm', stability: 0.68, similarity: 0.82, speed: 1.03 },
-  nl: { voiceId: '9kBSa5emtWArU7U0792v', stability: 0.68, similarity: 0.82, speed: 1.03 },
-  de: { voiceId: 'FTNCalFNG5bRnkkaP5Ug', stability: 0.68, similarity: 0.82, speed: 1.04 },
+  fr: { voiceId: 'IpTJxgMFj1wbxpha4zxm', modelId: 'eleven_multilingual_v2', stability: 0.50, similarity: 0.82, speed: 0.94 },
+  nl: { voiceId: 'Yv0oyZ3obP9foTH7emqG', stability: 0.62, similarity: 0.82, speed: 0.97 },
+  de: { voiceId: 'FTNCalFNG5bRnkkaP5Ug', stability: 0.62, similarity: 0.82, speed: 0.97 },
 };
 conversation.language_presets = {};
 for (const [language, settings] of Object.entries(presetMessages)) {
@@ -99,9 +105,10 @@ for (const [language, settings] of Object.entries(presetMessages)) {
   preset.overrides.agent.first_message = conversation.agent.first_message;
   preset.overrides.agent.prompt = {
     llm: 'claude-haiku-4-5',
-    backup_llm_config: { preference: 'override', order: ['gemini-2.5-flash'] },
+    backup_llm_config: { preference: 'override', order: ['claude-sonnet-4-5'] },
   };
   preset.overrides.tts = {
+    model_id: settings.modelId ?? conversation.tts.model_id,
     voice_id: settings.voiceId,
     stability: settings.stability,
     similarity_boost: settings.similarity,
@@ -137,12 +144,14 @@ conversation.conversation.max_duration_seconds = 1200;
 conversation.conversation.file_input.enabled = false;
 conversation.tts.agent_output_audio_format = 'ulaw_8000';
 conversation.tts.model_id = 'eleven_flash_v2_5';
-conversation.tts.voice_id = '9kBSa5emtWArU7U0792v';
-conversation.tts.speed = 1.02;
-conversation.tts.stability = 0.68;
+conversation.tts.voice_id = 'Yv0oyZ3obP9foTH7emqG';
+conversation.tts.speed = 0.94;
+conversation.tts.stability = 0.62;
 conversation.tts.similarity_boost = 0.82;
-conversation.tts.optimize_streaming_latency = 3;
+conversation.tts.optimize_streaming_latency = 1;
 conversation.tts.expressive_mode = false;
+conversation.tts.text_normalisation_type = 'system_prompt';
+conversation.tts.enable_phoneme_tags = false;
 
 const platform = structuredClone(reference.platform_settings);
 platform.archived = false;
@@ -164,7 +173,7 @@ delete platform.guardrails.custom;
 
 const payload = {
   name: 'Feux en Milieu Naturel — Inbound (BE)',
-  tags: ['banana-navy', 'wildfire', 'inbound', 'belgium', 'trilingual'],
+  tags: ['wildfire', 'inbound', 'belgium', 'trilingual'],
   conversation_config: conversation,
   platform_settings: platform,
 };
@@ -183,7 +192,7 @@ console.log(JSON.stringify({
   agent_id: result.agent_id,
   name: payload.name,
   languages: ['fr', 'nl', 'de'],
-  tools: [],
+  tools: conversation.agent.prompt.tools.map(({ name }) => name),
   phone_number_attached: false,
   voice_recording: true,
   transcript_retention_days: 30,

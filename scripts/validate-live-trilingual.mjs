@@ -7,18 +7,75 @@ if (!apiKey) throw new Error('ELEVENLABS_API_KEY est absent.');
 
 const agentId = 'agent_2201m07k477kepfsq9p5h8bh4x1g';
 const root = resolve(import.meta.dirname, '..');
+const voices = {
+  base: 'Yv0oyZ3obP9foTH7emqG',
+  fr: 'IpTJxgMFj1wbxpha4zxm',
+  nl: 'Yv0oyZ3obP9foTH7emqG',
+  de: 'FTNCalFNG5bRnkkaP5Ug',
+};
 const scenarios = {
   fr: {
-    choice: 'Français',
-    question: "Je voudrais des informations. Le feu de tourbe dans les Hautes Fagnes a commencé il y a plusieurs jours. Puis-je y prévoir une randonnée demain ?",
+    messages: ['Français'],
+    expectedVoices: [voices.base, voices.fr],
+    validate(responses) {
+      return responses[1]?.text?.startsWith("Très bien, merci. Vous êtes sur la ligne d'information Feux en Milieu Naturel,")
+        ? []
+        : [{ type: 'wrong_french_presentation', value: responses[1]?.text ?? null }];
+    },
   },
   nl: {
-    choice: 'Nederlands',
-    question: 'Ik wil informatie. De veenbrand in de Hoge Venen begon enkele dagen geleden. Kunnen we daar morgen gaan wandelen?',
+    messages: ['Nederlands'],
+    expectedVoices: [voices.nl],
+    validate(responses) {
+      return responses[1]?.text?.startsWith('Prima. U bent verbonden met de informatielijn')
+        ? []
+        : [{ type: 'wrong_dutch_presentation', value: responses[1]?.text ?? null }];
+    },
   },
   de: {
-    choice: 'Deutsch',
-    question: 'Ich brauche Informationen. Der Torfbrand im Hohen Venn begann vor einigen Tagen. Können wir dort morgen wandern?',
+    messages: ['Deutsch'],
+    expectedVoices: [voices.base, voices.de],
+    validate(responses) {
+      return responses[1]?.text?.startsWith('Sehr gern. Sie sind mit der Informationshotline')
+        ? []
+        : [{ type: 'wrong_german_presentation', value: responses[1]?.text ?? null }];
+    },
+  },
+  'fr-urgence': {
+    messages: ["Français. Je panique. Je vois des flammes et beaucoup de fumée juste devant moi. Pouvez-vous prévenir les pompiers ?"],
+    expectedVoices: [voices.base, voices.fr],
+    validate(responses) {
+      const last = responses.at(-1)?.text ?? '';
+      return last.startsWith('Raccrochez et appelez immédiatement le cent douze.')
+        ? []
+        : [{ type: 'missing_emergency_first_action', value: last }];
+    },
+  },
+  'nl-direct': {
+    messages: ['Ik wil informatie over rook bij een natuurbrand.', 'Wat moet ik doen als rook mijn woning bereikt?'],
+    expectedVoices: [voices.nl],
+    validate(responses) {
+      const presentation = responses[1]?.text ?? '';
+      return presentation.startsWith('Prima. U bent verbonden met de informatielijn')
+        ? []
+        : [{ type: 'language_was_reconfirmed_or_wrong_preset', value: presentation }];
+    },
+  },
+  'fr-switch-de': {
+    messages: ['Français', "Je voudrais des informations.", 'Pouvons-nous continuer en allemand ?', 'Wie verhindere ich einen Waldbrand bei einer Wanderung?'],
+    expectedVoices: [voices.base, voices.fr, voices.de],
+    validate(responses) {
+      const afterSwitch = responses[3]?.text ?? '';
+      const final = responses.at(-1)?.text ?? '';
+      const issues = [];
+      if (/Informationshotline|Dieses Gespräch wird aufgezeichnet/u.test(afterSwitch)) {
+        issues.push({ type: 'presentation_replayed_after_switch', value: afterSwitch });
+      }
+      if (!/[äöüß]|Feuer|Wald|Deutsch|Information/u.test(`${afterSwitch} ${final}`)) {
+        issues.push({ type: 'german_not_used_after_switch', value: `${afterSwitch} ${final}` });
+      }
+      return issues;
+    },
   },
 };
 
@@ -62,23 +119,52 @@ async function signedUrl() {
   return body.signed_url;
 }
 
-async function run(language, scenario) {
-  const directory = resolve(root, 'artifacts/audio/live-v2.1-warm-multilingual', language);
+async function conversationDetails(conversationId) {
+  let lastError;
+  for (let attempt = 0; attempt < 48; attempt += 1) {
+    const response = await fetch(
+      `https://api.elevenlabs.io/v1/convai/conversations/${conversationId}`,
+      { headers: { 'xi-api-key': apiKey } },
+    );
+    if (response.ok) {
+      const body = await response.json();
+      const ttsUsage = body.metadata?.charging?.tts_usage;
+      if (body.status === 'done' && ttsUsage?.per_voice_usage?.length > 0) return body;
+      lastError = new Error(`Conversation serveur encore en traitement (statut ${body.status}).`);
+    } else {
+      const body = await response.text();
+      lastError = new Error(`Conversation serveur indisponible (${response.status}): ${body}`);
+    }
+    await new Promise((resolveWait) => setTimeout(resolveWait, 1250));
+  }
+  throw lastError;
+}
+
+async function run(scenarioName, scenario) {
+  const directory = resolve(root, 'artifacts/audio/live-v2.2-goal', scenarioName);
   await mkdir(directory, { recursive: true });
   const connection = await WebSocketConnection.create({ signedUrl: await signedUrl(), connectionType: 'websocket' });
   const events = [];
   const responses = [];
   const responseIndexByEvent = new Map();
   const audioByEvent = new Map();
-  let stage = 0;
+  let sentMessages = 0;
   let closeTimer;
 
   const finished = new Promise((resolveFinished, reject) => {
-    const timeout = setTimeout(() => reject(new Error(`${language}: délai de validation dépassé`)), 90000);
+    const timeout = setTimeout(() => {
+      const recentTypes = events.slice(-20).map(({ event }) => event.type);
+      reject(new Error(
+        `${scenarioName}: délai de validation dépassé; `
+        + `${responses.length}/${scenario.messages.length + 1} réponses; `
+        + `${sentMessages}/${scenario.messages.length} messages envoyés; `
+        + `événements récents=${recentTypes.join(',')}`,
+      ));
+    }, 180000);
     connection.onDisconnect((details) => {
-      if (stage >= 3) return;
+      if (responses.length >= scenario.messages.length + 1) return;
       clearTimeout(timeout);
-      reject(new Error(`${language}: déconnexion prématurée ${JSON.stringify(details)}`));
+      reject(new Error(`${scenarioName}: déconnexion prématurée ${JSON.stringify(details)}`));
     });
     connection.onMessage((event) => {
       events.push({ at: Date.now(), event });
@@ -99,67 +185,96 @@ async function run(language, scenario) {
       if (currentIndex === undefined) {
         responseIndexByEvent.set(response.event_id, responses.length);
         responses.push({ event_id: response.event_id, text: response.agent_response });
+        if (sentMessages < scenario.messages.length) {
+          const message = scenario.messages[sentMessages];
+          sentMessages += 1;
+          const audioBytes = (audioByEvent.get(response.event_id) ?? [])
+            .reduce((total, chunk) => total + chunk.length, 0);
+          const playbackDelayMs = Math.max(1800, Math.ceil(audioBytes / 8) + 500);
+          setTimeout(() => connection.sendMessage({ type: 'user_message', text: message }), playbackDelayMs);
+        } else {
+          clearTimeout(closeTimer);
+          closeTimer = setTimeout(() => {
+            clearTimeout(timeout);
+            connection.close();
+            resolveFinished();
+          }, 2500);
+        }
       } else {
         const previous = responses[currentIndex].text;
         responses[currentIndex].text = response.agent_response.startsWith(previous)
           ? response.agent_response
           : `${previous} ${response.agent_response}`.trim();
       }
-      const previousStage = stage;
-      stage = Math.max(stage, response.event_id);
-      if (stage === 1 && previousStage < 1) {
-        setTimeout(() => connection.sendMessage({ type: 'user_message', text: scenario.choice }), 350);
-      } else if (stage === 2 && previousStage < 2) {
-        setTimeout(() => connection.sendMessage({ type: 'user_message', text: scenario.question }), 350);
-      } else if (stage >= 3) {
-        clearTimeout(closeTimer);
-        closeTimer = setTimeout(() => {
-          clearTimeout(timeout);
-          connection.close();
-          resolveFinished();
-        }, 2500);
-      }
     });
   });
 
-  await finished;
+  try {
+    await finished;
+  } catch (error) {
+    connection.close();
+    await writeFile(resolve(directory, 'failed-session.json'), `${JSON.stringify({
+      scenario: scenarioName,
+      messages: scenario.messages,
+      sent_messages: sentMessages,
+      responses,
+      events,
+      error: error instanceof Error ? error.message : String(error),
+    }, null, 2)}\n`);
+    throw error;
+  }
+  const serverConversation = await conversationDetails(connection.conversationId);
   for (const [eventId, chunks] of audioByEvent) {
     await writeFile(resolve(directory, `event-${eventId}.ulaw`), Buffer.concat(chunks));
   }
   const session = {
     conversation_id: connection.conversationId,
-    language,
+    scenario: scenarioName,
     input_format: connection.inputFormat,
     output_format: connection.outputFormat,
-    choice: scenario.choice,
-    question: scenario.question,
+    messages: scenario.messages,
     responses,
     events,
+    server: {
+      status: serverConversation.status,
+      transcript: serverConversation.transcript,
+      analysis: serverConversation.analysis,
+      metadata: serverConversation.metadata,
+    },
   };
   await writeFile(resolve(directory, 'session.json'), `${JSON.stringify(session, null, 2)}\n`);
-  const languageToolEvents = events
-    .map(({ event }) => event)
-    .filter((event) => event.type === 'agent_tool_response' && event.agent_tool_response?.tool_name === 'language_detection');
+  const usedVoices = serverConversation.metadata?.charging?.tts_usage?.per_voice_usage
+    ?.map(({ voice_id: voiceId }) => voiceId) ?? [];
+  const missingVoices = scenario.expectedVoices.filter((voiceId) => !usedVoices.includes(voiceId));
+  const languageDetection = serverConversation.metadata?.features_usage?.language_detection;
   const issues = fluencyIssues(responses);
+  issues.push(...(scenario.validate?.(responses) ?? []));
+  if (languageDetection?.used !== true) {
+    issues.push({ type: 'language_detection_not_used', value: languageDetection ?? null });
+  }
+  for (const voiceId of missingVoices) {
+    issues.push({ type: 'expected_voice_not_used', value: voiceId });
+  }
   const quality = {
-    language_tool_calls: languageToolEvents.length,
-    language_tool_succeeded: languageToolEvents.length === 1 && languageToolEvents[0].agent_tool_response?.status === 'success',
+    language_detection_used: languageDetection?.used === true,
+    expected_voice_ids: scenario.expectedVoices,
+    used_voice_ids: usedVoices,
     fluency_issues: issues,
-    passed: languageToolEvents.length === 1 && languageToolEvents[0].agent_tool_response?.status === 'success' && issues.length === 0,
+    passed: issues.length === 0,
   };
-  return { conversation_id: connection.conversationId, language, responses, audio_events: audioByEvent.size, quality };
+  return { conversation_id: connection.conversationId, scenario: scenarioName, responses, audio_events: audioByEvent.size, quality };
 }
 
 const results = [];
-const requestedLanguage = process.argv[2];
-if (requestedLanguage && !scenarios[requestedLanguage]) {
-  throw new Error(`Langue inconnue : ${requestedLanguage}. Utilisez fr, nl ou de.`);
+const requestedScenario = process.argv[2];
+if (requestedScenario && !scenarios[requestedScenario]) {
+  throw new Error(`Scénario inconnu : ${requestedScenario}. Utilisez ${Object.keys(scenarios).join(', ')}.`);
 }
-const selectedScenarios = requestedLanguage
-  ? [[requestedLanguage, scenarios[requestedLanguage]]]
-  : Object.entries(scenarios);
-for (const [language, scenario] of selectedScenarios) {
-  results.push(await run(language, scenario));
+const selectedScenarios = requestedScenario
+  ? [[requestedScenario, scenarios[requestedScenario]]]
+  : ['fr', 'nl', 'de'].map((name) => [name, scenarios[name]]);
+for (const [scenarioName, scenario] of selectedScenarios) {
+  results.push(await run(scenarioName, scenario));
 }
 console.log(JSON.stringify({ results }, null, 2));
 if (results.some((result) => !result.quality.passed)) process.exitCode = 1;

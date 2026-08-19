@@ -32,6 +32,7 @@ Chaque dossier contient le journal `session.json`, les segments téléphoniques 
 | `live-v1.7-warm-opening/` | FR `conv_8701m07ykj26f8xa6ebabja4n2cm` · NL `conv_0901m07ym1xxerfb59vv61c6ayfw` · DE `conv_3901m07yn9qqegeatrvsqxc7453k` | Accueil trilingue chaleureux de 6 secondes, prosodie adoucie et confirmation naturelle après le choix. |
 | `live-v1.8-warm-slow-opening/` | FR `conv_3601m07ywxb5f78v24tcdvz3xcam` | Question complète « Vous préférez… ? », accueil ralenti à `0,90` et transition française validée. |
 | `live-v1.9-no-brand/` | FR `conv_5301m07z7qrnetas77qpfrxa3jdw` | Présentation active sans mention d'entreprise, validée en conversation réelle. |
+| `live-v2.2-goal/` | FR `conv_3501m0d2q7tffjba4jzcpmsye9ck` · NL `conv_5101m0d2qvt1fd3vt1kt8d2cn10c` · DE `conv_1501m0d2rma8esnt62tpc96b9ccj` · urgence FR `conv_4101m0d2jjy5feqsb4gqez3hfc9y` | Version v2.2 : voix natives confirmées côté serveur, porte vocale obligatoire, urgence en français avant le 112 et aucune répétition détectée. |
 
 Dans `live-v1.5`, les quatre segments durent respectivement `12,47 s`, `7,36 s`, `9,91 s` et `1,05 s`. Leur retranscription est fidèle avec une probabilité de langue française de `1,0`. Aucun segment ne contient de silence supérieur à `220 ms` au seuil de `-42 dB`.
 
