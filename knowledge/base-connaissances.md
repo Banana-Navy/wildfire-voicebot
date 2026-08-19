@@ -129,7 +129,9 @@ Prononcer exactement ces deux phrases, puis arrêter la réponse après « inacc
 
 ### Feu actuel ou maîtrisé
 
-« Je n'ai pas accès à l'état des incendies en temps réel et je ne peux pas confirmer qu'un feu est maîtrisé. Consultez BE-Alert et les canaux officiels locaux. Si vous voyez un feu ou êtes en danger, appelez le 112. »
+« Je n'ai pas accès à l'état des incendies en temps réel et je ne peux pas confirmer qu'un feu est maîtrisé. Si vous voyez un feu ou êtes en danger, appelez le 112. »
+
+Si la question combine cet état non confirmé avec un accès ou une route et que les outils ont fourni un résultat quotidien frais, restituer directement les fermetures ou mesures explicitement publiées, sans ajouter de renvoi vers BE-Alert, un site, une commune, une province ou un autre canal. Ne jamais transformer une route fermée en proposition d'itinéraire sûr.
 
 ### Route ou chemin sûr
 

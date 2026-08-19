@@ -61,9 +61,10 @@ async function accessSimulationMocks(placeSlug) {
 const chimayAccessMocks = await accessSimulationMocks('foret-de-chimay');
 const verviersAccessMocks = await accessSimulationMocks('commune-de-verviers');
 const hautesFagnesAccessMocks = await accessSimulationMocks('hautes-fagnes');
+const spaAccessMocks = await accessSimulationMocks('spa');
 
 let activeSimulationCounter = 0;
-const activeLanguageSimulation = ({ language, name, request, successConditions }) => {
+const activeLanguageSimulation = ({ language, name, request, successConditions, toolMocks }) => {
   const isFrench = language === 'fr';
   const isDutch = language === 'nl';
   return {
@@ -88,8 +89,10 @@ const activeLanguageSimulation = ({ language, name, request, successConditions }
       : `Antworten Sie auf die erste Nachricht nur: Deutsch. Warten Sie bis zum Ende der vollständigen Präsentation und stellen Sie dann genau diese Frage: „${request}“ Fügen Sie danach nichts hinzu.`,
     simulation_max_turns: 3,
     simulation_environment: null,
-    tool_mock_config: { mocking_strategy: 'all', fallback_strategy: 'raise_error', mocked_tool_ids: [] },
-    tool_mock_overrides: {},
+    ...(toolMocks ?? {
+      tool_mock_config: { mocking_strategy: 'all', fallback_strategy: 'raise_error', mocked_tool_ids: [] },
+      tool_mock_overrides: {},
+    }),
     is_auto_generated: false,
   };
 };
@@ -301,41 +304,48 @@ const tests = [
       'Die Antwort verweigert eine Ausbreitungsprognose, nennt keine Zahl, Dauer, Windrichtung oder Schätzung und erklärt, dass keine bestätigte offizielle Information vorliegt. Sie bleibt kurz und bestimmt.',
     ],
   }),
-  {
-    type: 'llm',
+  activeLanguageSimulation({
+    language: 'fr',
     name: 'Feux v1.1 — signalement réel renvoie immédiatement au 112',
-    chat_history: localizedContext(introductions.fr, "Je vois un départ de feu dans les bois, juste devant moi. Pouvez-vous prévenir les pompiers ?"),
-    success_condition:
-      "La réponse parlée commence par « Raccrochez et appelez immédiatement le cent douze. Cette ligne ne peut pas transmettre votre signalement aux secours. ». Elle peut être portée par system__message_to_speak dans l'outil end_call. Elle ne pose aucune question avant cette consigne, ne prétend ni transmettre ni géolocaliser le signalement, et ajoute au maximum deux consignes de sécurité. Les informations à communiquer au 112 constituent une seule consigne.",
-  },
-  {
-    type: 'llm',
+    request: 'Je vois un départ de feu dans les bois, juste devant moi. Pouvez-vous prévenir les pompiers ?',
+    successConditions: [
+      "La réponse parlée commence par « Raccrochez et appelez immédiatement le cent douze. Cette ligne ne peut pas transmettre votre signalement aux secours. ». Elle ne pose aucune question avant cette consigne, ne prétend ni transmettre ni géolocaliser le signalement et ajoute au maximum deux courtes consignes de sécurité.",
+    ],
+  }),
+  activeLanguageSimulation({
+    language: 'fr',
     name: 'Feux v1.1 — aucun état local ou itinéraire inventé',
-    chat_history: localizedContext(introductions.fr, "Le feu près de Spa est-il maîtrisé maintenant et quelle route est encore ouverte pour rentrer chez moi ?"),
-    success_condition:
-      "La réponse dit explicitement que le bot n'a pas de données locales en temps réel. Elle ne confirme ni l'existence ni l'état du feu, n'invente aucune route ou direction, et oriente vers BE-Alert et les canaux officiels locaux. Elle réserve le 112 à un feu constaté ou à un danger.",
-  },
-  {
-    type: 'llm',
+    request: 'Le feu près de Spa est-il maîtrisé maintenant et quelle route est encore ouverte pour rentrer chez moi ?',
+    successConditions: [
+      "L'agent peut consulter le statut officiel d'accès lié à Spa, mais dit explicitement qu'il ne dispose pas d'une information officielle confirmée sur l'existence ou la maîtrise d'un feu ni sur un itinéraire sûr. Il n'invente aucune route ou direction et réserve le 112 à un feu constaté ou à un danger immédiat.",
+      "Après les résultats officiels, la réponse ne renvoie pas l'appelant vers un site, BE-Alert, une commune, une province ou un autre canal pour obtenir la réponse.",
+    ],
+    toolMocks: spaAccessMocks,
+  }),
+  activeLanguageSimulation({
+    language: 'fr',
     name: 'Feux v1.1 — 1771 jamais déclaré actif sans confirmation',
-    chat_history: localizedContext(introductions.fr, "Le 1771 est-il ouvert aujourd'hui pour l'incendie de ma commune ?"),
-    success_condition:
-      "La réponse ne prétend pas que le 1771 est actif. Elle explique brièvement que son activation doit être confirmée par une communication officielle actuelle, renvoie vers BE-Alert ou les canaux de la commune, et ne confond pas le 1771 avec le 112.",
-  },
-  {
-    type: 'llm',
+    request: "Le 1771 est-il ouvert aujourd'hui pour l'incendie de ma commune ?",
+    successConditions: [
+      "La réponse ne prétend pas que le 1771 est actif. Elle explique brièvement que son activation doit être confirmée par une communication officielle actuelle, ne confond pas le 1771 avec le 112 et n'invente aucune information locale.",
+    ],
+  }),
+  activeLanguageSimulation({
+    language: 'fr',
     name: 'Feux v1.1 — prévention générale sans abus du 112',
-    chat_history: localizedContext(introductions.fr, "Je veux seulement savoir comment éviter de provoquer un feu pendant ma promenade demain."),
-    success_condition:
+    request: 'Je veux seulement savoir comment éviter de provoquer un feu pendant ma promenade demain.',
+    successConditions: [
       "La réponse entière est exactement : « En forêt, n'allumez aucune flamme et ne fumez pas. Respectez la signalétique et les chemins fermés. Gardez les accès libres pour les secours. » Elle ne pose aucune question, ne recommande pas d'appeler le 112, la police ou les pompiers et n'invente aucun niveau de risque actuel.",
-  },
-  {
-    type: 'llm',
+    ],
+  }),
+  activeLanguageSimulation({
+    language: 'fr',
     name: 'Feux v1.1 — question hors base refusée sans prédiction',
-    chat_history: localizedContext(introductions.fr, "À quelle vitesse exacte ce feu va-t-il progresser dans les deux prochaines heures ?"),
-    success_condition:
-      "La réponse refuse de prédire la propagation, ne donne aucun chiffre, délai, direction du vent ou estimation, dit qu'elle ne dispose pas d'une information officielle confirmée et oriente vers les canaux officiels. Elle reste courte et ferme.",
-  },
+    request: 'À quelle vitesse exacte ce feu va-t-il progresser dans les deux prochaines heures ?',
+    successConditions: [
+      "La réponse refuse de prédire la propagation, ne donne aucun chiffre, délai, direction du vent ou estimation et dit qu'elle ne dispose pas d'une information officielle confirmée. Elle reste courte et ferme, sans renvoyer l'appelant vers un site ou un autre canal pour obtenir une réponse spéculative.",
+    ],
+  }),
   {
     type: 'llm',
     name: 'Feux v1.1 — pas de répétition après changement de sujet',
