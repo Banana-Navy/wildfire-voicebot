@@ -35,6 +35,9 @@ assert.ok(Array.isArray(wallonia.official_access_extracts_de));
 assert.match(wallonia.access.no_match_answer_template.fr, /ni confirmer son accès, ni affirmer/);
 assert.match(wallonia.access.no_match_answer_template.nl, /niet bevestigen/);
 assert.match(wallonia.access.no_match_answer_template.de, /weder bestätigen/);
+assert.ok(wallonia.access.scope_limited_places.includes('Hautes Fagnes'));
+assert.match(wallonia.access.scope_limited_answer_template.fr, /statut de toute cette zone/);
+assert.match(wallonia.access.scope_limited_answer_template.de, /Status des gesamten Gebiets/);
 assert.match(wallonia.access.action_templates.closed_natural_area.de, /Betreten Sie das Gebiet nicht/);
 if (wallonia.active_wildfire_alert) {
   assert.ok(wallonia.official_access_extracts_fr.length > 0, 'Alerte wallonne sans mesure extraite.');

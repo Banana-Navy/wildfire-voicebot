@@ -29,7 +29,7 @@ Les données variables du jour ne sont jamais copiées dans cette base statique.
 
 Le registre couvre les 565 communes Statbel, les cinq provinces flamandes, les cinq provinces wallonnes, 333 domaines naturels de l'Agentschap voor Natuur en Bos, 680 zones naturelles publiées par le SPW et les lieux explicitement nommés dans les mesures actives suivies. Il génère aussi des variantes orales sûres telles que « forêt de Chimay », « bos van… » et « Wald bei… » afin de résoudre une demande naturelle sans inventer un autre lieu. Un code provincial indique le risque mais ne confirme jamais à lui seul qu'un site individuel est ouvert.
 
-Pour la Wallonie, le workflow lit la publication française et sa traduction allemande officielle lorsqu'elle est disponible. Une commune reste distincte d'un cantonnement forestier, d'une route ou d'un barrage homonyme. Lorsqu'aucune mesure ne nomme exactement l'entité demandée, l'agent dit que l'accès n'est pas confirmé ; il ne transforme jamais cette absence en preuve que le lieu est hors périmètre ou ouvert.
+Pour la Wallonie, le workflow lit la publication française et sa traduction allemande officielle lorsqu'elle est disponible. Une commune reste distincte d'un cantonnement forestier, d'une route ou d'un barrage homonyme. Lorsqu'aucune mesure ne nomme exactement l'entité demandée, l'agent dit que l'accès n'est pas confirmé ; il ne transforme jamais cette absence en preuve que le lieu est hors périmètre ou ouvert. Pour une zone étendue comme les Hautes Fagnes, il distingue la présence d'une interdiction dans un périmètre cartographié du statut de l'ensemble de la réserve et refuse toute généralisation.
 
 ## Téléphonie connectée
 

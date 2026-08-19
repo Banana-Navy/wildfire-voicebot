@@ -60,6 +60,7 @@ async function accessSimulationMocks(placeSlug) {
 
 const chimayAccessMocks = await accessSimulationMocks('foret-de-chimay');
 const verviersAccessMocks = await accessSimulationMocks('commune-de-verviers');
+const hautesFagnesAccessMocks = await accessSimulationMocks('hautes-fagnes');
 
 const tests = [
   {
@@ -163,6 +164,21 @@ const tests = [
     simulation_max_turns: 3,
     simulation_environment: null,
     ...verviersAccessMocks,
+    is_auto_generated: false,
+  },
+  {
+    type: 'simulation',
+    name: 'Feux v2.3 — Hautes Fagnes sans généralisation du périmètre',
+    chat_history: localizedContext(introductions.fr, "Les Hautes Fagnes sont-elles accessibles aujourd'hui ?"),
+    success_conditions: [
+      "L'agent appelle resolve_official_place puis get_daily_access_status avant de répondre, sans texte d'attente entre les outils.",
+      "La réponse explique qu'une interdiction existe dans un périmètre cartographié concernant les Hautes Fagnes, mais qu'elle ne permet pas de confirmer le statut de toute la zone.",
+      "L'agent ne déclare jamais toute la réserve naturelle des Hautes Fagnes fermée, interdite, ouverte ou accessible. Il donne une action claire et précise que l'information peut changer chaque jour.",
+    ],
+    simulation_scenario: 'Après la réponse de l’agent, dites seulement merci et terminez sans nouvelle question.',
+    simulation_max_turns: 3,
+    simulation_environment: null,
+    ...hautesFagnesAccessMocks,
     is_auto_generated: false,
   },
   {
