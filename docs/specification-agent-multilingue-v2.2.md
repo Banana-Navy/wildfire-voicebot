@@ -37,7 +37,7 @@ L'agent est une ligne d'information et d'orientation. Il ne reçoit pas officiel
 | `nl-BE` | Jeroen Vlaams — `Yv0oyZ3obP9foTH7emqG` | Homme, âge moyen, flamand, calme, information et IVR | `0,62 / 0,82 / 0,97` |
 | `de-DE` | Otto — `FTNCalFNG5bRnkkaP5Ug` | Homme, âge moyen, allemand standard, calme | `0,62 / 0,82 / 0,97` |
 
-Les valeurs indiquent stabilité, similarité et vitesse. L'accueil trilingue utilise Jeroen à une vitesse de `0,94` pour éviter un démarrage précipité. Les trois voix conservent le même profil perceptif, mais le français utilise des réglages propres et un modèle plus qualitatif afin d'équilibrer présence, naturel et rythme.
+Les valeurs indiquent stabilité, similarité et vitesse. L'accueil trilingue utilise Adrien à une vitesse de `0,94` : la voix de sécurité initiale est ainsi francophone et ne peut plus lire une phrase française avec un accent flamand si le routage tarde. Après la sélection, Jeroen prend immédiatement le relais en néerlandais et Otto en allemand. Les trois voix conservent le même profil perceptif, mais le français utilise des réglages propres et un modèle plus qualitatif afin d'équilibrer présence, naturel et rythme.
 
 ## Messages localisés verrouillés
 
