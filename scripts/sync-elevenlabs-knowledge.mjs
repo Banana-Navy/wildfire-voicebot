@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
-import { dailyAccessTools } from './lib/elevenlabs-access-tools.mjs';
+import { DAILY_ACCESS_TOOL_IDS, dailyAccessTools } from './lib/elevenlabs-access-tools.mjs';
 
 const apiKey = process.env.ELEVENLABS_API_KEY;
 if (!apiKey) throw new Error('ELEVENLABS_API_KEY est absent.');
@@ -10,10 +10,6 @@ const root = resolve(import.meta.dirname, '..');
 const agentId = 'agent_2201m07k477kepfsq9p5h8bh4x1g';
 const documentId = '89AM7w3ggzzZpzmAiiRT';
 const headers = { 'xi-api-key': apiKey, 'content-type': 'application/json' };
-const dailyAccessToolIds = {
-  resolve_official_place: 'tool_2601m0d59rbff80b5havcr1fb286',
-  get_daily_access_status: 'tool_7301m0d59rbgec9b0ywzzxq0dv2r',
-};
 const knowledgeFiles = [
   'knowledge/base-connaissances.md',
 ];
@@ -36,7 +32,7 @@ const document = await documentResponse.json();
 if (!documentResponse.ok) throw new Error(`Mise à jour KB impossible (${documentResponse.status}): ${JSON.stringify(document)}`);
 
 for (const tool of dailyAccessTools()) {
-  const toolId = dailyAccessToolIds[tool.name];
+  const toolId = DAILY_ACCESS_TOOL_IDS[tool.name];
   if (!toolId) throw new Error(`Identifiant distant absent pour l'outil ${tool.name}.`);
   const toolResponse = await fetch(`https://api.elevenlabs.io/v1/convai/tools/${toolId}`, {
     method: 'PATCH',
@@ -129,6 +125,9 @@ const endCallDescription =
   "« Bedankt voor uw oproep. » ou « Vielen Dank für Ihren Anruf. ». " +
   "Utilise cette même phrase dans system__message_to_speak, termine immédiatement et n'ajoute rien. " +
   "N'appelle jamais cet outil automatiquement après une consigne d'urgence ou une orientation vers le 112; attends une confirmation explicite de l'appelant.";
+const isolatedThanksDescription =
+  " Un merci, bedankt ou danke isolé après une réponse, sans nouvelle question, vaut confirmation de fin d'appel. " +
+  "Prononce alors uniquement la clôture localisée, appelle cet outil et ne demande jamais si l'appelant a d'autres questions.";
 const languageDescription =
   "PORTE ABSOLUE AU PREMIER TOUR : dès que fr, nl ou de est identifiable, ta seule sortie avant tout texte doit être cet outil. " +
   "Cette règle s'applique aussi à un danger immédiat : appelle silencieusement l'outil, puis donne le 112 comme premier texte avec la voix native. " +
@@ -139,7 +138,7 @@ const languageDescription =
   "Pour toute langue non prise en charge, n'appelle pas cet outil; dis exactement et uniquement : Français, Nederlands oder Deutsch ?";
 const configureEndCall = (tool) => {
   if (!tool) return;
-  tool.description = endCallDescription;
+  tool.description = endCallDescription + isolatedThanksDescription;
   tool.pre_tool_speech = 'off';
   tool.force_pre_tool_speech = false;
   tool.tool_call_sound = null;
@@ -242,7 +241,7 @@ console.log(JSON.stringify({
   language_tts_models: Object.fromEntries(Object.entries(localized).map(([language, settings]) => [language, settings.modelId ?? conversation.tts.model_id])),
   bootstrap_llm: conversation.agent.prompt.llm,
   language_llms: Object.fromEntries(Object.keys(localized).map((language) => [language, conversation.language_presets[language].overrides.agent.prompt.llm])),
-  daily_access_tool_ids: dailyAccessToolIds,
+  daily_access_tool_ids: DAILY_ACCESS_TOOL_IDS,
   tts_model: conversation.tts.model_id,
   stability: conversation.tts.stability,
   similarity_boost: conversation.tts.similarity_boost,

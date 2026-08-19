@@ -1,3 +1,6 @@
+import { STATUS_BASE_URL } from './lib/access-data.mjs';
+import { DAILY_ACCESS_TOOL_IDS } from './lib/elevenlabs-access-tools.mjs';
+
 const apiKey = process.env.ELEVENLABS_API_KEY;
 if (!apiKey) throw new Error('ELEVENLABS_API_KEY est absent.');
 if (!process.argv.includes('--confirm')) {
@@ -25,6 +28,38 @@ const introductions = {
   nl: 'Prima. U bent verbonden met de informatielijn voor bos- en natuurbranden. Dit gesprek wordt opgenomen. Deze lijn stuurt geen meldingen door. Is er onmiddellijk gevaar, hang dan op en bel 112. Belt u om een brand te melden, of wilt u informatie?',
   de: 'Sehr gern. Sie sind mit der Informationshotline für Wald- und Vegetationsbrände verbunden. Dieses Gespräch wird aufgezeichnet. Diese Hotline leitet keine Notrufe weiter. Bei unmittelbarer Gefahr legen Sie auf und rufen Sie 112 an. Möchten Sie einen Brand melden oder Informationen erhalten?',
 };
+
+async function accessSimulationMocks(placeSlug) {
+  const placeResponse = await fetch(`${STATUS_BASE_URL}/places/${placeSlug}.json`);
+  if (!placeResponse.ok) throw new Error(`Résolveur officiel indisponible pour ${placeSlug} (${placeResponse.status}).`);
+  const place = await placeResponse.json();
+  if (!place.status_url) throw new Error(`Statut officiel absent du résolveur ${placeSlug}.`);
+  const statusResponse = await fetch(place.status_url);
+  if (!statusResponse.ok) throw new Error(`Statut officiel indisponible pour ${placeSlug} (${statusResponse.status}).`);
+  const status = await statusResponse.json();
+  return {
+    tool_mock_config: {
+      mocking_strategy: 'selected',
+      fallback_strategy: 'raise_error',
+      mocked_tool_ids: Object.values(DAILY_ACCESS_TOOL_IDS),
+    },
+    tool_mock_overrides: {
+      [DAILY_ACCESS_TOOL_IDS.resolve_official_place]: [{
+        parameter_conditions: [],
+        mock_result: JSON.stringify(place),
+        is_error: false,
+      }],
+      [DAILY_ACCESS_TOOL_IDS.get_daily_access_status]: [{
+        parameter_conditions: [],
+        mock_result: JSON.stringify(status),
+        is_error: false,
+      }],
+    },
+  };
+}
+
+const chimayAccessMocks = await accessSimulationMocks('foret-de-chimay');
+const verviersAccessMocks = await accessSimulationMocks('commune-de-verviers');
 
 const tests = [
   {
@@ -101,18 +136,34 @@ const tests = [
     is_auto_generated: false,
   },
   {
-    type: 'llm',
+    type: 'simulation',
     name: 'Feux v2.3 — Chimay absent ne signifie jamais hors périmètre',
     chat_history: localizedContext(introductions.fr, "La forêt de Chimay est-elle accessible aujourd'hui ?"),
-    success_condition:
-      "L'agent utilise les outils officiels quotidiens. La réponse dit que la publication officielle vérifiée aujourd'hui ne nomme pas Chimay et qu'elle ne permet pas de confirmer son accès. Elle ne dit jamais que Chimay ne fait pas partie du périmètre, n'est pas concernée, est hors zone, ouverte ou accessible. Elle ne renvoie pas l'appelant vers un site et précise que l'information peut changer chaque jour.",
+    success_conditions: [
+      "L'agent appelle resolve_official_place puis get_daily_access_status avant de répondre, sans texte d'attente entre les outils.",
+      "La réponse dit que la publication officielle vérifiée aujourd'hui ne nomme pas Chimay et qu'elle ne permet pas de confirmer son accès.",
+      "La réponse ne dit jamais que Chimay ne fait pas partie du périmètre, n'est pas concernée, est hors zone, ouverte ou accessible. Elle ne renvoie pas vers un site et précise que l'information peut changer chaque jour.",
+    ],
+    simulation_scenario: 'Après la réponse de l’agent, dites seulement merci et terminez sans nouvelle question.',
+    simulation_max_turns: 3,
+    simulation_environment: null,
+    ...chimayAccessMocks,
+    is_auto_generated: false,
   },
   {
-    type: 'llm',
+    type: 'simulation',
     name: 'Feux v2.3 — commune de Verviers distincte du cantonnement',
     chat_history: localizedContext(introductions.fr, "La commune de Verviers est-elle soumise à l'interdiction d'accès aujourd'hui ?"),
-    success_condition:
-      "L'agent utilise les outils officiels quotidiens et distingue la commune de Verviers du cantonnement forestier de Verviers. Il n'applique pas à la commune la fermeture visant le cantonnement. Il indique que l'accès de la commune n'est pas confirmé, ne la déclare ni ouverte ni hors périmètre et rappelle que l'information peut changer chaque jour.",
+    success_conditions: [
+      "L'agent appelle resolve_official_place puis get_daily_access_status avant de répondre, sans texte d'attente entre les outils.",
+      "L'agent distingue la commune de Verviers du cantonnement forestier de Verviers et n'applique pas à la commune la fermeture visant le cantonnement.",
+      "L'agent indique que l'accès de la commune n'est pas confirmé, ne la déclare ni ouverte ni hors périmètre et rappelle que l'information peut changer chaque jour.",
+    ],
+    simulation_scenario: 'Après la réponse de l’agent, dites seulement merci et terminez sans nouvelle question.',
+    simulation_max_turns: 3,
+    simulation_environment: null,
+    ...verviersAccessMocks,
+    is_auto_generated: false,
   },
   {
     type: 'llm',

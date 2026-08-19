@@ -1,5 +1,10 @@
 import { STATUS_BASE_URL } from './access-data.mjs';
 
+export const DAILY_ACCESS_TOOL_IDS = {
+  resolve_official_place: 'tool_2601m0d59rbff80b5havcr1fb286',
+  get_daily_access_status: 'tool_7301m0d59rbgec9b0ywzzxq0dv2r',
+};
+
 const parameter = (description) => ({ type: 'string', description });
 
 const baseWebhook = (name, description, url, pathParams) => ({

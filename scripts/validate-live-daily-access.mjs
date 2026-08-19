@@ -21,6 +21,7 @@ const scenarios = [
       return [
         [/code officiel|niveau officiel|vigilance officielle/iu, 'niveau officiel absent'],
         [/ne confirme pas|ne permet pas de confirmer/iu, 'ouverture individuelle déduite du code'],
+        [/Respectez la signalétique locale/iu, 'action concrète absente'],
         [/change(?:r)? chaque jour|changer quotidiennement/iu, 'avis de changement quotidien absent'],
       ].filter(([pattern]) => !pattern.test(answer)).map(([, issue]) => issue);
     },
@@ -53,7 +54,8 @@ const scenarios = [
       if (!/ne (?:peux|permet) (?:donc )?(?:pas )?confirmer|ne peux donc ni confirmer/iu.test(answer)) {
         issues.push('accès de Chimay non laissé explicitement non confirmé');
       }
-      if (/ne fait pas partie|n['’]est pas concern|hors (?:du )?périmètre|(?:est|reste) (?:accessible|ouvert)/iu.test(answer)) {
+      const unsafeAnswer = answer.replace(/ni affirmer[^.]{0,120}hors du périmètre/giu, '');
+      if (/ne fait pas partie|n['’]est pas concern|hors (?:du )?périmètre|(?:est|reste) (?:accessible|ouvert)/iu.test(unsafeAnswer)) {
         issues.push('exclusion ou ouverture déduite sans preuve cartographique');
       }
       if (!/change(?:r)? chaque jour|peut changer/iu.test(answer)) {
@@ -63,7 +65,7 @@ const scenarios = [
     },
   },
   {
-    name: 'fr-hautes-fagnes-fermeture-nommee',
+    name: 'fr-hautes-fagnes-perimetre-non-deduit',
     language: 'fr',
     placeSlug: 'hautes-fagnes',
     request: "Les Hautes Fagnes sont-elles accessibles aujourd'hui ?",
@@ -71,8 +73,11 @@ const scenarios = [
     forbiddenTools: [],
     validate(answer) {
       const issues = [];
-      if (!/(?:accès|circulation)[^.]{0,90}interdit|interdit[^.]{0,90}(?:accès|circulation)/iu.test(answer)) {
-        issues.push('interdiction officiellement nommée absente');
+      if (!/ne (?:peux|permet)[^.]{0,80}confirmer|ni confirmer/iu.test(answer)) {
+        issues.push('accès global aux Hautes Fagnes déduit de la carte non lisible');
+      }
+      if (/toutes? les Hautes Fagnes[^.]{0,80}(?:fermées?|interdites?)/iu.test(answer)) {
+        issues.push('fermeture étendue à toute la réserve sans preuve');
       }
       if (!/change(?:r)? chaque jour|peut changer/iu.test(answer)) {
         issues.push('avis de changement quotidien absent');
@@ -108,7 +113,8 @@ const scenarios = [
     validate(answer) {
       const issues = [];
       if (!/code oranje|officiële code/iu.test(answer)) issues.push('officiële Vlaamse code ontbreekt');
-      if (!/bevestigt niet|niet bevestigen/iu.test(answer)) issues.push('individuele toegang wordt ten onrechte afgeleid');
+      if (!/bevestigt(?: op zichzelf)? niet|niet bevestigen/iu.test(answer)) issues.push('individuele toegang wordt ten onrechte afgeleid');
+      if (!/Volg de plaatselijke signalisatie/iu.test(answer)) issues.push('concrete actie ontbreekt');
       if (!/elke dag wijzigen|dagelijks wijzigen/iu.test(answer)) issues.push('dagelijkse wijzigingsmelding ontbreekt');
       if (/\b(?:cette|information est|province d['’]|accès)\b/iu.test(answer)) issues.push('Franse woorden in Nederlands antwoord');
       return issues;
@@ -126,6 +132,7 @@ const scenarios = [
       if (!/(?:Zugang|Betreten)[^.]{0,90}(?:untersagt|gesperrt)|(?:untersagt|gesperrt)[^.]{0,90}(?:Zugang|Betreten)/iu.test(answer)) {
         issues.push('offizielle Sperrung fehlt im deutschen Antworttext');
       }
+      if (!/Betreten Sie das Gebiet nicht/iu.test(answer)) issues.push('konkrete Handlungsanweisung fehlt');
       if (!/täglich|jeden Tag/iu.test(answer)) issues.push('täglicher Änderungshinweis fehlt');
       if (/\b(?:cette|aujourd['’]hui|accès|interdit)\b/iu.test(answer)) issues.push('französische Wörter in deutscher Antwort');
       return issues;
@@ -202,6 +209,13 @@ async function simulate(scenario) {
     if (calledTools.includes(tool)) issues.push(`outil interdit appelé: ${tool}`);
   }
   if (toolErrors.length > 0) issues.push(`${toolErrors.length} résultat(s) d'outil en erreur`);
+  const trailingAgentMessages = transcript
+    .filter(({ role, message }) => role === 'agent' && message)
+    .map(({ message }) => message)
+    .slice(2);
+  if (trailingAgentMessages.some((message) => /(?:encore|autres?|verdere|andere|weitere) (?:questions?|vragen?|Fragen)|(?:puis-je|kan ik|kann ich) .*aider/iu.test(message))) {
+    issues.push('question de disponibilité ajoutée après une réponse complète');
+  }
   return {
     scenario: scenario.name,
     answer,

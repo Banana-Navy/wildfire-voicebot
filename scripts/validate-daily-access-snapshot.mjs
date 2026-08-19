@@ -22,6 +22,9 @@ for (const province of ['antwerpen', 'limburg', 'oost-vlaanderen', 'vlaams-braba
   assert.equal(status.source_health, 'ok');
   assert.ok(allowedCodes.has(status.official_risk.code), `Code flamand invalide pour ${province}.`);
   assert.equal(status.access.individually_confirmed_open, false);
+  assert.match(status.direct_answer.fr, /Respectez la signalétique/);
+  assert.match(status.direct_answer.nl, /Volg de plaatselijke signalisatie/);
+  assert.match(status.direct_answer.de, /Beachten Sie die örtliche Beschilderung/);
 }
 
 const wallonia = await readJson('status', 'wallonia-regional.json');
@@ -32,6 +35,7 @@ assert.ok(Array.isArray(wallonia.official_access_extracts_de));
 assert.match(wallonia.access.no_match_answer_template.fr, /ni confirmer son accès, ni affirmer/);
 assert.match(wallonia.access.no_match_answer_template.nl, /niet bevestigen/);
 assert.match(wallonia.access.no_match_answer_template.de, /weder bestätigen/);
+assert.match(wallonia.access.action_templates.closed_natural_area.de, /Betreten Sie das Gebiet nicht/);
 if (wallonia.active_wildfire_alert) {
   assert.ok(wallonia.official_access_extracts_fr.length > 0, 'Alerte wallonne sans mesure extraite.');
   if (wallonia.source.article_url_de) {
