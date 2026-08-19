@@ -429,38 +429,72 @@ const tests = [
     is_auto_generated: false,
   },
   {
-    type: 'llm',
+    type: 'simulation',
     name: 'Feux v2.2 — nom de lieu incertain confirmé sans tout répéter',
-    chat_history: [
-      message('agent', "Quel nom de lieu avez-vous entendu dans le message officiel ?", 5),
-      message('user', "Je ne suis pas sûre. J'ai entendu Stoumont ou peut-être Stavelot, seulement ce nom-là est incertain.", 10),
+    chat_history: [],
+    dynamic_variables: { system__conversation_id: 'sim_wildfire_v22_uncertain_place_fr' },
+    success_conditions: [
+      "Après le choix du français, l'agent applique language_detection avec fr avant de parler et poursuit uniquement en français.",
+      "Quand seul le nom du lieu est incertain entre Stoumont et Stavelot, la réponse ne prétend pas avoir compris. Elle demande une confirmation courte portant uniquement sur ces deux noms, sans faire répéter l'explication, inventer une zone touchée ni demander d'adresse complète.",
     ],
-    success_condition:
-      "La réponse ne prétend pas avoir compris le lieu. Elle demande une confirmation courte portant uniquement sur Stoumont ou Stavelot, sans faire répéter toute l'explication, sans inventer de zone touchée et sans demander d'adresse complète.",
+    simulation_scenario:
+      "Au premier message, répondez seulement : Français. Après la présentation, dites exactement : « Je ne suis pas sûre. J'ai entendu Stoumont ou peut-être Stavelot, seulement ce nom-là est incertain. » N'ajoutez rien et attendez la confirmation.",
+    simulation_max_turns: 3,
+    simulation_environment: null,
+    tool_mock_config: { mocking_strategy: 'all', fallback_strategy: 'raise_error', mocked_tool_ids: [] },
+    tool_mock_overrides: {},
+    is_auto_generated: false,
   },
   {
-    type: 'llm',
+    type: 'simulation',
     name: 'Feux v2.4 — numéro belge segmenté et non ambigu',
-    chat_history: localizedContext(introductions.fr, "Pouvez-vous me redire le numéro de cette ligne ?"),
-    success_condition:
-      "La réponse entière est exactement : « Zéro, septante et un. Quarante-neuf. Nonante-huit. Dix-sept. » Le numéro est segmenté selon 071 49 98 17, utilise septante et nonante comme en français de Belgique, ne cite ni 112, ni 1771, ni 1722 et n'ajoute aucune question.",
-  },
-  {
-    type: 'llm',
-    name: 'Feux v2.4 — heure critique incertaine confirmée seule',
-    chat_history: [
-      message('agent', "Quelle heure était indiquée dans le message officiel ?", 5),
-      message('user', "J'ai entendu un retour à dix-sept heures ou peut-être dix-neuf heures. Seule l'heure est incertaine.", 10),
+    chat_history: [],
+    dynamic_variables: { system__conversation_id: 'sim_wildfire_v24_phone_number_fr' },
+    success_conditions: [
+      "Après le choix du français, l'agent applique language_detection avec fr avant de parler et poursuit uniquement en français.",
+      "La réponse à la demande de numéro est exactement : « Zéro, septante et un. Quarante-neuf. Nonante-huit. Dix-sept. » Le numéro est segmenté selon 071 49 98 17, utilise septante et nonante, ne cite ni 112, ni 1771, ni 1722 et n'ajoute aucune question.",
     ],
-    success_condition:
-      "La réponse ne prétend pas avoir compris l'heure. Elle demande une confirmation courte portant uniquement sur dix-sept heures ou dix-neuf heures, sans faire répéter le reste, sans inventer une heure officielle et sans ajouter une autre question.",
+    simulation_scenario:
+      "Au premier message, répondez seulement : Français. Après la présentation, demandez exactement : « Pouvez-vous me redire le numéro de cette ligne ? » N'ajoutez rien.",
+    simulation_max_turns: 3,
+    simulation_environment: null,
+    tool_mock_config: { mocking_strategy: 'all', fallback_strategy: 'raise_error', mocked_tool_ids: [] },
+    tool_mock_overrides: {},
+    is_auto_generated: false,
   },
   {
-    type: 'llm',
+    type: 'simulation',
+    name: 'Feux v2.4 — heure critique incertaine confirmée seule',
+    chat_history: [],
+    dynamic_variables: { system__conversation_id: 'sim_wildfire_v24_uncertain_time_fr' },
+    success_conditions: [
+      "Après le choix du français, l'agent applique language_detection avec fr avant de parler et poursuit uniquement en français.",
+      "Quand seule l'heure est incertaine entre dix-sept heures et dix-neuf heures, la réponse ne prétend pas avoir compris. Elle demande une confirmation courte portant uniquement sur ces deux heures, sans faire répéter le reste, inventer une heure officielle ni ajouter une autre question.",
+    ],
+    simulation_scenario:
+      "Au premier message, répondez seulement : Français. Après la présentation, dites exactement : « J'ai entendu un retour à dix-sept heures ou peut-être dix-neuf heures. Seule l'heure est incertaine. » N'ajoutez rien et attendez la confirmation.",
+    simulation_max_turns: 3,
+    simulation_environment: null,
+    tool_mock_config: { mocking_strategy: 'all', fallback_strategy: 'raise_error', mocked_tool_ids: [] },
+    tool_mock_overrides: {},
+    is_auto_generated: false,
+  },
+  {
+    type: 'simulation',
     name: 'Feux v2.2 — langue non prise en charge reste limitée aux trois langues',
-    chat_history: [message('user', 'Can we continue in English?', 5)],
-    success_condition:
+    chat_history: [],
+    dynamic_variables: { system__conversation_id: 'sim_wildfire_v22_unsupported_english' },
+    success_conditions: [
+      "Quand l'appelant demande l'anglais après l'accueil trilingue, l'agent n'appelle language_detection avec aucune langue.",
       "La réponse entière est exactement : « Français, Nederlands oder Deutsch ? » Elle ne contient aucune explication, excuse ou autre mot, notamment aucun mot anglais.",
+    ],
+    simulation_scenario:
+      "Au premier message, répondez exactement en anglais : « Can we continue in English? » N'ajoutez rien et attendez la réponse.",
+    simulation_max_turns: 2,
+    simulation_environment: null,
+    tool_mock_config: { mocking_strategy: 'all', fallback_strategy: 'raise_error', mocked_tool_ids: [] },
+    tool_mock_overrides: {},
+    is_auto_generated: false,
   },
   {
     type: 'llm',

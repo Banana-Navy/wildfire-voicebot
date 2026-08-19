@@ -7,12 +7,25 @@ const baseUrl = 'https://api.elevenlabs.io/v1/convai';
 const filters = process.argv.slice(2).filter((value) => !value.startsWith('--'));
 
 async function request(url, options = {}) {
-  const response = await fetch(url, { headers, ...options });
-  const body = await response.json();
-  if (!response.ok) {
-    throw new Error(`${options.method ?? 'GET'} ${url} (${response.status}): ${JSON.stringify(body)}`);
+  const maxAttempts = 5;
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    let response;
+    try {
+      response = await fetch(url, { headers, ...options });
+    } catch (error) {
+      if (attempt === maxAttempts) throw error;
+      await new Promise((resolveWait) => setTimeout(resolveWait, attempt * 1_500));
+      continue;
+    }
+    const body = await response.json();
+    if (response.ok) return body;
+    const retryableStatus = response.status === 429 || response.status >= 500;
+    if (!retryableStatus || attempt === maxAttempts) {
+      throw new Error(`${options.method ?? 'GET'} ${url} (${response.status}): ${JSON.stringify(body)}`);
+    }
+    await new Promise((resolveWait) => setTimeout(resolveWait, attempt * 1_500));
   }
-  return body;
+  throw new Error(`${options.method ?? 'GET'} ${url}: nombre maximal de tentatives dépassé.`);
 }
 
 const catalogue = await request(`${baseUrl}/agent-testing?page_size=100`);
