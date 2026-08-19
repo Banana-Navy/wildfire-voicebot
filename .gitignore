@@ -4,3 +4,5 @@ dist/
 .env.*
 !.env.example
 .DS_Store
+public/data/access/
+public/data/access-staging-*/

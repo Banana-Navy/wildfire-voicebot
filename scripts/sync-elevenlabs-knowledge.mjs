@@ -1,0 +1,226 @@
+import { readFile } from 'node:fs/promises';
+import { resolve } from 'node:path';
+import { dailyAccessTools } from './lib/elevenlabs-access-tools.mjs';
+
+const apiKey = process.env.ELEVENLABS_API_KEY;
+if (!apiKey) throw new Error('ELEVENLABS_API_KEY est absent.');
+if (!process.argv.includes('--confirm')) throw new Error('Ajoutez --confirm pour modifier l’agent distant.');
+
+const root = resolve(import.meta.dirname, '..');
+const agentId = 'agent_2201m07k477kepfsq9p5h8bh4x1g';
+const documentId = '89AM7w3ggzzZpzmAiiRT';
+const headers = { 'xi-api-key': apiKey, 'content-type': 'application/json' };
+const knowledgeFiles = [
+  'knowledge/base-connaissances.md',
+];
+const sections = await Promise.all(knowledgeFiles.map(async (file) => {
+  const content = await readFile(resolve(root, file), 'utf8');
+  return `# Fichier local : ${file}\n\n${content}`;
+}));
+const knowledgeText = sections.join('\n\n---\n\n');
+const systemPrompt = await readFile(resolve(root, 'agent/system-prompt.md'), 'utf8');
+
+const documentResponse = await fetch(`https://api.elevenlabs.io/v1/convai/knowledge-base/${documentId}`, {
+  method: 'PATCH',
+  headers,
+  body: JSON.stringify({
+    name: 'Feux en Milieu Naturel — Base opérationnelle contrôlée — 2026.08.17',
+    content: knowledgeText,
+  }),
+});
+const document = await documentResponse.json();
+if (!documentResponse.ok) throw new Error(`Mise à jour KB impossible (${documentResponse.status}): ${JSON.stringify(document)}`);
+
+const agentResponse = await fetch(`https://api.elevenlabs.io/v1/convai/agents/${agentId}`, { headers });
+const agent = await agentResponse.json();
+if (!agentResponse.ok) throw new Error(`Lecture agent impossible (${agentResponse.status}).`);
+
+const conversation = structuredClone(agent.conversation_config);
+conversation.agent.prompt.prompt = systemPrompt;
+conversation.agent.first_message =
+  "Bonjour et bienvenue. Goedendag en welkom. Guten Tag und herzlich willkommen. Vous préférez le français, Nederlands oder Deutsch ?";
+conversation.agent.disable_first_message_interruptions = false;
+// The base language must be supported by the multilingual TTS model. Dutch is
+// used for the trilingual selector; FR and DE then switch to native presets.
+conversation.agent.language = 'nl';
+const presetTemplate = structuredClone(
+  conversation.language_presets?.nl ?? conversation.language_presets?.de ?? conversation.language_presets?.fr,
+);
+if (!presetTemplate?.overrides) throw new Error('Impossible de créer les presets de langue.');
+const localized = {
+  fr: { voiceId: 'IpTJxgMFj1wbxpha4zxm', modelId: 'eleven_multilingual_v2', stability: 0.50, similarity: 0.82, speed: 0.94 },
+  nl: { voiceId: 'Yv0oyZ3obP9foTH7emqG', stability: 0.62, similarity: 0.82, speed: 0.97 },
+  de: { voiceId: 'FTNCalFNG5bRnkkaP5Ug', stability: 0.62, similarity: 0.82, speed: 0.97 },
+};
+conversation.asr.user_input_audio_format = 'ulaw_8000';
+conversation.asr.keywords = Array.from(new Set([
+  ...(conversation.asr.keywords ?? []), '071 49 98 17', 'zéro septante-et-un', 'quarante-neuf', 'nonante-huit',
+  'français', 'Nederlands', 'néerlandais', 'Vlaams', 'Deutsch', 'allemand',
+  'tourbe', 'tourbière', 'Hautes Fagnes', 'feu souterrain',
+  'veen', 'veenbrand', 'Hoge Venen', 'smeulen',
+  'Torf', 'Torfbrand', 'Hohes Venn', 'Schwelbrand',
+])).filter((keyword) => !['English', 'anglais', 'Engels', 'peat', 'peat fire', 'High Fens', 'smouldering'].includes(keyword));
+conversation.tts.agent_output_audio_format = 'ulaw_8000';
+conversation.tts.model_id = 'eleven_flash_v2_5';
+conversation.tts.voice_id = 'Yv0oyZ3obP9foTH7emqG';
+conversation.tts.stability = 0.62;
+conversation.tts.similarity_boost = 0.82;
+conversation.tts.speed = 0.94;
+conversation.tts.optimize_streaming_latency = 1;
+conversation.tts.expressive_mode = false;
+conversation.tts.text_normalisation_type = 'system_prompt';
+conversation.tts.enable_phoneme_tags = false;
+conversation.turn.turn_model = 'turn_v3';
+conversation.turn.turn_eagerness = 'normal';
+conversation.turn.turn_timeout = 7;
+conversation.turn.speculative_turn = false;
+conversation.turn.soft_timeout_config = {
+  ...(conversation.turn.soft_timeout_config ?? {}),
+  timeout_seconds: -1,
+  message: 'Je vous écoute.',
+  additional_soft_timeout_messages: [],
+  use_llm_generated_message: false,
+  randomize_fillers: false,
+  max_soft_timeouts_per_generation: 1,
+};
+conversation.agent.prompt.knowledge_base = [{
+  type: 'text',
+  name: document.name,
+  id: document.id,
+  usage_mode: 'prompt',
+}];
+conversation.agent.prompt.rag = {
+  ...(conversation.agent.prompt.rag ?? {}),
+  enabled: false,
+  optional_rag_enabled: false,
+  embedding_model: 'multilingual_e5_large_instruct',
+  max_documents_length: 18000,
+};
+// Use the same proven model before and after language routing. Keeping Gemini
+// as the base model caused a real French call to duplicate a complete answer
+// and append an English continuation even though the FR preset voice was active.
+conversation.agent.prompt.llm = 'claude-haiku-4-5';
+conversation.agent.prompt.backup_llm_config = { preference: 'override', order: ['claude-sonnet-4-5'] };
+conversation.agent.prompt.temperature = 0;
+conversation.agent.prompt.max_tokens = 180;
+const builtIns = conversation.agent.prompt.built_in_tools ?? {};
+const endCallDescription =
+  "Lorsque l'appelant confirme qu'il raccroche, demande à terminer ou n'a plus de question, " +
+  "prononce exactement une fois la clôture de la langue active : « Merci de votre appel. », " +
+  "« Bedankt voor uw oproep. » ou « Vielen Dank für Ihren Anruf. ». " +
+  "Utilise cette même phrase dans system__message_to_speak, termine immédiatement et n'ajoute rien. " +
+  "N'appelle jamais cet outil automatiquement après une consigne d'urgence ou une orientation vers le 112; attends une confirmation explicite de l'appelant.";
+const languageDescription =
+  "PORTE ABSOLUE AU PREMIER TOUR : dès que fr, nl ou de est identifiable, ta seule sortie avant tout texte doit être cet outil. " +
+  "Cette règle s'applique aussi à un danger immédiat : appelle silencieusement l'outil, puis donne le 112 comme premier texte avec la voix native. " +
+  "PORTE ABSOLUE EN COURS D'APPEL : si l'appelant parle clairement dans une autre langue prise en charge ou demande explicitement ce changement, ta seule sortie avant tout texte doit être cet outil. " +
+  "Ne réponds jamais dans la nouvelle langue avec la voix actuelle. Après le résultat, poursuis sans rejouer l'accueil ou la présentation. " +
+  "Ne rappelle jamais cet outil lorsque l'appelant continue dans la langue active et ne rejoue pas la présentation après un changement en cours d'appel. " +
+  "Les seules langues autorisées sont fr, nl et de; ne sélectionne jamais l'anglais et ne réponds jamais en anglais. " +
+  "Pour toute langue non prise en charge, n'appelle pas cet outil; dis exactement et uniquement : Français, Nederlands oder Deutsch ?";
+const configureEndCall = (tool) => {
+  if (!tool) return;
+  tool.description = endCallDescription;
+  tool.pre_tool_speech = 'off';
+  tool.force_pre_tool_speech = false;
+  tool.tool_call_sound = null;
+};
+const configureLanguage = (tool) => {
+  if (!tool) return;
+  tool.description = languageDescription;
+  tool.pre_tool_speech = 'off';
+  tool.interruption_mode = 'disable_during_tool_and_turn';
+  tool.force_pre_tool_speech = false;
+  tool.tool_call_sound = null;
+};
+configureEndCall(builtIns.end_call);
+configureLanguage(builtIns.language_detection);
+conversation.agent.prompt.tools = [
+  ...(conversation.agent.prompt.tools ?? []).filter((tool) =>
+    !['resolve_official_place', 'get_daily_access_status'].includes(tool?.name)),
+  ...dailyAccessTools(),
+];
+for (const tool of conversation.agent.prompt.tools) {
+  if (tool?.name === 'end_call') configureEndCall(tool);
+  if (tool?.name === 'language_detection') configureLanguage(tool);
+}
+
+conversation.language_presets = {};
+for (const [language, settings] of Object.entries(localized)) {
+  const preset = structuredClone(presetTemplate);
+  preset.overrides ??= {};
+  preset.overrides.agent ??= {};
+  preset.overrides.agent.language = language;
+  preset.overrides.agent.first_message = conversation.agent.first_message;
+  preset.overrides.agent.prompt = {
+    llm: 'claude-haiku-4-5',
+    backup_llm_config: { preference: 'override', order: ['claude-sonnet-4-5'] },
+  };
+  preset.overrides.tts = {
+    model_id: settings.modelId ?? conversation.tts.model_id,
+    voice_id: settings.voiceId,
+    stability: settings.stability,
+    similarity_boost: settings.similarity,
+    speed: settings.speed,
+  };
+  conversation.language_presets[language] = preset;
+}
+
+const platform = structuredClone(agent.platform_settings);
+platform.privacy = {
+  ...platform.privacy,
+  record_voice: true,
+  retention_days: 30,
+  delete_audio: false,
+  delete_transcript_and_pii: false,
+  apply_to_existing_conversations: false,
+  zero_retention_mode: false,
+};
+
+const updateResponse = await fetch(`https://api.elevenlabs.io/v1/convai/agents/${agentId}`, {
+  method: 'PATCH',
+  headers,
+  body: JSON.stringify({ name: 'Feux en Milieu Naturel — Inbound (BE)', conversation_config: conversation, platform_settings: platform }),
+});
+const update = await updateResponse.json();
+if (!updateResponse.ok) throw new Error(`Mise à jour agent impossible (${updateResponse.status}): ${JSON.stringify(update)}`);
+
+const phoneNumberId = 'phnum_2001kg33d8jcf1xskxqqz6ryqtk3';
+const phoneResponse = await fetch(`https://api.elevenlabs.io/v1/convai/phone-numbers/${phoneNumberId}`, {
+  method: 'PATCH',
+  headers,
+  body: JSON.stringify({
+    agent_id: agentId,
+    branch_id: 'agtbrch_1101m07k47s2estbzstzye6f97px',
+    label: 'Feux en Milieu Naturel — 071 49 98 17',
+  }),
+});
+const phone = await phoneResponse.json();
+if (!phoneResponse.ok) throw new Error(`Rafraîchissement téléphonie impossible (${phoneResponse.status}): ${JSON.stringify(phone)}`);
+
+console.log(JSON.stringify({
+  agent_id: agentId,
+  knowledge_document_id: document.id,
+  knowledge_document_name: document.name,
+  knowledge_characters: knowledgeText.length,
+  rag_enabled: false,
+  audio_recording: true,
+  retention_days: 30,
+  phone_number: phone.phone_number,
+  phone_number_id: phone.phone_number_id,
+  input_audio_format: conversation.asr.user_input_audio_format,
+  output_audio_format: conversation.tts.agent_output_audio_format,
+  voice_id: conversation.tts.voice_id,
+  language_voice_ids: Object.fromEntries(Object.entries(localized).map(([language, settings]) => [language, settings.voiceId])),
+  language_tts_models: Object.fromEntries(Object.entries(localized).map(([language, settings]) => [language, settings.modelId ?? conversation.tts.model_id])),
+  bootstrap_llm: conversation.agent.prompt.llm,
+  language_llms: Object.fromEntries(Object.keys(localized).map((language) => [language, conversation.language_presets[language].overrides.agent.prompt.llm])),
+  tts_model: conversation.tts.model_id,
+  stability: conversation.tts.stability,
+  similarity_boost: conversation.tts.similarity_boost,
+  speed: conversation.tts.speed,
+  turn_eagerness: conversation.turn.turn_eagerness,
+  turn_timeout: conversation.turn.turn_timeout,
+  soft_timeout_seconds: conversation.turn.soft_timeout_config.timeout_seconds,
+  end_call_pre_tool_speech: builtIns.end_call?.pre_tool_speech,
+}, null, 2));

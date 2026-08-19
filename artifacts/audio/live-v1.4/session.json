@@ -1,0 +1,475 @@
+{
+  "conversation_id": "conv_6501m07vb76seh7v9t56z19vcnd3",
+  "input_format": {
+    "format": "ulaw",
+    "sampleRate": 8000
+  },
+  "output_format": {
+    "format": "ulaw",
+    "sampleRate": 8000
+  },
+  "interrupted": true,
+  "responses": [
+    {
+      "event_id": 1,
+      "text": "Bienvenue sur la ligne Feux de Forêt de Banana Navy. Cet appel de test est enregistré. Danger immédiat : raccrochez et appelez le cent douze. Voulez-vous signaler un feu, ou obtenir des informations ?"
+    },
+    {
+      "event_id": 2,
+      "text": "En forêt, n'allumez aucune flamme et ne fumez pas. Respectez la signalétique et les chemins fermés. Gardez les accès libres pour les secours."
+    },
+    {
+      "event_id": 3,
+      "text": "Prévoyez laisse, caisse de transport, identification et nourriture de votre chien si le temps le permet lors d'une évacuation. Ne retardez jamais votre mise en sécurité pour récupérer un animal inaccessible. Avez-vous une autre question sur les animaux ou l'évacuation ?"
+    },
+    {
+      "event_id": 4,
+      "text": "Merci de votre appel."
+    }
+  ],
+  "events": [
+    {
+      "type": "audio",
+      "at": 1786969956068,
+      "event_id": 1,
+      "bytes": 2973
+    },
+    {
+      "type": "audio",
+      "at": 1786969956149,
+      "event_id": 1,
+      "bytes": 13784
+    },
+    {
+      "type": "audio",
+      "at": 1786969956172,
+      "event_id": 1,
+      "bytes": 14420
+    },
+    {
+      "type": "audio",
+      "at": 1786969956282,
+      "event_id": 1,
+      "bytes": 13218
+    },
+    {
+      "type": "audio",
+      "at": 1786969956282,
+      "event_id": 1,
+      "bytes": 2466
+    },
+    {
+      "type": "audio",
+      "at": 1786969956394,
+      "event_id": 1,
+      "bytes": 48066
+    },
+    {
+      "type": "agent_response",
+      "at": 1786969956394,
+      "event": {
+        "agent_response_event": {
+          "agent_response": "Bienvenue sur la ligne Feux de Forêt de Banana Navy. Cet appel de test est enregistré. Danger immédiat : raccrochez et appelez le cent douze. Voulez-vous signaler un feu, ou obtenir des informations ?",
+          "event_id": 1,
+          "response_id": "a1088dfd-b5fd-4c55-ad10-9493d946f969",
+          "in_response_to_ids": [],
+          "response_type": "text"
+        },
+        "type": "agent_response"
+      }
+    },
+    {
+      "type": "ping",
+      "at": 1786969957706,
+      "event": {
+        "ping_event": {
+          "event_id": 2,
+          "ping_ms": null
+        },
+        "type": "ping"
+      }
+    },
+    {
+      "type": "ping",
+      "at": 1786969959312,
+      "event": {
+        "ping_event": {
+          "event_id": 3,
+          "ping_ms": null
+        },
+        "type": "ping"
+      }
+    },
+    {
+      "type": "ping",
+      "at": 1786969961015,
+      "event": {
+        "ping_event": {
+          "event_id": 4,
+          "ping_ms": null
+        },
+        "type": "ping"
+      }
+    },
+    {
+      "type": "ping",
+      "at": 1786969962723,
+      "event": {
+        "ping_event": {
+          "event_id": 5,
+          "ping_ms": null
+        },
+        "type": "ping"
+      }
+    },
+    {
+      "type": "ping",
+      "at": 1786969964486,
+      "event": {
+        "ping_event": {
+          "event_id": 6,
+          "ping_ms": null
+        },
+        "type": "ping"
+      }
+    },
+    {
+      "type": "ping",
+      "at": 1786969966117,
+      "event": {
+        "ping_event": {
+          "event_id": 7,
+          "ping_ms": null
+        },
+        "type": "ping"
+      }
+    },
+    {
+      "type": "ping",
+      "at": 1786969967817,
+      "event": {
+        "ping_event": {
+          "event_id": 8,
+          "ping_ms": null
+        },
+        "type": "ping"
+      }
+    },
+    {
+      "type": "sent_user_message",
+      "text": "Je veux des informations sur la prévention.",
+      "at": 1786969969398
+    },
+    {
+      "type": "ping",
+      "at": 1786969969518,
+      "event": {
+        "ping_event": {
+          "event_id": 9,
+          "ping_ms": null
+        },
+        "type": "ping"
+      }
+    },
+    {
+      "type": "ping",
+      "at": 1786969971219,
+      "event": {
+        "ping_event": {
+          "event_id": 10,
+          "ping_ms": null
+        },
+        "type": "ping"
+      }
+    },
+    {
+      "type": "audio",
+      "at": 1786969971590,
+      "event_id": 2,
+      "bytes": 7207
+    },
+    {
+      "type": "audio",
+      "at": 1786969971673,
+      "event_id": 2,
+      "bytes": 13218
+    },
+    {
+      "type": "audio",
+      "at": 1786969971807,
+      "event_id": 2,
+      "bytes": 18594
+    },
+    {
+      "type": "audio",
+      "at": 1786969972133,
+      "event_id": 2,
+      "bytes": 21060
+    },
+    {
+      "type": "agent_response",
+      "at": 1786969972133,
+      "event": {
+        "agent_response_event": {
+          "agent_response": "En forêt, n'allumez aucune flamme et ne fumez pas. Respectez la signalétique et les chemins fermés. Gardez les accès libres pour les secours.",
+          "event_id": 2,
+          "response_id": "2064fb42-b594-42d5-bfcb-fccb2761c5ae",
+          "in_response_to_ids": [
+            "450e6e19-a6d5-4bd3-8b2e-72e50917973f"
+          ],
+          "response_type": "text"
+        },
+        "type": "agent_response"
+      }
+    },
+    {
+      "type": "ping",
+      "at": 1786969972919,
+      "event": {
+        "ping_event": {
+          "event_id": 11,
+          "ping_ms": null
+        },
+        "type": "ping"
+      }
+    },
+    {
+      "type": "sent_user_message",
+      "text": "Et pour mon chien ?",
+      "at": 1786969973034
+    },
+    {
+      "type": "interruption",
+      "at": 1786969973177,
+      "event": {
+        "interruption_event": {
+          "event_id": 3
+        },
+        "type": "interruption"
+      }
+    },
+    {
+      "type": "agent_response_correction",
+      "at": 1786969973178,
+      "event": {
+        "agent_response_correction_event": {
+          "original_agent_response": "En forêt, n'allumez aucune flamme et ne fumez pas. Respectez la signalétique et les chemins fermés. Gardez les accès libres pour les secours.",
+          "corrected_agent_response": "En forêt, n'allumez aucune...",
+          "event_id": 2
+        },
+        "type": "agent_response_correction"
+      }
+    },
+    {
+      "type": "ping",
+      "at": 1786969974632,
+      "event": {
+        "ping_event": {
+          "event_id": 12,
+          "ping_ms": null
+        },
+        "type": "ping"
+      }
+    },
+    {
+      "type": "ping",
+      "at": 1786969976323,
+      "event": {
+        "ping_event": {
+          "event_id": 13,
+          "ping_ms": null
+        },
+        "type": "ping"
+      }
+    },
+    {
+      "type": "audio",
+      "at": 1786969976733,
+      "event_id": 3,
+      "bytes": 7207
+    },
+    {
+      "type": "audio",
+      "at": 1786969976733,
+      "event_id": 3,
+      "bytes": 10815
+    },
+    {
+      "type": "audio",
+      "at": 1786969977013,
+      "event_id": 3,
+      "bytes": 38452
+    },
+    {
+      "type": "audio",
+      "at": 1786969977254,
+      "event_id": 3,
+      "bytes": 34848
+    },
+    {
+      "type": "audio",
+      "at": 1786969977527,
+      "event_id": 3,
+      "bytes": 25234
+    },
+    {
+      "type": "agent_response",
+      "at": 1786969977531,
+      "event": {
+        "agent_response_event": {
+          "agent_response": "Prévoyez laisse, caisse de transport, identification et nourriture de votre chien si le temps le permet lors d'une évacuation. Ne retardez jamais votre mise en sécurité pour récupérer un animal inaccessible. Avez-vous une autre question sur les animaux ou l'évacuation ?",
+          "event_id": 3,
+          "response_id": "51bdfc89-75da-4af5-ac73-fa1c9db8cfba",
+          "in_response_to_ids": [
+            "7c9e5a93-1eb6-48a3-b76a-c372203ad0e1"
+          ],
+          "response_type": "text"
+        },
+        "type": "agent_response"
+      }
+    },
+    {
+      "type": "ping",
+      "at": 1786969978023,
+      "event": {
+        "ping_event": {
+          "event_id": 14,
+          "ping_ms": null
+        },
+        "type": "ping"
+      }
+    },
+    {
+      "type": "ping",
+      "at": 1786969979723,
+      "event": {
+        "ping_event": {
+          "event_id": 15,
+          "ping_ms": null
+        },
+        "type": "ping"
+      }
+    },
+    {
+      "type": "ping",
+      "at": 1786969981449,
+      "event": {
+        "ping_event": {
+          "event_id": 16,
+          "ping_ms": null
+        },
+        "type": "ping"
+      }
+    },
+    {
+      "type": "ping",
+      "at": 1786969983125,
+      "event": {
+        "ping_event": {
+          "event_id": 17,
+          "ping_ms": null
+        },
+        "type": "ping"
+      }
+    },
+    {
+      "type": "sent_user_message",
+      "text": "Je n'ai plus de question.",
+      "at": 1786969984532
+    },
+    {
+      "type": "interruption",
+      "at": 1786969984723,
+      "event": {
+        "interruption_event": {
+          "event_id": 4
+        },
+        "type": "interruption"
+      }
+    },
+    {
+      "type": "agent_response_correction",
+      "at": 1786969984724,
+      "event": {
+        "agent_response_correction_event": {
+          "original_agent_response": "Prévoyez laisse, caisse de transport, identification et nourriture de votre chien si le temps le permet lors d'une évacuation. Ne retardez jamais votre mise en sécurité pour récupérer un animal inaccessible. Avez-vous une autre question sur les animaux ou l'évacuation ?",
+          "corrected_agent_response": "Prévoyez laisse, caisse de transport, identification et nourriture de votre chien si le temps le permet lors d'une évacuation. Ne retardez jamais...",
+          "event_id": 3
+        },
+        "type": "agent_response_correction"
+      }
+    },
+    {
+      "type": "ping",
+      "at": 1786969984825,
+      "event": {
+        "ping_event": {
+          "event_id": 18,
+          "ping_ms": null
+        },
+        "type": "ping"
+      }
+    },
+    {
+      "type": "ping",
+      "at": 1786969986526,
+      "event": {
+        "ping_event": {
+          "event_id": 19,
+          "ping_ms": null
+        },
+        "type": "ping"
+      }
+    },
+    {
+      "type": "audio",
+      "at": 1786969987217,
+      "event_id": 4,
+      "bytes": 8409
+    },
+    {
+      "type": "agent_response",
+      "at": 1786969987217,
+      "event": {
+        "agent_response_event": {
+          "agent_response": "Merci de votre appel.",
+          "event_id": 4,
+          "response_id": "5af04321-b099-47f4-8c9d-d3baea388551",
+          "in_response_to_ids": [
+            "a88c5525-9e27-4fd9-9cee-1304b342b6a3"
+          ],
+          "response_type": "text"
+        },
+        "type": "agent_response"
+      }
+    },
+    {
+      "type": "ping",
+      "at": 1786969988265,
+      "event": {
+        "ping_event": {
+          "event_id": 20,
+          "ping_ms": null
+        },
+        "type": "ping"
+      }
+    },
+    {
+      "type": "agent_tool_response",
+      "at": 1786969988815,
+      "event": {
+        "agent_tool_response": {
+          "tool_name": "end_call",
+          "tool_call_id": "toolu_vrtx_01WfTJDwVcFNh4CMfDMz3STE",
+          "tool_type": "system",
+          "is_error": false,
+          "is_blocked": false,
+          "event_id": 4,
+          "is_called": true,
+          "status": "success"
+        },
+        "type": "agent_tool_response"
+      }
+    }
+  ]
+}

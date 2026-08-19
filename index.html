@@ -3,43 +3,103 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Voicebot belge d'information et d'orientation face aux feux de forêt." />
+    <meta name="description" content="Appelez le 071 49 98 17 pour joindre le voicebot belge d'information sur les feux en milieu&nbsp;naturel. Cette ligne ne remplace ni le 1771 ni le 112." />
     <meta name="theme-color" content="#fff5e8" />
-    <title>Feux de Forêt — Voicebot Belgique</title>
+    <title>Voicebot Feux en Milieu&nbsp;Naturel — 071 49 98 17</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=20260817-2" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png?v=20260817-2" />
+    <link rel="shortcut icon" href="/favicon.ico?v=20260817-2" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=20260817-2" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet" />
   </head>
   <body>
-    <aside class="emergency"><strong>Appelez le 1771 pour vos questions</strong> · Danger immédiat, feu ou fumée proche ? Appelez le <a href="tel:112">112</a>.</aside>
-    <header>
-      <a class="brand" href="#accueil" aria-label="Voicebot Feux de Forêt — accueil"><span class="brand-badge">♨</span><span class="brand-copy">VOICEBOT<br><b>FEUX DE FORÊT</b></span></a>
-      <nav><a class="active" href="#accueil">Accueil</a><a href="#reflexes">Fonctionnalités</a><a href="#mission">Comment ça fonctionne</a><a href="#publics">Pour qui ?</a><a href="#sources">FAQ</a></nav>
-      <a class="header-call" href="tel:1771"><span>☎</span> Appeler le bot</a>
+    <aside class="emergency"><span><strong>Voicebot : 071 49 98 17</strong> · ne remplace ni le 1771 ni le 112.</span><a href="tel:112">Danger immédiat : 112</a></aside>
+    <header class="site-header">
+      <a class="brand" href="#accueil" aria-label="Voicebot Feux en Milieu&nbsp;Naturel — accueil"><img src="/brand/wildfire-brand-mark.png" alt="" /><span class="brand-copy"><strong>VOICEBOT</strong><em>FEUX EN MILIEU&nbsp;NATUREL</em></span></a>
+      <button class="menu-toggle" aria-label="Ouvrir le menu" aria-expanded="false">☰</button>
+      <nav><a href="#fonctionnalites">Fonctionnalités</a><a href="#fonctionnement">Fonctionnement</a><a href="#architecture">Technologie</a><a href="#incidents">Retours d'expérience</a><a href="#sources">Sources</a></nav>
+      <a class="header-call" href="tel:+3271499817" aria-label="Appeler le voicebot au 071 49 98 17"><img src="/icons/features/phone.png" alt="" /><span>071 49 98 17</span></a>
     </header>
+
     <main id="accueil">
       <section class="hero">
-        <div class="hero-copy-block">
-          <p class="eyebrow">Voicebot inbound belge · 1771</p>
-          <h1>Une voix qui<br>informe, oriente<br>et protège face aux<br><em>feux de forêt</em></h1>
-          <p class="lead">Notre assistant vocal répond aux questions de la population, diffuse les consignes officielles et oriente vers les secours lorsqu'une urgence est détectée.</p>
-          <div class="hero-proofs" aria-label="Avantages clés"><div><span>☎</span><b>Réponses<br>instantanées</b></div><div><span>◆</span><b>Informations<br>officielles</b></div><div><span>●</span><b>Consignes<br>adaptées</b></div></div>
-          <div class="actions"><a class="primary" href="tel:1771"><span>☎</span> Appeler le bot Feux de Forêt <b>→</b></a><button class="text-action call-trigger">Tester dans le navigateur <span>→</span></button></div>
+        <div class="hero-art" role="img" aria-label="Feu en milieu&nbsp;naturel, tour de guet et véhicule d'intervention en illustration low-poly"></div>
+        <div class="hero-copy">
+          <p class="eyebrow">Voicebot inbound belge · FR · NL · DE</p>
+          <h1>Une voix qui informe, oriente et protège face aux <em>feux en milieu&nbsp;naturel</em></h1>
+          <p>Appelez le 071 49 98 17 et posez vos questions librement. Le voicebot fournit des informations officielles avant, pendant et après un feu en milieu&nbsp;naturel. Cette ligne ne remplace ni le 1771 ni le 112.</p>
+          <div class="hero-actions"><a class="button" href="tel:+3271499817"><img src="/icons/features/phone.png" alt="" /> Appeler le 071 49 98 17 <b>→</b></a><button class="text-button call-trigger">Tester dans le navigateur →</button></div>
         </div>
-        <div class="hero-art" role="img" aria-label="Illustration low-poly d'un feu de forêt, d'une tour de guet et d'un véhicule d'intervention"></div>
-        <div class="audiences" id="publics"><div><span>♟</span><p><b>Pour les citoyens</b><small>Des réponses claires et officielles à tout moment</small></p></div><div><span>▣</span><p><b>Pour les collectivités</b><small>Un relais vocal fiable pour informer et rassurer</small></p></div><div><span>♨</span><p><b>Prévention et réactivité</b><small>Des consignes adaptées pour limiter les risques</small></p></div><div><span>◆</span><p><b>Données sécurisées</b><small>Confidentialité et conformité RGPD</small></p></div></div>
       </section>
-      <section class="statement" id="mission"><p class="eyebrow">Un service inbound, disponible à la demande</p><h2>Vous posez la question. Le 1771 vous répond.</h2><p>Pas de menu complexe : l'appelant parle naturellement et peut poser des questions de suivi. Le bot répond depuis des sources officielles et vérifie en permanence si la situation nécessite plutôt le 112.</p></section>
-      <section id="reflexes" class="cards">
-        <article><b>Dans la nature</b><h3>Éloignez-vous du feu et de la fumée.</h3><p>Suivez les chemins existants vers une route, une grande zone pavée ou une agglomération. Appelez le 112 avec des repères précis.</p></article>
-        <article><b>À proximité</b><h3>N'évacuez pas spontanément.</h3><p>Fermez portes, fenêtres et ventilation extérieure. Suivez BE-Alert et les autorités locales, sauf danger direct.</p></article>
-        <article><b>Fumées</b><h3>Restez hors de toute fumée.</h3><p>Protégez en priorité enfants, personnes âgées, enceintes et personnes cardiaques ou respiratoires. Symptôme grave : 112.</p></article>
-        <article><b>Prévention</b><h3>Évitez toute étincelle.</h3><p>Pas de feu, mégot, barbecue ou stationnement dans les hautes herbes. Respectez les codes de risque et interdictions locales.</p></article>
+
+      <section class="section intro" id="fonctionnalites">
+        <p class="eyebrow">Une question, une prochaine action claire</p>
+        <h2>Une ligne d’information pour chaque moment de la crise.</h2>
+        <p class="section-lead">Le bot accepte les questions naturelles et garde le contexte. Il distingue immédiatement une demande d'information d'une urgence nécessitant le 112.</p>
+        <div class="scenario-grid">
+          <article><img src="/icons/scenarios/wildfire.png" alt="" /><h3>Feu signalé</h3><p>Que faire, comment s'éloigner et quelles informations transmettre au 112.</p></article>
+          <article><img src="/icons/scenarios/smoke.png" alt="" /><h3>Fumées</h3><p>Mise à l'abri, ventilation, qualité de l'air et symptômes inquiétants.</p></article>
+          <article><img src="/icons/scenarios/evacuation.png" alt="" /><h3>Évacuation</h3><p>Ordre officiel, affaires essentielles, mobilité, enfants et animaux.</p></article>
+          <article><img src="/icons/scenarios/wildfire.png" alt="" /><h3>Feux de tourbe</h3><p>Hautes Fagnes, combustion souterraine, reprises possibles et activités à reporter selon les avis officiels.</p></article>
+          <article><img src="/icons/scenarios/unknown.png" alt="" /><h3>Question libre</h3><p>Prévention, codes de risque, accès aux massifs et retour dans la zone.</p></article>
+        </div>
       </section>
-      <section class="sources" id="sources"><div><p class="eyebrow">Connaissance contrôlée</p><h2>Fondé sur des sources officielles.</h2></div><p>Centre de Crise national, SPF Intérieur 112, SPW Environnement, Vlaanderen / Agentschap Natuur en Bos, OMS Europe et mécanismes européens. Toute consigne locale doit être sourcée et horodatée.</p></section>
+
+      <section class="section steps" id="fonctionnement">
+        <div><p class="eyebrow">Inbound par conception</p><h2>Vous appelez. Vous expliquez. Le bot vous guide.</h2><p>Sans menu complexe et sans application à installer.</p><button class="button call-trigger">Tester le voicebot →</button></div>
+        <ol><li><b>01</b><div><h3>Appelez le 071 49 98 17</h3><p>Le service accueille l'appelant et identifie sa langue.</p></div></li><li><b>02</b><div><h3>Posez votre question</h3><p>Parlez naturellement et interrompez le bot si nécessaire.</p></div></li><li><b>03</b><div><h3>Recevez une réponse sourcée</h3><p>Le bot utilise la base officielle et précise ce qui est confirmé.</p></div></li><li><b>04</b><div><h3>Urgence détectée</h3><p>La conversation est interrompue par une consigne immédiate d'appel au 112.</p></div></li></ol>
+      </section>
+
+      <section class="operations">
+        <div class="operation-copy"><p class="eyebrow">Comprendre l'organisation des secours</p><h2>Une information utile, au bon niveau.</h2><p>Le voicebot explique le rôle des zones de secours, du DNF, des communes, provinces, Régions, du Centre de Crise et du mécanisme européen. Il ne se présente jamais comme un service d'intervention.</p></div>
+        <div class="operation-visuals"><figure><img src="/brand/lookout-tower.png" alt="Tour de surveillance forestière" /><figcaption>Surveillance et détection</figcaption></figure><figure><img src="/brand/emergency-truck.png" alt="Véhicule d'intervention" /><figcaption>Zones de secours</figcaption></figure><figure><img src="/brand/fire-helicopter.png" alt="Hélicoptère bombardier d'eau" /><figcaption>Renforts spécialisés</figcaption></figure></div>
+      </section>
+
+      <section class="technology" id="architecture">
+        <div class="section-heading"><div><p class="eyebrow">Architecture & sécurité</p><h2>Un appel. Plusieurs couches de contrôle.</h2></div><p>Le modèle conversationnel ne décide pas seul. Le triage, les contenus autorisés, les données dynamiques et les actions sont contrôlés séparément.</p></div>
+        <div class="architecture-flow">
+          <article><b>01</b><img src="/icons/features/phone.png" alt="" /><h3>Entrée téléphonique</h3><p>Appel entrant au 071 49 98 17 et démonstrateur web.</p><small>Twilio connecté · inbound</small></article>
+          <article><b>02</b><img src="/icons/technology/network.png" alt="" /><h3>Protection réseau</h3><p>Contrôle de charge, fraude et accès.</p><small>Téléphonie et admission</small></article>
+          <article><b>03</b><img src="/icons/technology/audio.png" alt="" /><h3>Analyse vocale</h3><p>Transcription temps réel et détection de langue.</p><small>FR · NL · DE</small></article>
+          <article><b>04</b><img src="/icons/technology/ai.png" alt="" /><h3>Compréhension IA</h3><p>Question libre et contexte conversationnel.</p><small>Prompt strict et réponses courtes</small></article>
+          <article><b>05</b><img src="/icons/technology/routing.png" alt="" /><h3>Triage de sécurité</h3><p>Information, urgence 112 ou hors périmètre.</p><small>Règles prioritaires du prompt</small></article>
+          <article><b>06</b><img src="/icons/technology/api.png" alt="" /><h3>Connaissance</h3><p>Documents locaux versionnés et base ElevenLabs.</p><small>Sources datées et hiérarchisées</small></article>
+          <article><b>07</b><img src="/icons/technology/audit.png" alt="" /><h3>Traçabilité</h3><p>Audio de test, transcription et versions.</p><small>Accès limité et rétention définie</small></article>
+        </div>
+        <div class="protection-grid" id="securite">
+          <article><img src="/icons/technology/ai.png" alt="" /><h3>Anti-hallucination</h3><ul><li>Base fermée et contrôlée</li><li>Aucun ordre local inventé</li><li>Aucune prévision de propagation</li></ul></article>
+          <article><img src="/icons/features/bell.png" alt="" /><h3>Sécurité d'urgence</h3><ul><li>Signalement ou information dès l'accueil</li><li>Consigne 112 prioritaire</li><li>Pas de faux transfert</li></ul></article>
+          <article><img src="/icons/technology/audit.png" alt="" /><h3>Gouvernance des données</h3><ul><li>Audio des tests conservé</li><li>Accès restreint au workspace</li><li>Durée et finalité documentées</li></ul></article>
+        </div>
+      </section>
+
+      <section class="section incidents" id="incidents">
+        <p class="eyebrow">Retours d'expérience officiels</p><h2>Ce que les événements récents nous apprennent.</h2><p class="section-lead">Ces cas historiques améliorent les scénarios du bot. Ils ne sont jamais présentés comme une situation actuelle.</p>
+        <div class="incident-grid">
+          <article><time>Belgique · mars 2025</time><h3>Lagland et Han-sur-Lesse</h3><p>Deux feux ont touché environ 8 à 10 hectares puis près de 3 hectares. La communication wallonne a rappelé le rôle du vent, la sécheresse des herbes et l'appel immédiat au 112.</p><strong>Pour le bot : obtenir position, végétation, accès et personnes exposées.</strong></article>
+          <article><time>Hautes Fagnes · mai 2025</time><h3>Drapeau rouge et accès interdits</h3><p>Le DNF a fermé des chemins sensibles, installé une signalétique aux entrées et publié une carte des interdictions.</p><strong>Pour le bot : ne confirmer une fermeture qu'avec une source locale récente.</strong></article>
+          <article><time>Crète · juillet 2025</time><h3>Évacuation par messages 112</h3><p>Plusieurs localités ont été évacuées après diffusion de messages 112 par cellule ; Copernicus a soutenu la cartographie de l'incendie.</p><strong>Pour le bot : répéter exactement zone, heure, destination et autorité.</strong></article>
+          <article><time>Espagne · été 2025</time><h3>35 900 évacuations, près de 300 routes fermées</h3><p>La simultanéité de plus de 130 grands feux a conduit à une mobilisation européenne et à de nombreuses restrictions de circulation.</p><strong>Pour le bot : ne jamais improviser un itinéraire et orienter vers les canaux officiels.</strong></article>
+        </div>
+      </section>
+
+      <section class="sources" id="sources">
+        <div><p class="eyebrow">Base de connaissances contrôlée</p><h2>Des réponses reliées à des autorités identifiables.</h2><p>Les données locales variables ne sont utilisées que si elles comportent une zone, une source, une heure de publication et une validité.</p></div>
+        <div class="source-list"><a href="https://centredecrise.be/fr/risques-en-belgique/risques-naturels/feu-de-foret" target="_blank" rel="noreferrer"><b>Centre de Crise national</b><span>Conduite avant, pendant et après →</span></a><a href="https://112.be/fr/how-call/comment-appeler-le-112" target="_blank" rel="noreferrer"><b>SPF Intérieur — 112</b><span>Appel et informations à transmettre →</span></a><a href="https://environnement.wallonie.be/feux" target="_blank" rel="noreferrer"><b>SPW Environnement</b><span>Prévention et risque wallon →</span></a><a href="https://environnement.wallonie.be/actualite/risque-d-incendie-fin-du-drapeau-rouge-dans-la-reserve-naturelle-des-hautes-fagnes" target="_blank" rel="noreferrer"><b>SPW — Hautes Fagnes</b><span>Avis d'accès et cartes des chemins fermés →</span></a><a href="https://www.vlaanderen.be/natuur-milieu-en-klimaat/bomen-en-planten/brandpreventie-in-bossen-en-natuurgebieden-in-vlaanderen" target="_blank" rel="noreferrer"><b>Vlaanderen</b><span>Codes de risque par province →</span></a><a href="https://www.who.int/europe/news-room/questions-and-answers/item/public-health-advice-during-the-wildfires--how-to-protect-your-health-and-keep-safe" target="_blank" rel="noreferrer"><b>OMS Europe</b><span>Fumées et santé →</span></a><a href="https://effis.jrc.ec.europa.eu/" target="_blank" rel="noreferrer"><b>Commission européenne — EFFIS</b><span>Suivi européen →</span></a></div>
+      </section>
+
+      <section class="section faq"><p class="eyebrow">Questions fréquentes</p><h2>Ce qu'il faut savoir avant d'appeler.</h2><div class="faq-list"><details><summary>Cette ligne remplace-t-elle le 1771 ou le 112 ?<span>+</span></summary><p>Non. Le 071 49 98 17 est le numéro de ce voicebot d'information. Il ne remplace ni le 1771 ni le 112. En cas de feu proche, danger vital, brûlure grave ou difficulté respiratoire importante, raccrochez et appelez le 112.</p></details><details><summary>Le bot peut-il ordonner une évacuation ?<span>+</span></summary><p>Non. Il peut restituer une instruction émise par une autorité compétente et en préciser la source et l'heure.</p></details><details><summary>Peut-on retourner dans les Hautes Fagnes quelques jours après un feu de tourbe ?<span>+</span></summary><p>Pas sans avis officiel actuel. La tourbe peut continuer à couver sous terre et reprendre après la disparition des flammes. Vérifiez le jour même les cartes et avis du SPW, puis respectez toute fermeture et la signalétique sur place.</p></details><details><summary>Les conversations sont-elles enregistrées ?<span>+</span></summary><p>Pendant la phase de test, l'audio et la transcription sont conservés dans l'environnement ElevenLabs contrôlé afin d'évaluer la sécurité et la qualité. Une information claire est annoncée après le choix de la langue et avant la demande de l'appelant.</p></details><details><summary>Quelles langues sont disponibles ?<span>+</span></summary><p>Le bot accueille dans les trois langues nationales et demande de choisir : français, néerlandais ou allemand.</p></details></div></section>
     </main>
-    <footer><span>1771 · Voicebot inbound d'information · Banana Navy</span><span>Questions : 1771 · Urgence : 112</span></footer>
-    <div class="modal" aria-hidden="true"><button class="backdrop" aria-label="Fermer"></button><section role="dialog" aria-modal="true" aria-labelledby="dialog-title"><button class="close" aria-label="Fermer">×</button><p class="eyebrow">1771 · Démonstration sécurisée</p><h2 id="dialog-title">Parlez au voicebot</h2><p class="modal-copy"></p><div class="status"><span></span><strong>Prêt</strong><small>Le microphone n'est activé qu'après votre accord.</small></div><button class="primary start">Démarrer</button><button class="stop" hidden>Terminer</button><p class="error" role="alert"></p><p class="fineprint">1771 informe et oriente. Ce prototype ne contacte pas automatiquement les secours. En cas de danger, fermez cette fenêtre et composez le 112.</p></section></div>
+
+    <footer class="footer" id="footer">
+      <div class="footer-main"><div class="footer-company"><img src="/brand/banana-navy-logo.png" alt="Banana Navy" /><p>TRUSTED VOICE AGENTS &amp; AGENTIC SYSTEMS</p><p>Des agents vocaux sécurisés, fondés sur des sources contrôlées et des règles métier vérifiables.</p></div><div><h3>Voicebot Feux en Milieu&nbsp;Naturel</h3><a href="#fonctionnalites">Fonctionnalités</a><a href="#architecture">Architecture</a><a href="#incidents">Retours d'expérience</a><a href="#sources">Sources officielles</a></div><div><h3>Contact</h3><p><strong>Banana Navy</strong><br>Rue Antoine de Saint-Exupéry 2<br>6041 Charleroi, Belgique</p><a href="https://www.banana-navy.ai">www.banana-navy.ai</a></div></div>
+      <div class="partner-block"><div><h3>Programme &amp; institutions partenaires</h3><p>Banana Navy est soutenue par la Défense belge dans le cadre du programme STRIKE IT pour le développement de technologies vocales sécurisées et fiables.</p></div><div class="partner-logos"><img src="/brand/badge-defence.png" alt="Belgian Defence" /><img src="/brand/badge-crest-royal.png" alt="Écusson royal" /><img src="/brand/badge-strike-it.png" alt="STRIKE IT" /><img src="/brand/badge-cyberforce.png" alt="Cyber Force" /></div></div>
+      <div class="footer-bottom"><span>Voicebot : 071 49 98 17</span><span>Ne remplace ni le 1771 ni le 112</span><span>© 2026 Banana Navy</span></div>
+    </footer>
+
+    <div class="modal" aria-hidden="true"><button class="backdrop" aria-label="Fermer"></button><section role="dialog" aria-modal="true" aria-labelledby="dialog-title"><button class="close" aria-label="Fermer">×</button><p class="eyebrow">Démonstration vocale</p><h2 id="dialog-title">Parlez au voicebot</h2><p class="modal-copy"></p><div class="status"><span></span><strong>Prêt</strong><small>Le microphone est activé uniquement après votre accord.</small></div><button class="button start">Démarrer</button><button class="button stop" hidden>Terminer</button><p class="error" role="alert"></p><p class="fineprint">Démonstration enregistrée à des fins de test. Cette ligne ne remplace ni le 1771 ni le 112. En cas de danger, fermez cette fenêtre et appelez le 112.</p></section></div>
     <script type="module" src="/src/app.js"></script>
   </body>
 </html>
