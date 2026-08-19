@@ -34,7 +34,9 @@ const scenarios = [
     expectedTools: ['resolve_official_place'],
     forbiddenTools: ['get_daily_access_status'],
     validate(answer) {
-      return /Brussel/iu.test(answer) && /Vlaams-Brabant/iu.test(answer)
+      const namesBothResolvedOptions = /Brussel/iu.test(answer) && /Vlaams-Brabant/iu.test(answer);
+      const asksForDisambiguatingContext = /(?:welke|in welke)[^?.!]*(?:gemeente|provincie)/iu.test(answer);
+      return namesBothResolvedOptions || asksForDisambiguatingContext
         ? []
         : ['le lieu ambigu n’a pas été clarifié'];
     },
