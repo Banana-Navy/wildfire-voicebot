@@ -68,7 +68,9 @@ if (conversation.agent.prompt.built_in_tools.end_call) {
     "prononce exactement une fois la clôture de la langue active : « Merci de votre appel. », " +
     "« Bedankt voor uw oproep. » ou « Vielen Dank für Ihren Anruf. ». " +
     "Utilise cette même phrase dans system__message_to_speak, termine immédiatement et n'ajoute rien. " +
-    "N'appelle jamais cet outil automatiquement après une consigne d'urgence ou une orientation vers le 112; attends une confirmation explicite de l'appelant.";
+    "N'appelle jamais cet outil automatiquement après une consigne d'urgence ou une orientation vers le 112; attends une confirmation explicite de l'appelant. " +
+    "Un merci, bedankt ou danke isolé après une réponse, sans nouvelle question, vaut confirmation de fin d'appel. " +
+    "Prononce alors uniquement la clôture localisée, appelle cet outil et ne demande jamais si l'appelant a d'autres questions.";
   conversation.agent.prompt.built_in_tools.end_call.pre_tool_speech = 'off';
   conversation.agent.prompt.built_in_tools.end_call.force_pre_tool_speech = false;
   conversation.agent.prompt.built_in_tools.end_call.tool_call_sound = null;

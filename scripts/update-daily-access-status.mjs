@@ -106,9 +106,9 @@ for (const [provinceSlug, province] of flandersSources) {
         : null,
     },
     direct_answer: {
-      fr: `Pour la province ${label.fr}, le code officiel du jour est ${riskLabels[code].fr}. Ce code ne confirme pas à lui seul l’ouverture de chaque forêt ou zone naturelle. ${dailyNotice.fr}`,
-      nl: `Voor de provincie ${label.nl} geldt vandaag officieel code ${riskLabels[code].nl}. Deze code bevestigt op zichzelf niet dat elk bos of natuurgebied toegankelijk is. ${dailyNotice.nl}`,
-      de: `Für die Provinz ${label.de} gilt heute offiziell die Stufe ${riskLabels[code].de}. Dieser Code bestätigt für sich allein nicht, dass jedes Wald- oder Naturgebiet zugänglich ist. ${dailyNotice.de}`,
+      fr: `Pour la province ${label.fr}, le code officiel du jour est ${riskLabels[code].fr}. Ce code ne confirme pas à lui seul l’ouverture de chaque forêt ou zone naturelle. Respectez la signalétique locale et toute fermeture. ${dailyNotice.fr}`,
+      nl: `Voor de provincie ${label.nl} geldt vandaag officieel code ${riskLabels[code].nl}. Deze code bevestigt op zichzelf niet dat elk bos of natuurgebied toegankelijk is. Volg de plaatselijke signalisatie en elke afsluiting. ${dailyNotice.nl}`,
+      de: `Für die Provinz ${label.de} gilt heute offiziell die Stufe ${riskLabels[code].de}. Dieser Code bestätigt für sich allein nicht, dass jedes Wald- oder Naturgebiet zugänglich ist. Beachten Sie die örtliche Beschilderung und jede Sperrung. ${dailyNotice.de}`,
     },
     source: {
       authority: 'Agentschap voor Natuur en Bos — Vlaamse overheid',
@@ -177,6 +177,23 @@ const walloniaStatus = {
       fr: 'La publication officielle vérifiée aujourd’hui ne nomme pas « {place} ». Je ne peux donc ni confirmer son accès, ni affirmer que ce lieu se trouve hors du périmètre des mesures. Respectez toute signalétique locale. Cette information peut changer chaque jour selon les consignes officielles.',
       nl: 'In de officiële publicatie die vandaag is gecontroleerd, wordt ‘{place}’ niet genoemd. Daarom kan ik de toegankelijkheid niet bevestigen en ook niet stellen dat deze plaats buiten het maatregelengebied ligt. Volg de plaatselijke signalisatie. Deze informatie kan elke dag wijzigen volgens de officiële richtlijnen.',
       de: 'In der heute geprüften offiziellen Mitteilung wird „{place}“ nicht genannt. Daher kann ich den Zugang weder bestätigen noch behaupten, dass dieser Ort außerhalb des Maßnahmengebiets liegt. Beachten Sie die örtliche Beschilderung. Diese Information kann sich täglich entsprechend den behördlichen Anweisungen ändern.',
+    },
+    action_templates: {
+      closed_natural_area: {
+        fr: 'N’entrez pas dans la zone et respectez la signalétique en place.',
+        nl: 'Betreed het gebied niet en volg de plaatselijke signalisatie.',
+        de: 'Betreten Sie das Gebiet nicht und beachten Sie die örtliche Beschilderung.',
+      },
+      closed_road: {
+        fr: 'N’empruntez pas cette route et respectez les déviations.',
+        nl: 'Gebruik deze weg niet en volg de omleidingen.',
+        de: 'Benutzen Sie diese Straße nicht und folgen Sie den Umleitungen.',
+      },
+      return_authorized: {
+        fr: 'Suivez l’itinéraire et la signalétique indiqués par les autorités.',
+        nl: 'Volg de route en de signalisatie die de overheid aangeeft.',
+        de: 'Folgen Sie der von den Behörden angegebenen Route und Beschilderung.',
+      },
     },
   },
   daily_change_notice: dailyNotice,
