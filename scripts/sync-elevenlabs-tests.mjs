@@ -502,7 +502,8 @@ const tests = [
 
 async function request(url, options = {}) {
   const response = await fetch(url, { headers, ...options });
-  const body = await response.json();
+  const responseText = await response.text();
+  const body = responseText ? JSON.parse(responseText) : {};
   if (!response.ok) {
     throw new Error(`${options.method ?? 'GET'} ${url} (${response.status}): ${JSON.stringify(body)}`);
   }
@@ -512,6 +513,19 @@ async function request(url, options = {}) {
 const existing = await request(`${baseUrl}?page_size=100`);
 const existingByName = new Map((existing.tests ?? []).map((test) => [test.name, test]));
 const results = [];
+const removed = [];
+const obsoleteTestNames = new Set([
+  'Feux v1.4 — accueil trilingue puis présentation française complète',
+  'Feux v1.4 — feu de tourbe ancien ne signifie pas zone sûre FR',
+  'Feux v1.4 — Torfbrand und Aktivität natürliches Deutsch',
+  'Feux v1.4 — veenbrand en activiteit natuurlijk Nederlands',
+]);
+
+for (const current of existing.tests ?? []) {
+  if (!obsoleteTestNames.has(current.name)) continue;
+  await request(`${baseUrl}/${current.id}`, { method: 'DELETE' });
+  removed.push({ id: current.id, name: current.name, action: 'deleted' });
+}
 
 for (const test of tests) {
   const current = existingByName.get(test.name);
@@ -530,4 +544,4 @@ for (const test of tests) {
   }
 }
 
-console.log(JSON.stringify({ tests: results }, null, 2));
+console.log(JSON.stringify({ tests: results, removed }, null, 2));
