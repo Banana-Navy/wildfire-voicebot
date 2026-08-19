@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import {
   parseFlandersProvinceWarning,
+  parseFlandersWarningApi,
   parseWalloniaAccessArticle,
   parseWalloniaGlobalAlert,
   slugify,
@@ -26,6 +27,13 @@ assert.equal(antwerpen.code, 'oranje');
 assert.match(antwerpen.officialTextNl, /erg droog/i);
 assert.doesNotMatch(antwerpen.officialTextNl, /Limburg/);
 
+const apiWarning = parseFlandersWarningApi([{
+  status_lower: 'oranje',
+  text: 'Het is erg droog en brandgevaarlijk in natuurgebieden.',
+}]);
+assert.equal(apiWarning.code, 'oranje');
+assert.match(apiWarning.officialTextNl, /brandgevaarlijk/i);
+
 const walloniaIndexFixture = `
   <div id="spw-global-alert"><div>
     <a href="/fr/actualites/incendie-dans-les-fagnes">Incendie dans les Hautes Fagnes</a>
@@ -50,4 +58,4 @@ assert.match(article.extracts[2], /N68/);
 assert.equal(slugify('Forêt de Soignes'), 'foret-de-soignes');
 assert.equal(slugify('Barrage d\'Eupen'), 'barrage-d-eupen');
 
-console.log(JSON.stringify({ tests: 10, result: 'ok' }, null, 2));
+console.log(JSON.stringify({ tests: 12, result: 'ok' }, null, 2));
