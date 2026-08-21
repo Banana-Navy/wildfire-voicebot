@@ -7,7 +7,8 @@ if (!apiKey) throw new Error('ELEVENLABS_API_KEY est absent.');
 if (!process.argv.includes('--confirm')) throw new Error('Ajoutez --confirm pour modifier l’agent distant.');
 
 const root = resolve(import.meta.dirname, '..');
-const agentId = 'agent_2201m07k477kepfsq9p5h8bh4x1g';
+const agentId = process.env.ELEVENLABS_AGENT_ID
+  ?? 'agent_2201m07k477kepfsq9p5h8bh4x1g';
 const documentId = '89AM7w3ggzzZpzmAiiRT';
 const headers = { 'xi-api-key': apiKey, 'content-type': 'application/json' };
 const knowledgeFiles = [
@@ -51,11 +52,14 @@ if (!agentResponse.ok) throw new Error(`Lecture agent impossible (${agentRespons
 
 const conversation = structuredClone(agent.conversation_config);
 conversation.agent.prompt.prompt = systemPrompt;
-conversation.agent.first_message =
-  "Bonjour et bienvenue. Goedendag en welkom. Guten Tag und herzlich willkommen. Pour continuer, vous préférez le français, Nederlands oder Deutsch ?";
+const hasMultivoiceWelcome = conversation.tts.supported_voices?.some(({ label }) => label === 'Dutch')
+  && conversation.tts.supported_voices?.some(({ label }) => label === 'German');
+conversation.agent.first_message = hasMultivoiceWelcome
+  ? "Bonjour et bienvenue. <Dutch>Goedendag en welkom.</Dutch> <German>Guten Tag und herzlich willkommen.</German> Pour continuer, vous préférez le français, <Dutch>Nederlands</Dutch> <German>oder Deutsch ?</German>"
+  : "Bonjour et bienvenue. Goedendag en welkom. Guten Tag und herzlich willkommen. Pour continuer, vous préférez le français, Nederlands oder Deutsch ?";
 conversation.agent.disable_first_message_interruptions = false;
 // French is the safe bootstrap language: if language routing ever misses a
-// French first turn, Adrien remains active and a Flemish voice cannot read it.
+// French first turn, Julien remains active and a Flemish voice cannot read it.
 // Clear NL/DE choices still switch immediately to their native presets.
 conversation.agent.language = 'fr';
 const presetTemplate = structuredClone(
@@ -63,7 +67,7 @@ const presetTemplate = structuredClone(
 );
 if (!presetTemplate?.overrides) throw new Error('Impossible de créer les presets de langue.');
 const localized = {
-  fr: { voiceId: 'IpTJxgMFj1wbxpha4zxm', modelId: 'eleven_multilingual_v2', stability: 0.46, similarity: 0.80, speed: 0.96 },
+  fr: { voiceId: 'eOwAMwUJEGkP44SKOXIH', modelId: 'eleven_multilingual_v2', stability: 0.38, similarity: 0.78, speed: 1.00 },
   nl: { voiceId: 'Yv0oyZ3obP9foTH7emqG', modelId: 'eleven_flash_v2_5', stability: 0.62, similarity: 0.82, speed: 0.97 },
   de: { voiceId: 'FTNCalFNG5bRnkkaP5Ug', modelId: 'eleven_flash_v2_5', stability: 0.62, similarity: 0.82, speed: 0.97 },
 };
@@ -95,15 +99,16 @@ conversation.asr.keywords = Array.from(new Set([
   ...(conversation.asr.keywords ?? []), '071 49 98 17', 'zéro septante-et-un', 'quarante-neuf', 'nonante-huit',
   'français', 'Nederlands', 'néerlandais', 'Vlaams', 'Deutsch', 'allemand',
   'tourbe', 'tourbière', 'Hautes Fagnes', 'feu souterrain',
+  'Baraque de Fraiture', 'Baraque Fraiture', 'Vielsalm',
   'veen', 'veenbrand', 'Hoge Venen', 'smeulen',
   'Torf', 'Torfbrand', 'Hohes Venn', 'Schwelbrand',
 ])).filter((keyword) => !['English', 'anglais', 'Engels', 'peat', 'peat fire', 'High Fens', 'smouldering'].includes(keyword));
 conversation.tts.agent_output_audio_format = 'ulaw_8000';
 conversation.tts.model_id = 'eleven_multilingual_v2';
-conversation.tts.voice_id = 'IpTJxgMFj1wbxpha4zxm';
-conversation.tts.stability = 0.48;
-conversation.tts.similarity_boost = 0.80;
-conversation.tts.speed = 0.90;
+conversation.tts.voice_id = 'eOwAMwUJEGkP44SKOXIH';
+conversation.tts.stability = 0.42;
+conversation.tts.similarity_boost = 0.78;
+conversation.tts.speed = 0.94;
 conversation.tts.optimize_streaming_latency = 0;
 conversation.tts.expressive_mode = false;
 conversation.tts.text_normalisation_type = 'system_prompt';
@@ -230,18 +235,20 @@ platform.privacy = {
 const updateResponse = await fetch(`https://api.elevenlabs.io/v1/convai/agents/${agentId}`, {
   method: 'PATCH',
   headers,
-  body: JSON.stringify({ name: 'Feux en Milieu Naturel — Inbound (BE)', conversation_config: conversation, platform_settings: platform }),
+  body: JSON.stringify({ name: agent.name, conversation_config: conversation, platform_settings: platform }),
 });
 const update = await updateResponse.json();
 if (!updateResponse.ok) throw new Error(`Mise à jour agent impossible (${updateResponse.status}): ${JSON.stringify(update)}`);
 
 const phoneNumberId = 'phnum_2001kg33d8jcf1xskxqqz6ryqtk3';
+const agentBranchId = process.env.ELEVENLABS_AGENT_BRANCH_ID ?? agent.branch_id;
+if (!agentBranchId) throw new Error('Branche ElevenLabs cible absente.');
 const phoneResponse = await fetch(`https://api.elevenlabs.io/v1/convai/phone-numbers/${phoneNumberId}`, {
   method: 'PATCH',
   headers,
   body: JSON.stringify({
     agent_id: agentId,
-    branch_id: 'agtbrch_1101m07k47s2estbzstzye6f97px',
+    branch_id: agentBranchId,
     label: 'Feux en Milieu Naturel — 071 49 98 17',
   }),
 });
@@ -250,6 +257,7 @@ if (!phoneResponse.ok) throw new Error(`Rafraîchissement téléphonie impossibl
 
 console.log(JSON.stringify({
   agent_id: agentId,
+  agent_branch_id: agentBranchId,
   knowledge_document_id: document.id,
   knowledge_document_name: document.name,
   knowledge_characters: knowledgeText.length,

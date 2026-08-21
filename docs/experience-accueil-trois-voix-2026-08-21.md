@@ -24,15 +24,15 @@ Pour continuer, vous préférez le français,
 <German>oder Deutsch ?</German>
 ```
 
-Le texte non balisé utilise Adrien, la voix belge francophone par défaut. Les balises ne sont pas prononcées : elles sélectionnent Jeroen pour les passages flamands et Otto pour les passages allemands.
+Le texte non balisé utilise Julien, la voix francophone professionnelle choisie pour ce test. Les balises ne sont pas prononcées : elles sélectionnent Jeroen pour les passages flamands et Otto pour les passages allemands.
 
 | Passage | Voix | Identifiant | Modèle / vitesse |
 |---|---|---|---|
-| Français | Adrien | `IpTJxgMFj1wbxpha4zxm` | Multilingual v2 / accueil `0.90`, preset FR `0.96` |
+| Français | Julien | `eOwAMwUJEGkP44SKOXIH` | Multilingual v2 / accueil `0.94`, preset FR `1.00` |
 | Néerlandais belge | Jeroen | `Yv0oyZ3obP9foTH7emqG` | Flash v2.5 / `0.97` |
 | Allemand | Otto | `FTNCalFNG5bRnkkaP5Ug` | Flash v2.5 / `0.97` |
 
-Adrien reste volontairement la voix par défaut au lieu d'être ajouté comme voix secondaire. Cela évite que le moteur rebalise toutes les réponses françaises et préserve le preset français approuvé à `0.96` après le choix de langue.
+Julien reste la voix par défaut pour tous les passages français. L'accueil conserve un débit légèrement adouci à `0.94` ; après la sélection, le preset français passe à `1.00` et sa stabilité à `0.38` pour une présence un peu plus énergique. Jeroen et Otto restent inchangés.
 
 ## Validation réelle
 

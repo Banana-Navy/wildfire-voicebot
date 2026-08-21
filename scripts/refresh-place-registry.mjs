@@ -189,6 +189,24 @@ for (const extra of [
   });
 }
 
+addEntry({
+  id: 'curated-wallonia-baraque-de-fraiture',
+  canonical_name: 'Baraque de Fraiture',
+  aliases: [
+    'Baraque de Fraiture',
+    'Baraque Fraiture',
+    'Station de la Baraque de Fraiture',
+    'Plateau de la Baraque de Fraiture',
+  ],
+  category: 'named_natural_area',
+  region: 'Wallonie',
+  province: 'Luxembourg',
+  province_nl: 'Luxemburg',
+  municipality: 'Vielsalm',
+  status_key: 'wallonia-regional',
+  source_url: 'https://www.vielsalm.be/bouger-et-decouvir-a-vielsalm/tourisme/decouvrir-vielsalm/presentation',
+});
+
 for (const extra of [
   ['Forêt de Soignes', ['Zoniënwoud', 'Sonian Forest']],
   ['Bois de la Cambre', ['Ter Kamerenbos']],

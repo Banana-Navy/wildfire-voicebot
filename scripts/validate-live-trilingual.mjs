@@ -12,8 +12,8 @@ const outputRoot = process.env.ELEVENLABS_VALIDATION_OUTPUT_ROOT
   ? resolve(process.env.ELEVENLABS_VALIDATION_OUTPUT_ROOT)
   : resolve(root, 'artifacts/audio/live-v2.2-goal');
 const voices = {
-  base: 'IpTJxgMFj1wbxpha4zxm',
-  fr: 'IpTJxgMFj1wbxpha4zxm',
+  base: 'eOwAMwUJEGkP44SKOXIH',
+  fr: 'eOwAMwUJEGkP44SKOXIH',
   nl: 'Yv0oyZ3obP9foTH7emqG',
   de: 'FTNCalFNG5bRnkkaP5Ug',
 };
@@ -148,6 +148,35 @@ const scenarios = {
       }
       if (/consultez|site (?:web|officiel)|rendez-vous sur/iu.test(answer)) {
         issues.push({ type: 'unnecessary_website_referral', value: answer });
+      }
+      return issues;
+    },
+  },
+  'fr-access-unknown-zone': {
+    messages: ['Français', "La Baraque de Gilette est-elle accessible aujourd'hui ?"],
+    expectedVoices: [voices.fr, voices.nl, voices.de],
+    expectedTools: ['resolve_official_place', 'get_daily_access_status'],
+    expectMultivoice: true,
+    validate(responses) {
+      const answer = responses.at(-1)?.text ?? '';
+      const issues = [];
+      if (!/Baraque de Gilette/iu.test(answer)) {
+        issues.push({ type: 'unresolved_place_name_lost', value: answer });
+      }
+      if (!/ne figure pas parmi les interdictions d['’]accès recensées/iu.test(answer)) {
+        issues.push({ type: 'missing_current_official_no_match', value: answer });
+      }
+      if (!/ne confirme pas son ouverture/iu.test(answer)) {
+        issues.push({ type: 'opening_not_safely_qualified', value: answer });
+      }
+      if (!/commune ou du gestionnaire local/iu.test(answer)) {
+        issues.push({ type: 'missing_local_confirmation', value: answer });
+      }
+      if (!/évoluer en cours de journée/iu.test(answer)) {
+        issues.push({ type: 'missing_intraday_change_notice', value: answer });
+      }
+      if (/quelle (?:commune|province)|dans quelle (?:commune|province)/iu.test(answer)) {
+        issues.push({ type: 'commune_requested_after_unknown_place', value: answer });
       }
       return issues;
     },

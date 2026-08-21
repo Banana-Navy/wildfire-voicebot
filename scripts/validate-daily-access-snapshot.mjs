@@ -14,6 +14,7 @@ assert.equal(manifest.source_health.flanders, 'ok');
 assert.equal(manifest.source_health.wallonia, 'ok');
 assert.ok(manifest.coverage.place_records >= 1_500, 'Le registre de lieux a perdu une partie importante de sa couverture.');
 assert.ok(manifest.coverage.resolvable_aliases >= 1_700, 'Le registre ne contient plus assez de variantes de noms.');
+assert.ok(manifest.coverage.status_files >= 9, 'Le statut national de repli est absent.');
 
 const allowedCodes = new Set(['groen', 'geel', 'oranje', 'rood']);
 for (const province of ['antwerpen', 'limburg', 'oost-vlaanderen', 'vlaams-brabant', 'west-vlaanderen']) {
@@ -32,16 +33,18 @@ assert.equal(wallonia.valid_for_date, manifest.valid_for_date);
 assert.equal(wallonia.source_health, 'ok');
 assert.ok(Array.isArray(wallonia.official_access_extracts_fr));
 assert.ok(Array.isArray(wallonia.official_access_extracts_de));
-assert.match(wallonia.access.no_match_answer_template.fr, /ni confirmer son accès, ni affirmer/);
-assert.match(wallonia.access.no_match_answer_template.nl, /niet bevestigen/);
-assert.match(wallonia.access.no_match_answer_template.de, /weder bestätigen/);
-assert.match(wallonia.access.no_match_follow_up_template.fr, /déjà consulté la publication officielle/);
-assert.match(wallonia.access.no_match_follow_up_template.fr, /ouvert ou fermé/);
-assert.match(wallonia.access.no_match_follow_up_template.nl, /al gecontroleerd/);
-assert.match(wallonia.access.no_match_follow_up_template.de, /bereits geprüft/);
-assert.match(wallonia.access.response_rule, /sans renvoyer vers un site/);
-assert.match(wallonia.access.response_rule, /relance répétée/);
-assert.match(wallonia.access.response_rule, /reste verrouillée/);
+assert.match(wallonia.access.no_match_answer_template.fr, /ne figure pas parmi les interdictions d’accès recensées/);
+assert.match(wallonia.access.no_match_answer_template.fr, /ne confirme pas son ouverture/);
+assert.match(wallonia.access.no_match_answer_template.fr, /commune ou du gestionnaire local/);
+assert.match(wallonia.access.no_match_answer_template.fr, /évoluer en cours de journée/);
+assert.match(wallonia.access.no_match_answer_template.nl, /gemeente of de lokale beheerder/);
+assert.match(wallonia.access.no_match_answer_template.de, /Gemeinde oder der örtlichen Gebietsverwaltung/);
+assert.equal(
+  wallonia.access.no_match_follow_up_template.fr,
+  wallonia.access.no_match_answer_template.fr,
+);
+assert.match(wallonia.access.response_rule, /confirmation auprès de la commune ou du gestionnaire local/);
+assert.match(wallonia.access.response_rule, /ne jamais déclarer le lieu ouvert ou accessible/);
 assert.match(wallonia.access.resolved_identity_rule, /place\.canonical_name/);
 assert.match(wallonia.access.resolved_identity_rule, /commune de Verviers reste distincte/);
 assert.ok(wallonia.access.scope_limited_places.includes('Hautes Fagnes'));
@@ -57,6 +60,15 @@ if (wallonia.active_wildfire_alert) {
   }
 }
 
+const belgiumOverview = await readJson('status', 'belgium-overview.json');
+assert.equal(belgiumOverview.valid_for_date, manifest.valid_for_date);
+assert.equal(belgiumOverview.source_health, 'limited');
+assert.equal(belgiumOverview.resolution_fallback, true);
+assert.match(belgiumOverview.unresolved_place_rule, /Ne pas demander automatiquement une commune/);
+assert.match(belgiumOverview.unresolved_place_answer_template.fr, /interdictions d’accès recensées/);
+assert.match(belgiumOverview.unresolved_place_answer_template.fr, /commune ou du gestionnaire local/);
+assert.ok(Array.isArray(belgiumOverview.central_statuses.wallonia_access_extracts_fr));
+
 const expectedPlaces = {
   'kalmthoutse-heide': 'flanders-antwerpen',
   'hautes-fagnes': 'wallonia-regional',
@@ -64,6 +76,7 @@ const expectedPlaces = {
   n68: 'wallonia-regional',
   anvers: 'flanders-antwerpen',
   'foret-de-chimay': 'wallonia-regional',
+  'baraque-de-fraiture': 'wallonia-regional',
 };
 for (const [slug, statusKey] of Object.entries(expectedPlaces)) {
   const place = await readJson('places', `${slug}.json`);

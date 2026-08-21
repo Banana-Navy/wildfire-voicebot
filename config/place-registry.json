@@ -1004,6 +1004,23 @@
       "source_url": "https://geoportail.wallonie.be/catalogue/435c454c-0d4b-41cf-a136-a1aba134d9ac.html"
     },
     {
+      "id": "curated-wallonia-baraque-de-fraiture",
+      "canonical_name": "Baraque de Fraiture",
+      "aliases": [
+        "Baraque de Fraiture",
+        "Baraque Fraiture",
+        "Station de la Baraque de Fraiture",
+        "Plateau de la Baraque de Fraiture"
+      ],
+      "category": "named_natural_area",
+      "region": "Wallonie",
+      "province": "Luxembourg",
+      "province_nl": "Luxemburg",
+      "municipality": "Vielsalm",
+      "status_key": "wallonia-regional",
+      "source_url": "https://www.vielsalm.be/bouger-et-decouvir-a-vielsalm/tourisme/decouvrir-vielsalm/presentation"
+    },
+    {
       "id": "spw-3-RNA",
       "canonical_name": "Barbion",
       "aliases": [

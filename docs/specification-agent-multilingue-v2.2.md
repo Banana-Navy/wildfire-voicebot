@@ -18,7 +18,7 @@ L'agent est une ligne d'information et d'orientation. Il ne reçoit pas officiel
 | Ambiguïté | Répéter une seule fois « Français, Nederlands oder Deutsch ? » | Pas de boucle de sélection |
 | Changement de langue | Changement explicite ou langue clairement différente ; pas de seconde présentation | Test français vers allemand en cours d'appel |
 | Langue de réponse | Une seule langue après la sélection, sauf nom propre, nom officiel ou acronyme | Transcriptions sans mélange après l'accueil |
-| Voix | Une voix native par langue, avec un même profil perceptif masculin, calme et d'âge moyen | Adrien `fr-BE`, Jeroen `nl-BE`, Otto `de-DE` |
+| Voix | Une voix native par langue, avec un même profil perceptif masculin, professionnel et rassurant | Julien `fr`, Jeroen `nl-BE`, Otto `de-DE` |
 | Messages fixes | Présentations, urgence, prévention, confirmation et clôture rédigées séparément dans chaque langue | Textes verrouillés dans le prompt et tests ElevenLabs |
 | Ton | Calme, clair, assertif, empathique, professionnel et rassurant | Aucun remplissage, aucune emphase dramatique |
 | Urgence | Action critique en premier ; 112 avant toute question | Réponse française commençant par « Raccrochez et appelez immédiatement… » |
@@ -33,12 +33,12 @@ L'agent est une ligne d'information et d'orientation. Il ne reçoit pas officiel
 
 | Langue | Voix | Profil vérifié | Réglages |
 |---|---|---|---|
-| Accueil | Adrien — `IpTJxgMFj1wbxpha4zxm` | Homme, âge moyen, belge, accueillant | `0,48 / 0,80 / 0,90`, `eleven_multilingual_v2` |
-| `fr-BE` | Adrien — `IpTJxgMFj1wbxpha4zxm` | Homme, âge moyen, belge, chaleureux, informatif | `0,46 / 0,80 / 0,96`, `eleven_multilingual_v2` |
+| Accueil | Julien — `eOwAMwUJEGkP44SKOXIH` | Homme, âge moyen, professionnel, accueillant | `0,42 / 0,78 / 0,94`, `eleven_multilingual_v2` |
+| `fr-BE` | Julien — `eOwAMwUJEGkP44SKOXIH` | Homme, âge moyen, professionnel, conversationnel | `0,38 / 0,78 / 1,00`, `eleven_multilingual_v2` |
 | `nl-BE` | Jeroen Vlaams — `Yv0oyZ3obP9foTH7emqG` | Homme, âge moyen, flamand, calme, information et IVR | `0,62 / 0,82 / 0,97` |
 | `de-DE` | Otto — `FTNCalFNG5bRnkkaP5Ug` | Homme, âge moyen, allemand standard, calme | `0,62 / 0,82 / 0,97` |
 
-Les valeurs indiquent stabilité, similarité et vitesse. L'accueil trilingue utilise Adrien à une vitesse de `0,90`, avec une transition « Pour continuer » avant la question de langue. Après la sélection, le preset français remonte à `0,96` et ajoute une phrase de liaison avant l'identification de la ligne. Ce découplage évite à la fois l'accueil brusque et l'effet soporifique pendant la conversation. Jeroen prend immédiatement le relais en néerlandais et Otto en allemand.
+Les valeurs indiquent stabilité, similarité et vitesse. L'accueil trilingue utilise Julien à une vitesse de `0,94`, avec une transition « Pour continuer » avant la question de langue. Après la sélection, le preset français passe à `1,00` avec une stabilité légèrement réduite pour gagner en énergie tout en conservant une diction professionnelle. Jeroen et Otto conservent exactement leurs voix et leurs réglages validés.
 
 ## Messages localisés verrouillés
 

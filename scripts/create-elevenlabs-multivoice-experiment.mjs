@@ -58,11 +58,26 @@ conversation.tts.supported_voices = Object.entries(voices).map(([label, settings
   label,
   ...settings,
 }));
+conversation.tts.model_id = 'eleven_multilingual_v2';
+conversation.tts.voice_id = 'eOwAMwUJEGkP44SKOXIH';
+conversation.tts.stability = 0.42;
+conversation.tts.similarity_boost = 0.78;
+conversation.tts.speed = 0.94;
 
 for (const preset of Object.values(conversation.language_presets ?? {})) {
   if (preset?.overrides?.agent?.first_message) {
     preset.overrides.agent.first_message = firstMessage;
   }
+}
+if (conversation.language_presets?.fr?.overrides?.tts) {
+  conversation.language_presets.fr.overrides.tts = {
+    ...conversation.language_presets.fr.overrides.tts,
+    model_id: 'eleven_multilingual_v2',
+    voice_id: 'eOwAMwUJEGkP44SKOXIH',
+    stability: 0.38,
+    similarity_boost: 0.78,
+    speed: 1.00,
+  };
 }
 
 const platform = structuredClone(source.platform_settings);

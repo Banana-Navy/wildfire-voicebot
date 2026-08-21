@@ -173,16 +173,16 @@ const walloniaStatus = {
       : 'Aucune mesure régionale active n’est publiée dans le bandeau officiel suivi. Cela ne confirme pas l’ouverture d’un site et n’exclut pas une décision communale ou locale.',
     resolved_identity_rule: 'Déterminer l’entité demandée uniquement depuis place.canonical_name, place.aliases et place.category renvoyés par resolve_official_place. Ne jamais remplacer cette entité par un nom trouvé dans les extraits. Par exemple, la commune de Verviers reste distincte du cantonnement forestier de Verviers.',
     same_entity_rule: 'Une simple chaîne de caractères identique ne suffit pas : une mesure visant un cantonnement forestier, une route ou un barrage ne doit jamais être appliquée à la commune du même nom.',
-    no_match_rule: 'Si aucune mesure ne nomme exactement la même entité que le lieu résolu, utiliser le modèle no_match_answer_template. Ne jamais dire que le lieu ne fait pas partie du périmètre, n’est pas concerné, est accessible ou est ouvert.',
+    no_match_rule: 'Si aucune mesure ne nomme exactement la même entité que le lieu résolu, utiliser le modèle no_match_answer_template. Dire uniquement que le lieu ne figure pas parmi les interdictions d’accès recensées dans les informations officielles vérifiées; cela ne confirme jamais son ouverture.',
     no_match_answer_template: {
-      fr: 'La publication officielle vérifiée aujourd’hui ne nomme pas « {place} ». Je ne peux donc ni confirmer son accès, ni affirmer que ce lieu se trouve hors du périmètre des mesures. Respectez toute signalétique locale. Cette information peut changer chaque jour selon les consignes officielles.',
-      nl: 'In de officiële publicatie die vandaag is gecontroleerd, wordt ‘{place}’ niet genoemd. Daarom kan ik de toegankelijkheid niet bevestigen en ook niet stellen dat deze plaats buiten het maatregelengebied ligt. Volg de plaatselijke signalisatie. Deze informatie kan elke dag wijzigen volgens de officiële richtlijnen.',
-      de: 'In der heute geprüften offiziellen Mitteilung wird „{place}“ nicht genannt. Daher kann ich den Zugang weder bestätigen noch behaupten, dass dieser Ort außerhalb des Maßnahmengebiets liegt. Beachten Sie die örtliche Beschilderung. Diese Information kann sich täglich entsprechend den behördlichen Anweisungen ändern.',
+      fr: 'D’après les informations officielles vérifiées aujourd’hui, « {place} » ne figure pas parmi les interdictions d’accès recensées. Cela ne confirme pas son ouverture. Avant de vous déplacer, vérifiez la consigne auprès de la commune ou du gestionnaire local, car elle peut évoluer en cours de journée.',
+      nl: 'Volgens de officiële informatie die vandaag is gecontroleerd, staat ‘{place}’ niet bij de geregistreerde toegangsverboden. Dat bevestigt niet dat het gebied open is. Controleer vóór vertrek de instructie bij de gemeente of de lokale beheerder, want die kan in de loop van de dag wijzigen.',
+      de: 'Nach den heute geprüften offiziellen Informationen ist „{place}“ nicht unter den erfassten Zugangssperren aufgeführt. Das bestätigt nicht, dass das Gebiet geöffnet ist. Prüfen Sie vor der Abfahrt die Anweisung bei der Gemeinde oder der örtlichen Gebietsverwaltung, da sie sich im Tagesverlauf ändern kann.',
     },
     no_match_follow_up_template: {
-      fr: 'J’ai déjà consulté la publication officielle disponible aujourd’hui. Elle ne permet pas de confirmer si « {place} » est ouvert ou fermé. Respectez la signalétique locale. Cette information peut changer chaque jour selon les consignes officielles.',
-      nl: 'Ik heb de officiële publicatie die vandaag beschikbaar is al gecontroleerd. Daarmee kan ik niet bevestigen of ‘{place}’ open of gesloten is. Volg de plaatselijke signalisatie. Deze informatie kan elke dag wijzigen volgens de officiële richtlijnen.',
-      de: 'Ich habe die heute verfügbare amtliche Mitteilung bereits geprüft. Damit kann ich nicht bestätigen, ob „{place}“ geöffnet oder gesperrt ist. Beachten Sie die örtliche Beschilderung. Diese Information kann sich täglich entsprechend den behördlichen Anweisungen ändern.',
+      fr: 'D’après les informations officielles vérifiées aujourd’hui, « {place} » ne figure pas parmi les interdictions d’accès recensées. Cela ne confirme pas son ouverture. Avant de vous déplacer, vérifiez la consigne auprès de la commune ou du gestionnaire local, car elle peut évoluer en cours de journée.',
+      nl: 'Volgens de officiële informatie die vandaag is gecontroleerd, staat ‘{place}’ niet bij de geregistreerde toegangsverboden. Dat bevestigt niet dat het gebied open is. Controleer vóór vertrek de instructie bij de gemeente of de lokale beheerder, want die kan in de loop van de dag wijzigen.',
+      de: 'Nach den heute geprüften offiziellen Informationen ist „{place}“ nicht unter den erfassten Zugangssperren aufgeführt. Das bestätigt nicht, dass das Gebiet geöffnet ist. Prüfen Sie vor der Abfahrt die Anweisung bei der Gemeinde oder der örtlichen Gebietsverwaltung, da sie sich im Tagesverlauf ändern kann.',
     },
     scope_limited_places: [
       'Hautes Fagnes',
@@ -200,7 +200,7 @@ const walloniaStatus = {
       nl: 'De officiële publicatie meldt een verbod binnen een afgebakende zone rond ‘{place}’, maar bevestigt niet de status van het volledige gebied. Betreed geen deel dat als verboden is aangeduid en volg de plaatselijke signalisatie. Deze informatie kan elke dag wijzigen volgens de officiële richtlijnen.',
       de: 'Die offizielle Mitteilung nennt ein Verbot innerhalb eines kartierten Bereichs bei „{place}“, bestätigt aber nicht den Status des gesamten Gebiets. Betreten Sie keinen als gesperrt gekennzeichneten Bereich und beachten Sie die örtliche Beschilderung. Diese Information kann sich täglich entsprechend den behördlichen Anweisungen ändern.',
     },
-    response_rule: 'Après un résultat quotidien frais, répondre directement sans renvoyer vers un site, une commune, une province ou d’autres canaux. Pour toute relance répétée sur un lieu non confirmé, y compris chaque demande explicite de site ou de source où vérifier, répéter no_match_follow_up_template sans ajout et ne citer aucune autre source. Cette règle reste verrouillée jusqu’au changement de sujet ou à la fin de l’appel.',
+    response_rule: 'Après un résultat quotidien frais, répondre directement. Pour un lieu absent des interdictions recensées, utiliser le modèle fourni : il autorise uniquement une confirmation auprès de la commune ou du gestionnaire local avant le déplacement. Ne citer aucun site ou numéro et ne jamais déclarer le lieu ouvert ou accessible.',
     action_templates: {
       closed_natural_area: {
         fr: 'N’entrez pas dans la zone et respectez la signalétique en place.',
@@ -267,11 +267,47 @@ const allFlandersStatus = {
   daily_change_notice: dailyNotice,
 };
 
+const belgiumOverviewStatus = {
+  schema_version: 1,
+  status_key: 'belgium-overview',
+  valid_for_date: validForDate,
+  retrieved_at: generatedAtIso,
+  fresh_until: new Date(generatedAt.getTime() + 36 * 60 * 60 * 1000).toISOString(),
+  source_health: 'limited',
+  jurisdiction: { region: 'Belgique', type: 'central_publications_fallback', name: 'Belgique' },
+  resolution_fallback: true,
+  coverage_rule: 'Ce statut de repli couvre les interdictions publiées dans les sources centrales suivies. Il ne constitue pas une liste exhaustive des décisions communales ou des mesures prises par un gestionnaire local.',
+  unresolved_place_rule: 'Utiliser unresolved_place_answer_template avec le nom réellement prononcé. Ne pas demander automatiquement une commune, ne pas inventer une localisation et ne jamais déclarer le lieu ouvert ou accessible.',
+  unresolved_place_answer_template: {
+    fr: 'D’après les informations officielles vérifiées aujourd’hui, « {place} » ne figure pas parmi les interdictions d’accès recensées. Cela ne confirme pas son ouverture. Avant de vous déplacer, vérifiez la consigne auprès de la commune ou du gestionnaire local, car elle peut évoluer en cours de journée.',
+    nl: 'Volgens de officiële informatie die vandaag is gecontroleerd, staat ‘{place}’ niet bij de geregistreerde toegangsverboden. Dat bevestigt niet dat het gebied open is. Controleer vóór vertrek de instructie bij de gemeente of de lokale beheerder, want die kan in de loop van de dag wijzigen.',
+    de: 'Nach den heute geprüften offiziellen Informationen ist „{place}“ nicht unter den erfassten Zugangssperren aufgeführt. Das bestätigt nicht, dass das Gebiet geöffnet ist. Prüfen Sie vor der Abfahrt die Anweisung bei der Gemeinde oder der örtlichen Gebietsverwaltung, da sie sich im Tagesverlauf ändern kann.',
+  },
+  central_statuses: {
+    flanders: Object.values(flandersStatuses).map((status) => ({
+      province: status.jurisdiction.name,
+      code: status.official_risk.code,
+      label: status.official_risk.label,
+    })),
+    wallonia_active_wildfire_alert: hasWildfireAlert,
+    wallonia_access_extracts_fr: walloniaExtracts,
+    wallonia_access_extracts_de: walloniaExtractsDe,
+    brussels_source_health: brusselsStatus.source_health,
+  },
+  daily_change_notice: dailyNotice,
+  sources: [
+    flandersWarningsUrl,
+    walloniaArticleUrl ?? walloniaNewsUrl,
+    brusselsStatus.source.url,
+  ],
+};
+
 const statuses = {
   ...flandersStatuses,
   'flanders-all': allFlandersStatus,
   'wallonia-regional': walloniaStatus,
   'brussels-regional': brusselsStatus,
+  'belgium-overview': belgiumOverviewStatus,
 };
 
 for (const [statusKey, status] of Object.entries(statuses)) {

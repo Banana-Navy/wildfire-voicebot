@@ -1,7 +1,8 @@
 const apiKey = process.env.ELEVENLABS_API_KEY;
 if (!apiKey) throw new Error('ELEVENLABS_API_KEY est absent.');
 
-const agentId = 'agent_2201m07k477kepfsq9p5h8bh4x1g';
+const agentId = process.env.ELEVENLABS_AGENT_ID
+  ?? 'agent_2201m07k477kepfsq9p5h8bh4x1g';
 const headers = { 'xi-api-key': apiKey, 'content-type': 'application/json' };
 const introductions = {
   fr: "Bien sûr, nous allons continuer en français. Vous êtes sur la ligne d'information Feux en Milieu Naturel, et cet appel est enregistré. Cette ligne vous informe et vous oriente, mais elle ne transmet aucun signalement. En cas de danger immédiat, raccrochez et appelez le cent douze. Souhaitez-vous signaler un feu, ou obtenir des informations ?",
@@ -42,7 +43,7 @@ const scenarios = [
     },
   },
   {
-    name: 'fr-chimay-sans-deduction',
+    name: 'fr-chimay-verification-locale',
     language: 'fr',
     placeSlug: 'chimay',
     request: "La forêt de Chimay est-elle accessible aujourd'hui ?",
@@ -50,19 +51,49 @@ const scenarios = [
     forbiddenTools: [],
     validate(answer) {
       const issues = [];
-      if (!/publication officielle|mesure régionale/iu.test(answer) || !/Chimay/iu.test(answer)) {
-        issues.push('absence de la publication officielle non explicitée pour Chimay');
+      if (!/informations officielles[^.]{0,80}aujourd/iu.test(answer) || !/Chimay/iu.test(answer)) {
+        issues.push('informations officielles actuelles non explicitées pour Chimay');
       }
-      if (!/ne (?:peux|permet) (?:donc )?(?:pas )?confirmer|ne peux donc ni confirmer/iu.test(answer)) {
-        issues.push('accès de Chimay non laissé explicitement non confirmé');
+      if (!/ne figure pas parmi les interdictions d['’]accès recensées/iu.test(answer)) {
+        issues.push('absence de Chimay dans les interdictions recensées non explicitée');
       }
-      const unsafeAnswer = answer.replace(/ni affirmer[^.]{0,120}hors du périmètre/giu, '');
-      if (/ne fait pas partie|n['’]est pas concern|hors (?:du )?périmètre|(?:est|reste) (?:accessible|ouvert)/iu.test(unsafeAnswer)) {
-        issues.push('exclusion ou ouverture déduite sans preuve cartographique');
+      if (!/ne confirme pas son ouverture/iu.test(answer)) {
+        issues.push('absence de prudence sur l’ouverture de Chimay');
       }
-      if (!/change(?:r)? chaque jour|peut changer/iu.test(answer)) {
-        issues.push('avis de changement quotidien absent');
+      if (!/commune ou du gestionnaire local/iu.test(answer)) {
+        issues.push('vérification communale ou locale absente');
       }
+      if (!/évoluer en cours de journée/iu.test(answer)) {
+        issues.push('mise à jour possible en cours de journée absente');
+      }
+      if (/(?:est|reste) (?:accessible|ouvert)/iu.test(answer)) {
+        issues.push('ouverture déduite sans publication explicite');
+      }
+      return issues;
+    },
+  },
+  {
+    name: 'fr-zone-inconnue-repli-national',
+    language: 'fr',
+    resolverError: true,
+    fallbackStatusKey: 'belgium-overview',
+    request: "La Baraque de Gilette est-elle accessible aujourd'hui ?",
+    expectedTools: ['resolve_official_place', 'get_daily_access_status'],
+    forbiddenTools: [],
+    allowResolverError: true,
+    validate(answer) {
+      const issues = [];
+      if (!/Baraque de Gilette/iu.test(answer)) issues.push('nom entendu perdu dans le repli national');
+      if (!/ne figure pas parmi les interdictions d['’]accès recensées/iu.test(answer)) {
+        issues.push('absence de la zone inconnue dans les interdictions recensées non explicitée');
+      }
+      if (!/ne confirme pas son ouverture/iu.test(answer)) issues.push('ouverture non nuancée');
+      if (!/commune ou du gestionnaire local/iu.test(answer)) issues.push('vérification locale absente');
+      if (!/évoluer en cours de journée/iu.test(answer)) issues.push('mise à jour intrajournalière absente');
+      if (/quelle (?:commune|province)|dans quelle (?:commune|province)/iu.test(answer)) {
+        issues.push('commune redemandée malgré le repli national');
+      }
+      if (/(?:est|reste) (?:accessible|ouvert)/iu.test(answer)) issues.push('zone inconnue déclarée ouverte');
       return issues;
     },
   },
@@ -96,8 +127,8 @@ const scenarios = [
     forbiddenTools: [],
     validate(answer) {
       const issues = [];
-      if (!/Verviers/iu.test(answer) || !/ne (?:peux|permet)[^.]{0,60}confirmer|ni confirmer/iu.test(answer)) {
-        issues.push('homonymie commune-cantonnement non laissée non confirmée');
+      if (!/Verviers/iu.test(answer) || !/ne confirme pas son ouverture/iu.test(answer)) {
+        issues.push('homonymie commune-cantonnement non traitée avec prudence');
       }
       if (/commune[^.]{0,90}(?:interdite|fermée|soumise)|(?:interdite|fermée)[^.]{0,90}commune/iu.test(answer)) {
         issues.push('fermeture du cantonnement appliquée à tort à la commune');
@@ -143,16 +174,29 @@ const scenarios = [
 ];
 
 async function simulate(scenario) {
-  const resolverResponse = await fetch(
-    `https://banana-navy.github.io/wildfire-voicebot/data/access/places/${scenario.placeSlug}.json`,
-  );
-  if (!resolverResponse.ok) throw new Error(`${scenario.name}: résolveur public indisponible.`);
-  const resolverPayload = await resolverResponse.json();
-  const toolMockConfig = {
-    resolve_official_place: { default_return_value: JSON.stringify(resolverPayload), default_is_error: false },
-  };
-  if (resolverPayload.status_url) {
-    const statusResponse = await fetch(resolverPayload.status_url);
+  let resolverPayload = null;
+  const toolMockConfig = {};
+  if (scenario.resolverError) {
+    toolMockConfig.resolve_official_place = {
+      default_return_value: 'Error code: 404. Details: HTTP 404',
+      default_is_error: true,
+    };
+  } else {
+    const resolverResponse = await fetch(
+      `https://banana-navy.github.io/wildfire-voicebot/data/access/places/${scenario.placeSlug}.json`,
+    );
+    if (!resolverResponse.ok) throw new Error(`${scenario.name}: résolveur public indisponible.`);
+    resolverPayload = await resolverResponse.json();
+    toolMockConfig.resolve_official_place = {
+      default_return_value: JSON.stringify(resolverPayload),
+      default_is_error: false,
+    };
+  }
+  const statusUrl = scenario.fallbackStatusKey
+    ? `https://banana-navy.github.io/wildfire-voicebot/data/access/status/${scenario.fallbackStatusKey}.json`
+    : resolverPayload?.status_url;
+  if (statusUrl) {
+    const statusResponse = await fetch(statusUrl);
     if (!statusResponse.ok) throw new Error(`${scenario.name}: statut public indisponible.`);
     toolMockConfig.get_daily_access_status = {
       default_return_value: JSON.stringify(await statusResponse.json()),
@@ -210,7 +254,10 @@ async function simulate(scenario) {
   for (const tool of scenario.forbiddenTools) {
     if (calledTools.includes(tool)) issues.push(`outil interdit appelé: ${tool}`);
   }
-  if (toolErrors.length > 0) issues.push(`${toolErrors.length} résultat(s) d'outil en erreur`);
+  const unexpectedToolErrors = scenario.allowResolverError
+    ? toolErrors.filter(({ tool_name: toolName }) => toolName !== 'resolve_official_place')
+    : toolErrors;
+  if (unexpectedToolErrors.length > 0) issues.push(`${unexpectedToolErrors.length} résultat(s) d'outil en erreur`);
   const trailingAgentMessages = transcript
     .filter(({ role, message }) => role === 'agent' && message)
     .map(({ message }) => message)
@@ -236,8 +283,15 @@ async function simulate(scenario) {
   };
 }
 
+const requestedScenario = process.argv[2];
+const selectedScenarios = requestedScenario
+  ? scenarios.filter(({ name }) => name === requestedScenario)
+  : scenarios;
+if (requestedScenario && selectedScenarios.length === 0) {
+  throw new Error(`Scénario inconnu : ${requestedScenario}. Utilisez ${scenarios.map(({ name }) => name).join(', ')}.`);
+}
 const results = [];
-for (const scenario of scenarios) results.push(await simulate(scenario));
+for (const scenario of selectedScenarios) results.push(await simulate(scenario));
 console.log(JSON.stringify({
   results: results.map(({ transcript, ...result }) => result),
 }, null, 2));

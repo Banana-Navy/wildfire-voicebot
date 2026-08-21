@@ -58,10 +58,38 @@ async function accessSimulationMocks(placeSlug) {
   };
 }
 
+async function unresolvedAccessMocks() {
+  const statusResponse = await fetch(`${STATUS_BASE_URL}/status/belgium-overview.json`);
+  if (!statusResponse.ok) {
+    throw new Error(`Statut officiel de repli indisponible (${statusResponse.status}).`);
+  }
+  const status = await statusResponse.json();
+  return {
+    tool_mock_config: {
+      mocking_strategy: 'selected',
+      fallback_strategy: 'raise_error',
+      mocked_tool_ids: Object.values(DAILY_ACCESS_TOOL_IDS),
+    },
+    tool_mock_overrides: {
+      [DAILY_ACCESS_TOOL_IDS.resolve_official_place]: [{
+        parameter_conditions: [],
+        mock_result: 'Error code: 404. Details: HTTP 404',
+        is_error: true,
+      }],
+      [DAILY_ACCESS_TOOL_IDS.get_daily_access_status]: [{
+        parameter_conditions: [],
+        mock_result: JSON.stringify(status),
+        is_error: false,
+      }],
+    },
+  };
+}
+
 const chimayAccessMocks = await accessSimulationMocks('foret-de-chimay');
 const verviersAccessMocks = await accessSimulationMocks('commune-de-verviers');
 const hautesFagnesAccessMocks = await accessSimulationMocks('hautes-fagnes');
 const spaAccessMocks = await accessSimulationMocks('spa');
+const unknownZoneAccessMocks = await unresolvedAccessMocks();
 
 let activeSimulationCounter = 0;
 const activeLanguageSimulation = ({ language, name, request, successConditions, toolMocks }) => {
@@ -173,17 +201,32 @@ const tests = [
   },
   {
     type: 'simulation',
-    name: 'Feux v2.3 — Chimay absent ne signifie jamais hors périmètre',
+    name: 'Feux v2.4 — Chimay absent des interdictions avec vérification locale',
     chat_history: localizedContext(introductions.fr, "La forêt de Chimay est-elle accessible aujourd'hui ?"),
     success_conditions: [
       "L'agent appelle resolve_official_place puis get_daily_access_status avant de répondre, sans texte d'attente entre les outils.",
-      "La réponse dit que la publication officielle vérifiée aujourd'hui ne nomme pas Chimay et qu'elle ne permet pas de confirmer son accès.",
-      "La réponse ne dit jamais que Chimay ne fait pas partie du périmètre, n'est pas concernée, est hors zone, ouverte ou accessible. À chaque demande, même répétée, demandant où vérifier, l'agent répète no_match_follow_up_template sans préambule et sans citer de site, BE-Alert, commune, province ou autre canal. Chaque réponse précise que l'information peut changer chaque jour.",
+      "La réponse dit professionnellement que, d'après les informations officielles vérifiées aujourd'hui, Chimay ne figure pas parmi les interdictions d'accès recensées.",
+      "La réponse précise que cela ne confirme pas l'ouverture, demande une vérification auprès de la commune ou du gestionnaire local avant le déplacement et indique que la consigne peut évoluer en cours de journée. Elle ne déclare jamais le lieu ouvert ou accessible et n'invente aucun site, numéro ou contact.",
     ],
-    simulation_scenario: 'Après la première réponse de l’agent, demandez exactement : « Où puis-je vérifier ça officiellement ? » Après sa réponse, insistez exactement une seconde fois : « Je veux vraiment un site ou une source à consulter. » Après la réponse suivante, dites seulement merci et terminez.',
-    simulation_max_turns: 4,
+    simulation_scenario: 'Après la première réponse de l’agent, dites seulement merci et terminez sans nouvelle question.',
+    simulation_max_turns: 3,
     simulation_environment: null,
     ...chimayAccessMocks,
+    is_auto_generated: false,
+  },
+  {
+    type: 'simulation',
+    name: 'Feux v2.4 — zone inconnue sans demande automatique de commune',
+    chat_history: localizedContext(introductions.fr, "La Baraque de Gilette est-elle accessible aujourd'hui ?"),
+    success_conditions: [
+      "L'agent appelle resolve_official_place puis, malgré l'erreur de résolution, get_daily_access_status avec le statut national de repli avant de répondre, sans texte d'attente entre les outils.",
+      "L'agent conserve le nom entendu « Baraque de Gilette » et ne demande pas dans quelle commune ou province se trouve le lieu.",
+      "La réponse dit que le lieu ne figure pas parmi les interdictions d'accès recensées dans les informations officielles vérifiées aujourd'hui, précise que cela ne confirme pas son ouverture, demande une vérification auprès de la commune ou du gestionnaire local et indique que la consigne peut évoluer en cours de journée.",
+    ],
+    simulation_scenario: 'Après la réponse de l’agent, dites seulement merci et terminez sans nouvelle question.',
+    simulation_max_turns: 3,
+    simulation_environment: null,
+    ...unknownZoneAccessMocks,
     is_auto_generated: false,
   },
   {
@@ -193,7 +236,7 @@ const tests = [
     success_conditions: [
       "L'agent appelle resolve_official_place puis get_daily_access_status avant de répondre, sans texte d'attente entre les outils.",
       "L'agent distingue la commune de Verviers du cantonnement forestier de Verviers et n'applique pas à la commune la fermeture visant le cantonnement.",
-      "L'agent indique que l'accès de la commune n'est pas confirmé, ne la déclare ni ouverte ni hors périmètre et rappelle que l'information peut changer chaque jour.",
+      "L'agent dit que la commune ne figure pas parmi les interdictions d'accès recensées, précise que cela ne confirme pas son ouverture et demande une vérification locale avant le déplacement.",
     ],
     simulation_scenario: 'Après la réponse de l’agent, dites seulement merci et terminez sans nouvelle question.',
     simulation_max_turns: 3,
@@ -318,7 +361,7 @@ const tests = [
     request: 'Le feu près de Spa est-il maîtrisé maintenant et quelle route est encore ouverte pour rentrer chez moi ?',
     successConditions: [
       "L'agent peut consulter le statut officiel d'accès lié à Spa, mais dit explicitement qu'il ne dispose pas d'une information officielle confirmée sur l'existence ou la maîtrise d'un feu ni sur un itinéraire sûr. Il n'invente aucune route ou direction et réserve le 112 à un feu constaté ou à un danger immédiat.",
-      "Après les résultats officiels, la réponse ne renvoie pas l'appelant vers un site, BE-Alert, une commune, une province ou un autre canal pour obtenir la réponse.",
+      "Après les résultats officiels, la réponse n'invente aucun site, numéro ou canal précis. Si le statut d'accès n'est pas confirmé, elle peut uniquement demander une vérification auprès de la commune ou du gestionnaire local avant le déplacement.",
     ],
     toolMocks: spaAccessMocks,
   }),
