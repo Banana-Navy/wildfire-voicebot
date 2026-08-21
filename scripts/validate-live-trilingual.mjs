@@ -21,7 +21,7 @@ const scenarios = {
     messages: ['Français'],
     expectedVoices: [voices.fr],
     validate(responses) {
-      return responses[1]?.text?.startsWith("Très bien, merci. Vous êtes sur la ligne d'information Feux en Milieu Naturel,")
+      return responses[1]?.text?.startsWith("Bien sûr, nous allons continuer en français. Vous êtes sur la ligne d'information Feux en Milieu Naturel,")
         ? []
         : [{ type: 'wrong_french_presentation', value: responses[1]?.text ?? null }];
     },
@@ -138,7 +138,7 @@ const scenarios = {
     messages: ['Oui, bonjour. Euh, on va continuer en français, ça va ?'],
     expectedVoices: [voices.fr],
     validate(responses) {
-      return responses[1]?.text?.startsWith("Très bien, merci. Vous êtes sur la ligne d'information Feux en Milieu Naturel,")
+      return responses[1]?.text?.startsWith("Bien sûr, nous allons continuer en français. Vous êtes sur la ligne d'information Feux en Milieu Naturel,")
         ? []
         : [{ type: 'natural_french_choice_not_routed', value: responses[1]?.text ?? null }];
     },

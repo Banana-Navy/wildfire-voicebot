@@ -24,7 +24,7 @@ const localizedContext = (introduction, request) => [
 ];
 
 const introductions = {
-  fr: "Très bien, merci. Vous êtes sur la ligne d'information Feux en Milieu Naturel, et cet appel est enregistré. Cette ligne vous informe et vous oriente, mais elle ne transmet aucun signalement. En cas de danger immédiat, raccrochez et appelez le cent douze. Souhaitez-vous signaler un feu, ou obtenir des informations ?",
+  fr: "Bien sûr, nous allons continuer en français. Vous êtes sur la ligne d'information Feux en Milieu Naturel, et cet appel est enregistré. Cette ligne vous informe et vous oriente, mais elle ne transmet aucun signalement. En cas de danger immédiat, raccrochez et appelez le cent douze. Souhaitez-vous signaler un feu, ou obtenir des informations ?",
   nl: 'Prima. U bent verbonden met de informatielijn voor bos- en natuurbranden. Dit gesprek wordt opgenomen. Deze lijn stuurt geen meldingen door. Is er onmiddellijk gevaar, hang dan op en bel 112. Belt u om een brand te melden, of wilt u informatie?',
   de: 'Sehr gern. Sie sind mit der Informationshotline für Wald- und Vegetationsbrände verbunden. Dieses Gespräch wird aufgezeichnet. Diese Hotline leitet keine Notrufe weiter. Bei unmittelbarer Gefahr legen Sie auf und rufen Sie 112 an. Möchten Sie einen Brand melden oder Informationen erhalten?',
 };
@@ -161,7 +161,7 @@ const tests = [
     success_conditions: [
       "Quand l'appelant dit « Oui, bonjour. Euh, on va continuer en français, ça va ? », la toute première action de l'agent est language_detection avec fr, sans aucun texte préalable.",
       "Après le résultat de l'outil, l'agent prononce une seule fois la présentation française localisée et ne demande pas de confirmer la langue.",
-      "Aucun mot anglais ou néerlandais n'apparaît dans la présentation française et aucune phrase n'est répétée.",
+      "La présentation commence exactement par « Bien sûr, nous allons continuer en français. » : cette unique transition chaleureuse et affirmative est attendue et ne constitue pas une répétition. Ensuite, aucun mot anglais ou néerlandais n'apparaît et aucune phrase n'est répétée.",
     ],
     simulation_scenario:
       "Au premier message, dites exactement : « Oui, bonjour. Euh, on va continuer en français, ça va ? » N'ajoutez rien et écoutez la présentation.",
@@ -506,7 +506,7 @@ const tests = [
       message('user', "Tu t'es répété deux fois là.", 20),
     ],
     success_condition:
-      "La réponse entière est exactement : « Vous avez raison. Je ne répète pas la réponse. » Elle n'énonce de nouveau aucun conseil de prévention, ne traduit rien, ne contient aucun mot anglais et ne pose aucune question.",
+      "Après normalisation des espaces consécutifs, la réponse entière est exactement : « Vous avez raison. Je ne répète pas la réponse. » Elle conserve les deux points finaux, n'énonce de nouveau aucun conseil de prévention, ne traduit rien, ne contient aucun mot anglais et ne pose aucune question.",
   },
   {
     type: 'simulation',

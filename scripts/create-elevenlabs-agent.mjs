@@ -26,7 +26,7 @@ const systemPrompt = await readFile(resolve(root, 'agent/system-prompt.md'), 'ut
 
 const conversation = structuredClone(reference.conversation_config);
 conversation.agent.first_message =
-  "Bonjour et bienvenue. Goedendag en welkom. Guten Tag und herzlich willkommen. Vous préférez le français, Nederlands oder Deutsch ?";
+  "Bonjour et bienvenue. Goedendag en welkom. Guten Tag und herzlich willkommen. Pour continuer, vous préférez le français, Nederlands oder Deutsch ?";
 conversation.agent.language = 'fr';
 conversation.agent.disable_first_message_interruptions = false;
 conversation.agent.prompt.prompt = systemPrompt;
@@ -94,7 +94,7 @@ const presetTemplate = structuredClone(
 );
 if (!presetTemplate?.overrides) throw new Error('Impossible de créer les presets de langue.');
 const presetMessages = {
-  fr: { voiceId: 'IpTJxgMFj1wbxpha4zxm', modelId: 'eleven_multilingual_v2', stability: 0.40, similarity: 0.76, speed: 0.99 },
+  fr: { voiceId: 'IpTJxgMFj1wbxpha4zxm', modelId: 'eleven_multilingual_v2', stability: 0.46, similarity: 0.80, speed: 0.96 },
   nl: { voiceId: 'Yv0oyZ3obP9foTH7emqG', modelId: 'eleven_flash_v2_5', stability: 0.62, similarity: 0.82, speed: 0.97 },
   de: { voiceId: 'FTNCalFNG5bRnkkaP5Ug', modelId: 'eleven_flash_v2_5', stability: 0.62, similarity: 0.82, speed: 0.97 },
 };
@@ -147,9 +147,9 @@ conversation.conversation.file_input.enabled = false;
 conversation.tts.agent_output_audio_format = 'ulaw_8000';
 conversation.tts.model_id = 'eleven_multilingual_v2';
 conversation.tts.voice_id = 'IpTJxgMFj1wbxpha4zxm';
-conversation.tts.speed = 0.99;
-conversation.tts.stability = 0.40;
-conversation.tts.similarity_boost = 0.76;
+conversation.tts.speed = 0.90;
+conversation.tts.stability = 0.48;
+conversation.tts.similarity_boost = 0.80;
 conversation.tts.optimize_streaming_latency = 0;
 conversation.tts.expressive_mode = false;
 conversation.tts.text_normalisation_type = 'system_prompt';

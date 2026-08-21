@@ -33,17 +33,18 @@ L'agent est une ligne d'information et d'orientation. Il ne reçoit pas officiel
 
 | Langue | Voix | Profil vérifié | Réglages |
 |---|---|---|---|
-| `fr-BE` | Adrien — `IpTJxgMFj1wbxpha4zxm` | Homme, âge moyen, belge, chaleureux, informatif | `0,40 / 0,76 / 0,99`, `eleven_multilingual_v2` |
+| Accueil | Adrien — `IpTJxgMFj1wbxpha4zxm` | Homme, âge moyen, belge, accueillant | `0,48 / 0,80 / 0,90`, `eleven_multilingual_v2` |
+| `fr-BE` | Adrien — `IpTJxgMFj1wbxpha4zxm` | Homme, âge moyen, belge, chaleureux, informatif | `0,46 / 0,80 / 0,96`, `eleven_multilingual_v2` |
 | `nl-BE` | Jeroen Vlaams — `Yv0oyZ3obP9foTH7emqG` | Homme, âge moyen, flamand, calme, information et IVR | `0,62 / 0,82 / 0,97` |
 | `de-DE` | Otto — `FTNCalFNG5bRnkkaP5Ug` | Homme, âge moyen, allemand standard, calme | `0,62 / 0,82 / 0,97` |
 
-Les valeurs indiquent stabilité, similarité et vitesse. L'accueil trilingue utilise Adrien à une vitesse de `0,99` : la voix de sécurité initiale est ainsi francophone et ne peut plus lire une phrase française avec un accent flamand si le routage tarde. La stabilité réduite et la similarité moins rigide rendent la prosodie plus vivante, tandis que Multilingual v2 conserve une diction française fiable. Après la sélection, Jeroen prend immédiatement le relais en néerlandais et Otto en allemand. Les trois voix conservent le même profil perceptif.
+Les valeurs indiquent stabilité, similarité et vitesse. L'accueil trilingue utilise Adrien à une vitesse de `0,90`, avec une transition « Pour continuer » avant la question de langue. Après la sélection, le preset français remonte à `0,96` et ajoute une phrase de liaison avant l'identification de la ligne. Ce découplage évite à la fois l'accueil brusque et l'effet soporifique pendant la conversation. Jeroen prend immédiatement le relais en néerlandais et Otto en allemand.
 
 ## Messages localisés verrouillés
 
 ### Français de Belgique
 
-> Très bien, merci. Vous êtes sur la ligne d'information Feux en Milieu Naturel, et cet appel est enregistré. Cette ligne vous informe et vous oriente, mais elle ne transmet aucun signalement. En cas de danger immédiat, raccrochez et appelez le cent douze. Souhaitez-vous signaler un feu, ou obtenir des informations ?
+> Bien sûr, nous allons continuer en français. Vous êtes sur la ligne d'information Feux en Milieu Naturel, et cet appel est enregistré. Cette ligne vous informe et vous oriente, mais elle ne transmet aucun signalement. En cas de danger immédiat, raccrochez et appelez le cent douze. Souhaitez-vous signaler un feu, ou obtenir des informations ?
 
 ### Néerlandais de Belgique
 
