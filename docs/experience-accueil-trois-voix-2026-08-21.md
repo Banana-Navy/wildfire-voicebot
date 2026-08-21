@@ -2,7 +2,7 @@
 
 Date : 21 août 2026
 
-Cette expérience reste isolée de la version approuvée et du numéro de téléphone de production.
+Cette expérience reste isolée de la version approuvée. Elle a été publiée sur le numéro le 21 août 2026 pour permettre le test téléphonique demandé.
 
 ## Références
 
@@ -10,7 +10,8 @@ Cette expérience reste isolée de la version approuvée et du numéro de télé
 - Version approuvée préservée : `approved/warm-fr-2026-08-21` (`62f24a1`)
 - Agent source : `agent_2201m07k477kepfsq9p5h8bh4x1g`
 - Agent expérimental : `agent_6301m0hrk7vbeyeadt55q1rc1xzv`
-- Numéro attaché à l'agent expérimental : aucun
+- Numéro attaché à l'agent expérimental : `+32 71 49 98 17`
+- Ancien routage conservé pour retour arrière : agent `agent_2201m07k477kepfsq9p5h8bh4x1g`, branche `agtbrch_1101m07k47s2estbzstzye6f97px`
 
 ## Accueil testé
 
@@ -49,6 +50,16 @@ Adrien reste volontairement la voix par défaut au lieu d'être ajouté comme vo
 - Détection de langue : utilisée
 - Première réponse française : `Bien sûr, nous allons continuer en français.`
 - Voix française après sélection : Adrien avec le preset français conservé à `0.96`
+- Résultat automatisé : réussi
+
+### Contrôle après publication téléphonique
+
+- Numéro : `+32 71 49 98 17`
+- Agent assigné : `agent_6301m0hrk7vbeyeadt55q1rc1xzv`
+- Branche ElevenLabs assignée : `agtbrch_3601m0hrk95gesfr463qhrhtc8gj`
+- Conversation de contrôle post-publication : `conv_9401m0hsjb11e5d9b1s382s68kqn`
+- Multi-voix : activé et utilisé
+- Voix facturées : Adrien, Jeroen et Otto
 - Résultat automatisé : réussi
 
 ## Rejouer les contrôles
