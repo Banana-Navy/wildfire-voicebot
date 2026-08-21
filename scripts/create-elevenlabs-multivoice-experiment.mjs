@@ -60,7 +60,7 @@ conversation.tts.supported_voices = Object.entries(voices).map(([label, settings
 }));
 conversation.tts.model_id = 'eleven_multilingual_v2';
 conversation.tts.voice_id = 'eOwAMwUJEGkP44SKOXIH';
-conversation.tts.stability = 0.42;
+conversation.tts.stability = 0.52;
 conversation.tts.similarity_boost = 0.78;
 conversation.tts.speed = 0.94;
 
@@ -74,7 +74,7 @@ if (conversation.language_presets?.fr?.overrides?.tts) {
     ...conversation.language_presets.fr.overrides.tts,
     model_id: 'eleven_multilingual_v2',
     voice_id: 'eOwAMwUJEGkP44SKOXIH',
-    stability: 0.38,
+    stability: 0.52,
     similarity_boost: 0.78,
     speed: 1.00,
   };

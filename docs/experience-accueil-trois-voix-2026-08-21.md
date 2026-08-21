@@ -32,7 +32,7 @@ Le texte non balisé utilise Julien, la voix francophone professionnelle choisie
 | Néerlandais belge | Jeroen | `Yv0oyZ3obP9foTH7emqG` | Flash v2.5 / `0.97` |
 | Allemand | Otto | `FTNCalFNG5bRnkkaP5Ug` | Flash v2.5 / `0.97` |
 
-Julien reste la voix par défaut pour tous les passages français. L'accueil conserve un débit légèrement adouci à `0.94` ; après la sélection, le preset français passe à `1.00` et sa stabilité à `0.38` pour une présence un peu plus énergique. Jeroen et Otto restent inchangés.
+Julien reste la voix par défaut pour tous les passages français. L'accueil conserve un débit légèrement adouci à `0.94` ; après la sélection, le preset français passe à `1.00` pour une présence un peu plus énergique. La stabilité reste alignée à `0.52` dans les deux contextes afin d'éviter les changements de ton entre les tours. Jeroen et Otto restent inchangés.
 
 ## Validation réelle
 
@@ -81,3 +81,9 @@ node scripts/create-elevenlabs-multivoice-experiment.mjs --confirm-create
 ```
 
 Documentation ElevenLabs : [Multi-voice support](https://elevenlabs.io/docs/eleven-agents/customization/voice/multi-voice-support).
+
+## Stabilisation de Julien
+
+L'appel entrant `conv_9401m0htzr32eh89m4xjqv4b2615` a été analysé après un retour signalant des ruptures de ton. Les métadonnées montrent que les `93,4` secondes de français de cet appel ont toutes été produites par l'ancienne voix Adrien : aucune seconde française n'a utilisé Julien et aucun changement de voix française n'a eu lieu. L'appel avait commencé avant la synchronisation de Julien.
+
+Pour éviter que la variabilité prosodique donne malgré tout l'impression d'un changement de personne, Julien utilise désormais une stabilité uniforme de `0.52` dans l'accueil et après le choix du français. La vitesse reste `0.94` pour l'accueil et `1.00` pour la conversation afin de conserver l'énergie demandée. Les réglages de Jeroen et Otto ne sont pas modifiés.

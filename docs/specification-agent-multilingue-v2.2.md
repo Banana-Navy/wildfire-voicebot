@@ -33,12 +33,12 @@ L'agent est une ligne d'information et d'orientation. Il ne reçoit pas officiel
 
 | Langue | Voix | Profil vérifié | Réglages |
 |---|---|---|---|
-| Accueil | Julien — `eOwAMwUJEGkP44SKOXIH` | Homme, âge moyen, professionnel, accueillant | `0,42 / 0,78 / 0,94`, `eleven_multilingual_v2` |
-| `fr-BE` | Julien — `eOwAMwUJEGkP44SKOXIH` | Homme, âge moyen, professionnel, conversationnel | `0,38 / 0,78 / 1,00`, `eleven_multilingual_v2` |
+| Accueil | Julien — `eOwAMwUJEGkP44SKOXIH` | Homme, âge moyen, professionnel, accueillant | `0,52 / 0,78 / 0,94`, `eleven_multilingual_v2` |
+| `fr-BE` | Julien — `eOwAMwUJEGkP44SKOXIH` | Homme, âge moyen, professionnel, conversationnel | `0,52 / 0,78 / 1,00`, `eleven_multilingual_v2` |
 | `nl-BE` | Jeroen Vlaams — `Yv0oyZ3obP9foTH7emqG` | Homme, âge moyen, flamand, calme, information et IVR | `0,62 / 0,82 / 0,97` |
 | `de-DE` | Otto — `FTNCalFNG5bRnkkaP5Ug` | Homme, âge moyen, allemand standard, calme | `0,62 / 0,82 / 0,97` |
 
-Les valeurs indiquent stabilité, similarité et vitesse. L'accueil trilingue utilise Julien à une vitesse de `0,94`, avec une transition « Pour continuer » avant la question de langue. Après la sélection, le preset français passe à `1,00` avec une stabilité légèrement réduite pour gagner en énergie tout en conservant une diction professionnelle. Jeroen et Otto conservent exactement leurs voix et leurs réglages validés.
+Les valeurs indiquent stabilité, similarité et vitesse. L'accueil trilingue utilise Julien à une vitesse de `0,94`, avec une transition « Pour continuer » avant la question de langue. Après la sélection, le preset français passe à `1,00` pour gagner en énergie, tandis que la stabilité reste alignée à `0,52` afin d'éviter une rupture de ton entre l'accueil et les réponses suivantes. Jeroen et Otto conservent exactement leurs voix et leurs réglages validés.
 
 ## Messages localisés verrouillés
 
