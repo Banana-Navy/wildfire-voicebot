@@ -5,7 +5,8 @@ import { WebSocketConnection } from '../node_modules/@elevenlabs/client/dist/uti
 const apiKey = process.env.ELEVENLABS_API_KEY;
 if (!apiKey) throw new Error('ELEVENLABS_API_KEY est absent.');
 
-const agentId = 'agent_2201m07k477kepfsq9p5h8bh4x1g';
+const agentId = process.env.ELEVENLABS_AGENT_ID
+  ?? 'agent_2201m07k477kepfsq9p5h8bh4x1g';
 const root = resolve(import.meta.dirname, '..');
 const outputRoot = process.env.ELEVENLABS_VALIDATION_OUTPUT_ROOT
   ? resolve(process.env.ELEVENLABS_VALIDATION_OUTPUT_ROOT)
@@ -17,6 +18,35 @@ const voices = {
   de: 'FTNCalFNG5bRnkkaP5Ug',
 };
 const scenarios = {
+  'welcome-multivoice': {
+    messages: [],
+    expectedVoices: [voices.fr, voices.nl, voices.de],
+    expectLanguageDetection: false,
+    expectMultivoice: true,
+    validate(responses) {
+      const welcome = (responses[0]?.text ?? '')
+        .replace(/<\/?(?:French|Dutch|German)>/gu, '')
+        .replace(/\s+/gu, ' ')
+        .trim();
+      const expected = 'Bonjour et bienvenue. Goedendag en welkom. Guten Tag und herzlich willkommen. Pour continuer, vous préférez le français, Nederlands oder Deutsch ?';
+      return welcome === expected
+        ? []
+        : [{ type: 'wrong_multivoice_welcome', value: responses[0]?.text ?? null }];
+    },
+  },
+  'fr-after-multivoice-welcome': {
+    messages: ['Français'],
+    expectedVoices: [voices.fr, voices.nl, voices.de],
+    expectMultivoice: true,
+    validate(responses) {
+      const presentation = (responses[1]?.text ?? '')
+        .replace(/<\/?French>/gu, '')
+        .trim();
+      return presentation.startsWith("Bien sûr, nous allons continuer en français. Vous êtes sur la ligne d'information Feux en Milieu Naturel,")
+        ? []
+        : [{ type: 'wrong_french_presentation_after_multivoice_welcome', value: responses[1]?.text ?? null }];
+    },
+  },
   fr: {
     messages: ['Français'],
     expectedVoices: [voices.fr],
@@ -327,6 +357,7 @@ async function run(scenarioName, scenario) {
   const missingVoices = scenario.expectedVoices.filter((voiceId) => !usedVoices.includes(voiceId));
   const unexpectedVoices = usedVoices.filter((voiceId) => !scenario.expectedVoices.includes(voiceId));
   const languageDetection = serverConversation.metadata?.features_usage?.language_detection;
+  const multivoice = serverConversation.metadata?.features_usage?.multivoice;
   const expectLanguageDetection = scenario.expectLanguageDetection ?? true;
   const issues = fluencyIssues(responses);
   issues.push(...(scenario.validate?.(responses) ?? []));
@@ -335,6 +366,9 @@ async function run(scenarioName, scenario) {
       type: expectLanguageDetection ? 'language_detection_not_used' : 'language_detection_used_unexpectedly',
       value: languageDetection ?? null,
     });
+  }
+  if (scenario.expectMultivoice && !(multivoice?.enabled === true && multivoice?.used === true)) {
+    issues.push({ type: 'multivoice_not_used', value: multivoice ?? null });
   }
   for (const voiceId of missingVoices) {
     issues.push({ type: 'expected_voice_not_used', value: voiceId });
@@ -351,6 +385,8 @@ async function run(scenarioName, scenario) {
   const quality = {
     language_detection_expected: expectLanguageDetection,
     language_detection_used: languageDetection?.used === true,
+    multivoice_enabled: multivoice?.enabled === true,
+    multivoice_used: multivoice?.used === true,
     expected_voice_ids: scenario.expectedVoices,
     used_voice_ids: usedVoices,
     called_tools: calledTools,
