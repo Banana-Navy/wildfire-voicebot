@@ -9,6 +9,7 @@
     "preview": "vite preview",
     "refresh:place-registry": "node scripts/refresh-place-registry.mjs --confirm",
     "refresh:daily-access": "node scripts/update-daily-access-status.mjs",
+    "verify:elevenlabs-tools": "node scripts/verify-elevenlabs-tool-prefix.mjs",
     "test:access-data": "node scripts/test-daily-access-parsers.mjs",
     "validate:daily-access": "node scripts/validate-daily-access-snapshot.mjs"
   },

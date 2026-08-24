@@ -58,7 +58,12 @@ const disabledAccessToolIds = new Set([
 conversation.agent.prompt.tool_ids = (conversation.agent.prompt.tool_ids ?? [])
   .filter((toolId) => !disabledAccessToolIds.has(toolId));
 conversation.agent.prompt.tools = (conversation.agent.prompt.tools ?? [])
-  .filter((tool) => !['resolve_official_place', 'get_daily_access_status'].includes(tool?.name));
+  .filter((tool) => ![
+    'resolve_official_place',
+    'get_daily_access_status',
+    'Incendie_resolve_official_place',
+    'Incendie_get_daily_access_status',
+  ].includes(tool?.name));
 conversation.tts.supported_voices = Object.entries(voices).map(([label, settings]) => ({
   label,
   ...settings,

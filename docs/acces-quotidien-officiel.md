@@ -57,8 +57,8 @@ Les accents, apostrophes et espaces sont normalisés pour la recherche, mais le 
 
 Lorsqu'il sera réactivé, le module pourra de nouveau appeler silencieusement deux webhooks en séquence :
 
-1. `resolve_official_place` retourne le lieu, son autorité et un `status_key` ;
-2. `get_daily_access_status` retourne le niveau, les mesures officielles, leur date et leur fraîcheur.
+1. `Incendie_resolve_official_place` retourne le lieu, son autorité et un `status_key` ;
+2. `Incendie_get_daily_access_status` retourne le niveau, les mesures officielles, leur date et leur fraîcheur.
 
 Les fichiers sont servis sous `https://banana-navy.github.io/wildfire-voicebot/data/access`.
 

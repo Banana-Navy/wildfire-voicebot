@@ -11,6 +11,8 @@ Créé le 17 août 2026 dans le workspace ElevenLabs partagé.
 | Numéro attaché | `+32 71 49 98 17` — inbound, branche principale |
 | Appels sortants | Aucun |
 | Webhooks d'accès | Temporairement détachés de l'agent ; aucune localisation ni aucun statut de zone |
+| Outils système actifs | `language_detection`, `end_call` — noms réservés ElevenLabs ; descriptions identifiées `INCENDIE` |
+| Outils d'accès conservés mais détachés | `Incendie_resolve_official_place`, `Incendie_get_daily_access_status` |
 | Enregistrement audio | Activé pour les appels de test |
 | Conservation des transcriptions | 30 jours maximum |
 | Knowledge Base | `89AM7w3ggzzZpzmAiiRT` |
@@ -25,7 +27,7 @@ Créé le 17 août 2026 dans le workspace ElevenLabs partagé.
 
 La base ElevenLabs est synchronisée uniquement depuis `knowledge/base-connaissances.md`. Les incidents historiques et documents de conception restent dans le dépôt pour la landing page, mais ne sont plus injectés dans les réponses du bot. Le document distant porte le nom `Feux en Milieu Naturel — Base opérationnelle contrôlée — 2026.08.17`.
 
-Les données variables du jour ne sont jamais copiées dans cette base statique. Le workflow GitHub Actions continue de les relire et de les valider afin de préserver le mécanisme pour une réactivation future. Pour la version actuelle, les outils de localisation et de statut sont détachés de l'agent : il ne cherche aucun lieu, ne demande aucune commune et ne donne aucun statut d'accès ou de vigilance.
+Les données variables du jour ne sont jamais copiées dans cette base statique. Le workflow GitHub Actions continue de les relire et de les valider afin de préserver le mécanisme pour une réactivation future. Pour la version actuelle, les outils `Incendie_resolve_official_place` et `Incendie_get_daily_access_status` sont détachés de l'agent : il ne cherche aucun lieu, ne demande aucune commune et ne donne aucun statut d'accès ou de vigilance. Le renommage conserve leurs IDs, leurs URLs et leurs schémas webhook afin de ne casser aucun lien ni aucune automatisation existante.
 
 Le registre couvre les 565 communes Statbel, les cinq provinces flamandes, les cinq provinces wallonnes, 333 domaines naturels de l'Agentschap voor Natuur en Bos, 680 zones naturelles publiées par le SPW et les lieux explicitement nommés dans les mesures actives suivies. Il génère aussi des variantes orales sûres telles que « forêt de Chimay », « bos van… » et « Wald bei… » afin de résoudre une demande naturelle sans inventer un autre lieu. Un code provincial indique le risque mais ne confirme jamais à lui seul qu'un site individuel est ouvert.
 

@@ -9,7 +9,12 @@ const introductions = {
   nl: 'Prima. U bent verbonden met de informatielijn voor bos- en natuurbranden. Dit gesprek wordt opgenomen. Deze lijn stuurt geen meldingen door. Is er onmiddellijk gevaar, hang dan op en bel 112. Belt u om een brand te melden, of wilt u informatie?',
   de: 'Sehr gern. Sie sind mit der Informationshotline für Wald- und Vegetationsbrände verbunden. Dieses Gespräch wird aufgezeichnet. Diese Hotline leitet keine Notrufe weiter. Bei unmittelbarer Gefahr legen Sie auf und rufen Sie 112 an. Möchten Sie einen Brand melden oder Informationen erhalten?',
 };
-const accessTools = ['resolve_official_place', 'get_daily_access_status'];
+const accessTools = [
+  'resolve_official_place',
+  'get_daily_access_status',
+  'Incendie_resolve_official_place',
+  'Incendie_get_daily_access_status',
+];
 const spokenText = (value) => value
   .replace(/<\/?(?:French|Dutch|German)>/gu, '')
   .replace(/\s+/gu, ' ')

@@ -133,7 +133,7 @@ const scenarios = {
   'fr-access-kalmthout': {
     messages: ["En français : la Kalmthoutse Heide est-elle accessible aujourd'hui ?"],
     expectedVoices: [voices.fr, voices.nl, voices.de],
-    forbiddenTools: ['resolve_official_place', 'get_daily_access_status'],
+    forbiddenTools: ['resolve_official_place', 'get_daily_access_status', 'Incendie_resolve_official_place', 'Incendie_get_daily_access_status'],
     expectMultivoice: true,
     validate(responses) {
       const answer = spokenText(responses.at(-1)?.text ?? '');
@@ -151,7 +151,7 @@ const scenarios = {
   'fr-access-unknown-zone': {
     messages: ["En français : la Baraque de Gilette est-elle accessible aujourd'hui ?"],
     expectedVoices: [voices.fr, voices.nl, voices.de],
-    forbiddenTools: ['resolve_official_place', 'get_daily_access_status'],
+    forbiddenTools: ['resolve_official_place', 'get_daily_access_status', 'Incendie_resolve_official_place', 'Incendie_get_daily_access_status'],
     expectMultivoice: true,
     validate(responses) {
       const answer = spokenText(responses.at(-1)?.text ?? '');
@@ -169,7 +169,7 @@ const scenarios = {
   'nl-access-zonienwoud': {
     messages: ['Nederlands', 'Is het Zoniënwoud vandaag toegankelijk?'],
     expectedVoices: [voices.fr, voices.nl, voices.de],
-    forbiddenTools: ['resolve_official_place', 'get_daily_access_status'],
+    forbiddenTools: ['resolve_official_place', 'get_daily_access_status', 'Incendie_resolve_official_place', 'Incendie_get_daily_access_status'],
     expectMultivoice: true,
     validate(responses) {
       const answer = spokenText(responses.at(-1)?.text ?? '');
@@ -182,7 +182,7 @@ const scenarios = {
   'fr-be-alert-pronunciation': {
     messages: ["En français : où puis-je vérifier s'il existe un ordre officiel d'évacuation ?"],
     expectedVoices: [voices.fr, voices.nl, voices.de],
-    forbiddenTools: ['resolve_official_place', 'get_daily_access_status'],
+    forbiddenTools: ['resolve_official_place', 'get_daily_access_status', 'Incendie_resolve_official_place', 'Incendie_get_daily_access_status'],
     expectMultivoice: true,
     validate(responses) {
       const answer = spokenText(responses.at(-1)?.text ?? '');

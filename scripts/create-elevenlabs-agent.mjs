@@ -63,7 +63,7 @@ conversation.agent.prompt.built_in_tools = {
 };
 if (conversation.agent.prompt.built_in_tools.end_call) {
   conversation.agent.prompt.built_in_tools.end_call.description =
-    "Lorsque l'appelant confirme qu'il raccroche, demande à terminer ou n'a plus de question, " +
+    "INCENDIE — Lorsque l'appelant confirme qu'il raccroche, demande à terminer ou n'a plus de question, " +
     "prononce exactement une fois la clôture de la langue active : « Merci de votre appel. », " +
     "« Bedankt voor uw oproep. » ou « Vielen Dank für Ihren Anruf. ». " +
     "Utilise cette même phrase dans system__message_to_speak, termine immédiatement et n'ajoute rien. " +
@@ -76,7 +76,7 @@ if (conversation.agent.prompt.built_in_tools.end_call) {
 }
 if (conversation.agent.prompt.built_in_tools.language_detection) {
   conversation.agent.prompt.built_in_tools.language_detection.description =
-    "PORTE ABSOLUE AU PREMIER TOUR : dès que fr, nl ou de est identifiable, ta seule sortie avant tout texte doit être cet outil. " +
+    "INCENDIE — PORTE ABSOLUE AU PREMIER TOUR : dès que fr, nl ou de est identifiable, ta seule sortie avant tout texte doit être cet outil. " +
     "Cette règle s'applique aussi à un danger immédiat : appelle silencieusement l'outil, puis donne le 112 comme premier texte avec la voix native. " +
     "PORTE ABSOLUE EN COURS D'APPEL : si l'appelant parle clairement dans une autre langue prise en charge ou demande explicitement ce changement, ta seule sortie avant tout texte doit être cet outil. " +
     "Ne réponds jamais dans la nouvelle langue avec la voix actuelle. Après le résultat, poursuis sans rejouer l'accueil ou la présentation. " +

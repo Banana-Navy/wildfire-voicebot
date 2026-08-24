@@ -1,6 +1,9 @@
 import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
-import { DAILY_ACCESS_TOOL_IDS } from './lib/elevenlabs-access-tools.mjs';
+import {
+  DAILY_ACCESS_TOOL_IDS,
+  DAILY_ACCESS_TOOL_NAMES,
+} from './lib/elevenlabs-access-tools.mjs';
 
 const apiKey = process.env.ELEVENLABS_API_KEY;
 if (!apiKey) throw new Error('ELEVENLABS_API_KEY est absent.');
@@ -135,7 +138,7 @@ conversation.agent.prompt.temperature = 0;
 conversation.agent.prompt.max_tokens = 180;
 const builtIns = conversation.agent.prompt.built_in_tools ?? {};
 const endCallDescription =
-  "Lorsque l'appelant confirme qu'il raccroche, demande à terminer ou n'a plus de question, " +
+  "INCENDIE — Lorsque l'appelant confirme qu'il raccroche, demande à terminer ou n'a plus de question, " +
   "prononce exactement une fois la clôture de la langue active : « Merci de votre appel. », " +
   "« Bedankt voor uw oproep. » ou « Vielen Dank für Ihren Anruf. ». " +
   "Utilise cette même phrase dans system__message_to_speak, termine immédiatement et n'ajoute rien. " +
@@ -144,7 +147,7 @@ const isolatedThanksDescription =
   " Un merci, bedankt ou danke isolé après une réponse, sans nouvelle question, vaut confirmation de fin d'appel. " +
   "Prononce alors uniquement la clôture localisée, appelle cet outil et ne demande jamais si l'appelant a d'autres questions.";
 const languageDescription =
-  "PORTE ABSOLUE AU PREMIER TOUR : dès que fr, nl ou de est identifiable, ta seule sortie avant tout texte doit être cet outil. " +
+  "INCENDIE — PORTE ABSOLUE AU PREMIER TOUR : dès que fr, nl ou de est identifiable, ta seule sortie avant tout texte doit être cet outil. " +
   "Cette règle s'applique aussi à un danger immédiat : appelle silencieusement l'outil, puis donne le 112 comme premier texte avec la voix native. " +
   "PORTE ABSOLUE EN COURS D'APPEL : si l'appelant parle clairement dans une autre langue prise en charge ou demande explicitement ce changement, ta seule sortie avant tout texte doit être cet outil. " +
   "Ne réponds jamais dans la nouvelle langue avec la voix actuelle. Après le résultat, poursuis sans rejouer l'accueil ou la présentation. " +
@@ -178,7 +181,12 @@ const disabledDailyAccessToolIds = new Set(Object.values(DAILY_ACCESS_TOOL_IDS))
 conversation.agent.prompt.tool_ids = existingToolIds.filter((toolId) =>
   !disabledDailyAccessToolIds.has(toolId));
 conversation.agent.prompt.tools = expandedTools.filter((tool) =>
-  !['resolve_official_place', 'get_daily_access_status'].includes(tool?.name));
+  ![
+    'resolve_official_place',
+    'get_daily_access_status',
+    DAILY_ACCESS_TOOL_NAMES.resolvePlace,
+    DAILY_ACCESS_TOOL_NAMES.getStatus,
+  ].includes(tool?.name));
 
 conversation.language_presets = {};
 for (const [language, settings] of Object.entries(localized)) {

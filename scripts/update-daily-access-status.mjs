@@ -171,7 +171,7 @@ const walloniaStatus = {
     rule: hasWildfireAlert
       ? 'N’affirmer une interdiction, une fermeture ou une autorisation que si le lieu demandé est explicitement nommé dans les extraits officiels actuels. Ne jamais étendre un périmètre par déduction.'
       : 'Aucune mesure régionale active n’est publiée dans le bandeau officiel suivi. Cela ne confirme pas l’ouverture d’un site et n’exclut pas une décision communale ou locale.',
-    resolved_identity_rule: 'Déterminer l’entité demandée uniquement depuis place.canonical_name, place.aliases et place.category renvoyés par resolve_official_place. Ne jamais remplacer cette entité par un nom trouvé dans les extraits. Par exemple, la commune de Verviers reste distincte du cantonnement forestier de Verviers.',
+    resolved_identity_rule: 'Déterminer l’entité demandée uniquement depuis place.canonical_name, place.aliases et place.category renvoyés par Incendie_resolve_official_place. Ne jamais remplacer cette entité par un nom trouvé dans les extraits. Par exemple, la commune de Verviers reste distincte du cantonnement forestier de Verviers.',
     same_entity_rule: 'Une simple chaîne de caractères identique ne suffit pas : une mesure visant un cantonnement forestier, une route ou un barrage ne doit jamais être appliquée à la commune du même nom.',
     no_match_rule: 'Si aucune mesure ne nomme exactement la même entité que le lieu résolu, utiliser le modèle no_match_answer_template. Dire uniquement que le lieu ne figure pas parmi les interdictions d’accès recensées dans les informations officielles vérifiées; cela ne confirme jamais son ouverture.',
     no_match_answer_template: {
@@ -194,7 +194,7 @@ const walloniaStatus = {
       'Cantonnement forestier de Malmedy',
       'Cantonnement forestier de Verviers',
     ],
-    scope_limited_rule: 'Utiliser scope_limited_answer_template seulement si place.canonical_name ou un alias renvoyé par resolve_official_place correspond exactement à une entrée de scope_limited_places et désigne la même catégorie d’entité. Ne jamais déclencher cette règle depuis un nom trouvé dans les extraits. Pour ces zones étendues, la carte ne permet pas de déclarer toute la zone fermée ou ouverte.',
+    scope_limited_rule: 'Utiliser scope_limited_answer_template seulement si place.canonical_name ou un alias renvoyé par Incendie_resolve_official_place correspond exactement à une entrée de scope_limited_places et désigne la même catégorie d’entité. Ne jamais déclencher cette règle depuis un nom trouvé dans les extraits. Pour ces zones étendues, la carte ne permet pas de déclarer toute la zone fermée ou ouverte.',
     scope_limited_answer_template: {
       fr: 'La publication officielle signale une interdiction dans un périmètre cartographié concernant « {place} », mais elle ne permet pas de confirmer le statut de toute cette zone. N’entrez dans aucune partie signalée comme interdite et respectez la signalétique locale. Cette information peut changer chaque jour selon les consignes officielles.',
       nl: 'De officiële publicatie meldt een verbod binnen een afgebakende zone rond ‘{place}’, maar bevestigt niet de status van het volledige gebied. Betreed geen deel dat als verboden is aangeduid en volg de plaatselijke signalisatie. Deze informatie kan elke dag wijzigen volgens de officiële richtlijnen.',

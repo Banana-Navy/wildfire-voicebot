@@ -1,7 +1,8 @@
 const apiKey = process.env.ELEVENLABS_API_KEY;
 if (!apiKey) throw new Error('ELEVENLABS_API_KEY est absent.');
 
-const agentId = 'agent_2201m07k477kepfsq9p5h8bh4x1g';
+const agentId = process.env.ELEVENLABS_AGENT_ID
+  ?? 'agent_6301m0hrk7vbeyeadt55q1rc1xzv';
 const headers = { 'xi-api-key': apiKey, 'content-type': 'application/json' };
 const baseUrl = 'https://api.elevenlabs.io/v1/convai';
 const filters = process.argv.slice(2).filter((value) => !value.startsWith('--'));

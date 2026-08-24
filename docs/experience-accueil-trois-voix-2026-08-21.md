@@ -90,6 +90,6 @@ Pour éviter que la variabilité prosodique donne malgré tout l'impression d'un
 
 ## Orientation d'accès temporaire — 24 août 2026
 
-La localisation et la restitution des statuts des zones naturelles sont temporairement désactivées. Les outils `resolve_official_place` et `get_daily_access_status` sont détachés de l'agent, tout en restant conservés dans le projet pour une éventuelle réactivation.
+La localisation et la restitution des statuts des zones naturelles sont temporairement désactivées. Les outils `Incendie_resolve_official_place` et `Incendie_get_daily_access_status` sont détachés de l'agent, tout en restant conservés dans le projet pour une éventuelle réactivation. Leurs IDs et leurs URLs webhook ne changent pas.
 
 Pour une question d'accès, l'agent indique uniquement de consulter le site officiel de la commune concernée ou les informations du gestionnaire de la zone naturelle. Il ne reprend pas le lieu prononcé, ne demande pas de commune et n'annonce aucun statut. Dans les réponses françaises, `BE-Alert` est écrit `bi-alerte` avant synthèse afin d'obtenir une prononciation française naturelle.

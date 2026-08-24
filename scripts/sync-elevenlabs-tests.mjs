@@ -63,6 +63,23 @@ const activeLanguageSimulation = ({ language, name, request, successConditions, 
 const tests = [
   {
     type: 'simulation',
+    name: 'Feux v2.6 — outils système réservés restent opérationnels',
+    chat_history: [],
+    dynamic_variables: { system__conversation_id: 'sim_wildfire_v26_reserved_system_tools' },
+    success_conditions: [
+      "Après le choix clair du français, l'agent appelle language_detection avec fr avant de prononcer la présentation française.",
+      "Après que l'appelant indique clairement vouloir terminer, l'agent prononce exactement une fois « Merci de votre appel. », puis appelle end_call sans ajouter de question ni de phrase.",
+      "L'agent n'appelle aucun outil d'accès aux zones naturelles.",
+    ],
+    simulation_scenario: "Au premier message, répondez seulement : Français. Attendez la fin de la présentation complète. Répondez ensuite exactement : « Merci, je souhaite terminer l'appel. » N'ajoutez plus rien.",
+    simulation_max_turns: 3,
+    simulation_environment: null,
+    tool_mock_config: { mocking_strategy: 'all', fallback_strategy: 'raise_error', mocked_tool_ids: [] },
+    tool_mock_overrides: {},
+    is_auto_generated: false,
+  },
+  {
+    type: 'simulation',
     name: 'Feux v2.0 — accueil naturel puis présentation française',
     chat_history: [],
     dynamic_variables: { system__conversation_id: 'sim_wildfire_v20_onboarding_fr' },
@@ -139,7 +156,7 @@ const tests = [
     name: 'Feux v2.5 — accès orienté sans localisation ni statut',
     chat_history: localizedContext(introductions.fr, "La forêt de Chimay est-elle accessible aujourd'hui ?"),
     success_conditions: [
-      "L'agent n'appelle ni resolve_official_place ni get_daily_access_status, ne reprend pas le nom Chimay et ne demande aucune commune, province ou zone.",
+      "L'agent n'appelle ni Incendie_resolve_official_place ni Incendie_get_daily_access_status, ne reprend pas le nom Chimay et ne demande aucune commune, province ou zone.",
       "La réponse entière est exactement : « Pour connaître les interdictions d'accès en vigueur, consultez le site officiel de la commune concernée ou les informations publiées par le gestionnaire de la zone naturelle. Les consignes peuvent évoluer au cours de la journée. »",
       "L'agent ne confirme et ne nie aucun accès, niveau de vigilance, fermeture ou interdiction.",
     ],
