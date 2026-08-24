@@ -10,6 +10,10 @@ const introductions = {
   de: 'Sehr gern. Sie sind mit der Informationshotline für Wald- und Vegetationsbrände verbunden. Dieses Gespräch wird aufgezeichnet. Diese Hotline leitet keine Notrufe weiter. Bei unmittelbarer Gefahr legen Sie auf und rufen Sie 112 an. Möchten Sie einen Brand melden oder Informationen erhalten?',
 };
 const accessTools = ['resolve_official_place', 'get_daily_access_status'];
+const spokenText = (value) => value
+  .replace(/<\/?(?:French|Dutch|German)>/gu, '')
+  .replace(/\s+/gu, ' ')
+  .trim();
 const exactAnswers = {
   fr: "Pour connaître les interdictions d'accès en vigueur, consultez le site officiel de la commune concernée ou les informations publiées par le gestionnaire de la zone naturelle. Les consignes peuvent évoluer au cours de la journée.",
   nl: 'Raadpleeg voor de geldende toegangsverboden de officiële website van de betrokken gemeente of de informatie van de beheerder van het natuurgebied. De richtlijnen kunnen in de loop van de dag wijzigen.',
@@ -22,11 +26,12 @@ const accessScenario = (name, language, request) => ({
   request,
   validate(answer) {
     const issues = [];
-    if (answer.trim() !== exactAnswers[language]) issues.push('modèle d’orientation non reproduit exactement');
-    if (/Chimay|Kalmthoutse Heide|Hautes Fagnes|Fagne de Malchamps/iu.test(answer)) {
+    const spoken = spokenText(answer);
+    if (spoken !== exactAnswers[language]) issues.push('modèle d’orientation non reproduit exactement');
+    if (/Chimay|Kalmthoutse Heide|Hautes Fagnes|Fagne de Malchamps/iu.test(spoken)) {
       issues.push('lieu repris ou localisé dans la réponse');
     }
-    if (/accessible|ouverte?|fermée?|interdite?|code (?:vert|jaune|orange|rouge)|toegankelijk|geopend|gesloten|zugänglich|geöffnet|gesperrt/iu.test(answer.replace(/interdictions|toegangsverboden|Zugangssperren/giu, ''))) {
+    if (/accessible|ouverte?|fermée?|interdite?|code (?:vert|jaune|orange|rouge)|toegankelijk|geopend|gesloten|zugänglich|geöffnet|gesperrt/iu.test(spoken.replace(/interdictions|toegangsverboden|Zugangssperren/giu, ''))) {
       issues.push('statut de zone annoncé');
     }
     return issues;
@@ -43,8 +48,9 @@ const scenarios = [
     request: "Où puis-je vérifier s'il existe un ordre officiel d'évacuation ?",
     validate(answer) {
       const issues = [];
-      if (!/bi-alerte/iu.test(answer)) issues.push('prononciation phonétique bi-alerte absente');
-      if (/BE-Alert|bé[ -]?e/iu.test(answer)) issues.push('forme écrite susceptible d’être mal prononcée');
+      const spoken = spokenText(answer);
+      if (!/bi-alerte/iu.test(spoken)) issues.push('prononciation phonétique bi-alerte absente');
+      if (/BE-Alert|bé[ -]?e/iu.test(spoken)) issues.push('forme écrite susceptible d’être mal prononcée');
       return issues;
     },
   },
@@ -76,11 +82,7 @@ async function simulate(scenario) {
             { role: 'agent', message: introductions[scenario.language], time_in_call_secs: 3 },
             { role: 'user', message: scenario.request, time_in_call_secs: 12 },
           ],
-          tool_mock_config: {
-            mocking_strategy: 'all',
-            fallback_strategy: 'raise_error',
-            mocked_tool_ids: [],
-          },
+          tool_mock_config: {},
           dynamic_variables: { system__conversation_id: `access_referral_${scenario.name}` },
         },
         new_turns_limit: 4,
