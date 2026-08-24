@@ -51,9 +51,14 @@ if (!sourceResponse.ok) {
 
 const conversation = structuredClone(source.conversation_config);
 conversation.agent.first_message = firstMessage;
-if ((conversation.agent.prompt.tool_ids?.length ?? 0) > 0) {
-  delete conversation.agent.prompt.tools;
-}
+const disabledAccessToolIds = new Set([
+  'tool_2601m0d59rbff80b5havcr1fb286',
+  'tool_7301m0d59rbgec9b0ywzzxq0dv2r',
+]);
+conversation.agent.prompt.tool_ids = (conversation.agent.prompt.tool_ids ?? [])
+  .filter((toolId) => !disabledAccessToolIds.has(toolId));
+conversation.agent.prompt.tools = (conversation.agent.prompt.tools ?? [])
+  .filter((tool) => !['resolve_official_place', 'get_daily_access_status'].includes(tool?.name));
 conversation.tts.supported_voices = Object.entries(voices).map(([label, settings]) => ({
   label,
   ...settings,

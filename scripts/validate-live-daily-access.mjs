@@ -9,200 +9,48 @@ const introductions = {
   nl: 'Prima. U bent verbonden met de informatielijn voor bos- en natuurbranden. Dit gesprek wordt opgenomen. Deze lijn stuurt geen meldingen door. Is er onmiddellijk gevaar, hang dan op en bel 112. Belt u om een brand te melden, of wilt u informatie?',
   de: 'Sehr gern. Sie sind mit der Informationshotline für Wald- und Vegetationsbrände verbunden. Dieses Gespräch wird aufgezeichnet. Diese Hotline leitet keine Notrufe weiter. Bei unmittelbarer Gefahr legen Sie auf und rufen Sie 112 an. Möchten Sie einen Brand melden oder Informationen erhalten?',
 };
+const accessTools = ['resolve_official_place', 'get_daily_access_status'];
+const exactAnswers = {
+  fr: "Pour connaître les interdictions d'accès en vigueur, consultez le site officiel de la commune concernée ou les informations publiées par le gestionnaire de la zone naturelle. Les consignes peuvent évoluer au cours de la journée.",
+  nl: 'Raadpleeg voor de geldende toegangsverboden de officiële website van de betrokken gemeente of de informatie van de beheerder van het natuurgebied. De richtlijnen kunnen in de loop van de dag wijzigen.',
+  de: 'Informationen über geltende Zugangssperren finden Sie auf der offiziellen Website der betroffenen Gemeinde oder beim Verwalter des Naturgebiets. Die Hinweise können sich im Laufe des Tages ändern.',
+};
+
+const accessScenario = (name, language, request) => ({
+  name,
+  language,
+  request,
+  validate(answer) {
+    const issues = [];
+    if (answer.trim() !== exactAnswers[language]) issues.push('modèle d’orientation non reproduit exactement');
+    if (/Chimay|Kalmthoutse Heide|Hautes Fagnes|Fagne de Malchamps/iu.test(answer)) {
+      issues.push('lieu repris ou localisé dans la réponse');
+    }
+    if (/accessible|ouverte?|fermée?|interdite?|code (?:vert|jaune|orange|rouge)|toegankelijk|geopend|gesloten|zugänglich|geöffnet|gesperrt/iu.test(answer.replace(/interdictions|toegangsverboden|Zugangssperren/giu, ''))) {
+      issues.push('statut de zone annoncé');
+    }
+    return issues;
+  },
+});
 
 const scenarios = [
+  accessScenario('fr-orientation-sans-localisation', 'fr', "La forêt de Chimay est-elle accessible aujourd'hui ?"),
+  accessScenario('nl-orientatie-zonder-lokalisatie', 'nl', 'Is de Kalmthoutse Heide vandaag toegankelijk?'),
+  accessScenario('de-hinweis-ohne-lokalisierung', 'de', 'Ist die Fagne de Malchamps heute zugänglich?'),
   {
-    name: 'fr-kalmthoutse-heide',
+    name: 'fr-prononciation-bi-alerte',
     language: 'fr',
-    placeSlug: 'kalmthoutse-heide',
-    request: "La Kalmthoutse Heide est-elle accessible aujourd'hui ?",
-    expectedTools: ['resolve_official_place', 'get_daily_access_status'],
-    forbiddenTools: [],
-    validate(answer) {
-      return [
-        [/code officiel|niveau officiel|vigilance officielle/iu, 'niveau officiel absent'],
-        [/ne confirme pas|ne permet pas de confirmer/iu, 'ouverture individuelle déduite du code'],
-        [/Respectez la signalétique locale/iu, 'action concrète absente'],
-        [/change(?:r)? chaque jour|changer quotidiennement/iu, 'avis de changement quotidien absent'],
-      ].filter(([pattern]) => !pattern.test(answer)).map(([, issue]) => issue);
-    },
-  },
-  {
-    name: 'nl-zonienwoud-ambigu',
-    language: 'nl',
-    placeSlug: 'zonienwoud',
-    request: 'Is het Zoniënwoud vandaag toegankelijk?',
-    expectedTools: ['resolve_official_place'],
-    forbiddenTools: ['get_daily_access_status'],
-    validate(answer) {
-      const namesBothResolvedOptions = /Brussel/iu.test(answer) && /Vlaams-Brabant/iu.test(answer);
-      const asksForDisambiguatingContext = /(?:welke|in welke)[^?.!]*(?:gemeente|provincie)/iu.test(answer);
-      return namesBothResolvedOptions || asksForDisambiguatingContext
-        ? []
-        : ['le lieu ambigu n’a pas été clarifié'];
-    },
-  },
-  {
-    name: 'fr-chimay-verification-locale',
-    language: 'fr',
-    placeSlug: 'chimay',
-    request: "La forêt de Chimay est-elle accessible aujourd'hui ?",
-    expectedTools: ['resolve_official_place', 'get_daily_access_status'],
-    forbiddenTools: [],
+    request: "Où puis-je vérifier s'il existe un ordre officiel d'évacuation ?",
     validate(answer) {
       const issues = [];
-      if (!/informations officielles[^.]{0,80}aujourd/iu.test(answer) || !/Chimay/iu.test(answer)) {
-        issues.push('informations officielles actuelles non explicitées pour Chimay');
-      }
-      if (!/ne figure pas parmi les interdictions d['’]accès recensées/iu.test(answer)) {
-        issues.push('absence de Chimay dans les interdictions recensées non explicitée');
-      }
-      if (!/ne confirme pas son ouverture/iu.test(answer)) {
-        issues.push('absence de prudence sur l’ouverture de Chimay');
-      }
-      if (!/commune ou du gestionnaire local/iu.test(answer)) {
-        issues.push('vérification communale ou locale absente');
-      }
-      if (!/évoluer en cours de journée/iu.test(answer)) {
-        issues.push('mise à jour possible en cours de journée absente');
-      }
-      if (/(?:est|reste) (?:accessible|ouvert)/iu.test(answer)) {
-        issues.push('ouverture déduite sans publication explicite');
-      }
-      return issues;
-    },
-  },
-  {
-    name: 'fr-zone-inconnue-repli-national',
-    language: 'fr',
-    resolverError: true,
-    fallbackStatusKey: 'belgium-overview',
-    request: "La Baraque de Gilette est-elle accessible aujourd'hui ?",
-    expectedTools: ['resolve_official_place', 'get_daily_access_status'],
-    forbiddenTools: [],
-    allowResolverError: true,
-    validate(answer) {
-      const issues = [];
-      if (!/Baraque de Gilette/iu.test(answer)) issues.push('nom entendu perdu dans le repli national');
-      if (!/ne figure pas parmi les interdictions d['’]accès recensées/iu.test(answer)) {
-        issues.push('absence de la zone inconnue dans les interdictions recensées non explicitée');
-      }
-      if (!/ne confirme pas son ouverture/iu.test(answer)) issues.push('ouverture non nuancée');
-      if (!/commune ou du gestionnaire local/iu.test(answer)) issues.push('vérification locale absente');
-      if (!/évoluer en cours de journée/iu.test(answer)) issues.push('mise à jour intrajournalière absente');
-      if (/quelle (?:commune|province)|dans quelle (?:commune|province)/iu.test(answer)) {
-        issues.push('commune redemandée malgré le repli national');
-      }
-      if (/(?:est|reste) (?:accessible|ouvert)/iu.test(answer)) issues.push('zone inconnue déclarée ouverte');
-      return issues;
-    },
-  },
-  {
-    name: 'fr-hautes-fagnes-perimetre-non-deduit',
-    language: 'fr',
-    placeSlug: 'hautes-fagnes',
-    request: "Les Hautes Fagnes sont-elles accessibles aujourd'hui ?",
-    expectedTools: ['resolve_official_place', 'get_daily_access_status'],
-    forbiddenTools: [],
-    validate(answer) {
-      const issues = [];
-      if (!/ne (?:peux|permet)[^.]{0,100}confirmer|ne confirme pas[^.]{0,100}(?:toute|complet)|statut de toute cette zone/iu.test(answer)) {
-        issues.push('accès global aux Hautes Fagnes déduit de la carte non lisible');
-      }
-      if (/(?:toutes? les Hautes Fagnes|réserve naturelle des Hautes Fagnes)[^.]{0,80}(?:fermées?|interdites?)|circulation[^.]{0,80}réserve naturelle des Hautes Fagnes[^.]{0,80}interdite/iu.test(answer)) {
-        issues.push('fermeture étendue à toute la réserve sans preuve');
-      }
-      if (!/change(?:r)? chaque jour|peut changer/iu.test(answer)) {
-        issues.push('avis de changement quotidien absent');
-      }
-      return issues;
-    },
-  },
-  {
-    name: 'fr-verviers-commune-pas-cantonnement',
-    language: 'fr',
-    placeSlug: 'verviers',
-    request: "La commune de Verviers est-elle soumise à l'interdiction d'accès aujourd'hui ?",
-    expectedTools: ['resolve_official_place', 'get_daily_access_status'],
-    forbiddenTools: [],
-    validate(answer) {
-      const issues = [];
-      if (!/Verviers/iu.test(answer) || !/ne confirme pas son ouverture/iu.test(answer)) {
-        issues.push('homonymie commune-cantonnement non traitée avec prudence');
-      }
-      if (/commune[^.]{0,90}(?:interdite|fermée|soumise)|(?:interdite|fermée)[^.]{0,90}commune/iu.test(answer)) {
-        issues.push('fermeture du cantonnement appliquée à tort à la commune');
-      }
-      return issues;
-    },
-  },
-  {
-    name: 'nl-kalmthoutse-heide',
-    language: 'nl',
-    placeSlug: 'kalmthoutse-heide',
-    request: 'Is de Kalmthoutse Heide vandaag toegankelijk?',
-    expectedTools: ['resolve_official_place', 'get_daily_access_status'],
-    forbiddenTools: [],
-    validate(answer) {
-      const issues = [];
-      if (!/code oranje|officiële code/iu.test(answer)) issues.push('officiële Vlaamse code ontbreekt');
-      if (!/bevestigt(?: op zichzelf)? niet|niet bevestigen/iu.test(answer)) issues.push('individuele toegang wordt ten onrechte afgeleid');
-      if (!/Volg de plaatselijke signalisatie/iu.test(answer)) issues.push('concrete actie ontbreekt');
-      if (!/elke dag wijzigen|dagelijks wijzigen/iu.test(answer)) issues.push('dagelijkse wijzigingsmelding ontbreekt');
-      if (/\b(?:cette|information est|province d['’]|accès)\b/iu.test(answer)) issues.push('Franse woorden in Nederlands antwoord');
-      return issues;
-    },
-  },
-  {
-    name: 'de-fagne-de-malchamps',
-    language: 'de',
-    placeSlug: 'fagne-de-malchamps',
-    request: 'Ist die Fagne de Malchamps heute zugänglich?',
-    expectedTools: ['resolve_official_place', 'get_daily_access_status'],
-    forbiddenTools: [],
-    validate(answer) {
-      const issues = [];
-      if (!/(?:Zugang|Betreten)[^.]{0,90}(?:untersagt|gesperrt)|(?:untersagt|gesperrt)[^.]{0,90}(?:Zugang|Betreten)/iu.test(answer)) {
-        issues.push('offizielle Sperrung fehlt im deutschen Antworttext');
-      }
-      if (!/Betreten Sie das Gebiet nicht/iu.test(answer)) issues.push('konkrete Handlungsanweisung fehlt');
-      if (!/täglich|jeden Tag/iu.test(answer)) issues.push('täglicher Änderungshinweis fehlt');
-      if (/\b(?:cette|aujourd['’]hui|accès|interdit)\b/iu.test(answer)) issues.push('französische Wörter in deutscher Antwort');
+      if (!/bi-alerte/iu.test(answer)) issues.push('prononciation phonétique bi-alerte absente');
+      if (/BE-Alert|bé[ -]?e/iu.test(answer)) issues.push('forme écrite susceptible d’être mal prononcée');
       return issues;
     },
   },
 ];
 
 async function simulate(scenario) {
-  let resolverPayload = null;
-  const toolMockConfig = {};
-  if (scenario.resolverError) {
-    toolMockConfig.resolve_official_place = {
-      default_return_value: 'Error code: 404. Details: HTTP 404',
-      default_is_error: true,
-    };
-  } else {
-    const resolverResponse = await fetch(
-      `https://banana-navy.github.io/wildfire-voicebot/data/access/places/${scenario.placeSlug}.json`,
-    );
-    if (!resolverResponse.ok) throw new Error(`${scenario.name}: résolveur public indisponible.`);
-    resolverPayload = await resolverResponse.json();
-    toolMockConfig.resolve_official_place = {
-      default_return_value: JSON.stringify(resolverPayload),
-      default_is_error: false,
-    };
-  }
-  const statusUrl = scenario.fallbackStatusKey
-    ? `https://banana-navy.github.io/wildfire-voicebot/data/access/status/${scenario.fallbackStatusKey}.json`
-    : resolverPayload?.status_url;
-  if (statusUrl) {
-    const statusResponse = await fetch(statusUrl);
-    if (!statusResponse.ok) throw new Error(`${scenario.name}: statut public indisponible.`);
-    toolMockConfig.get_daily_access_status = {
-      default_return_value: JSON.stringify(await statusResponse.json()),
-      default_is_error: false,
-    };
-  }
   const response = await fetch(
     `https://api.elevenlabs.io/v1/convai/agents/${agentId}/simulate-conversation`,
     {
@@ -215,21 +63,25 @@ async function simulate(scenario) {
             language: scenario.language,
             prompt: {
               prompt: scenario.language === 'fr'
-                ? "Vous simulez un appelant. Après la réponse à votre question, dites seulement merci et terminez. N'ajoutez aucune nouvelle demande."
+                ? "Vous simulez un appelant. Après la réponse, dites seulement merci et terminez. N'ajoutez aucune demande."
                 : scenario.language === 'nl'
-                  ? 'U simuleert een beller. Zeg na het antwoord alleen bedankt en beëindig het gesprek. Stel geen nieuwe vraag.'
-                  : 'Sie simulieren einen Anrufer. Sagen Sie nach der Antwort nur danke und beenden Sie das Gespräch. Stellen Sie keine weitere Frage.',
+                  ? 'U simuleert een beller. Zeg na het antwoord alleen bedankt en beëindig het gesprek.'
+                  : 'Sie simulieren einen Anrufer. Sagen Sie nach der Antwort nur danke und beenden Sie das Gespräch.',
               llm: 'claude-haiku-4-5',
               temperature: 0,
-              max_tokens: 40,
+              max_tokens: 30,
             },
           },
           partial_conversation_history: [
             { role: 'agent', message: introductions[scenario.language], time_in_call_secs: 3 },
             { role: 'user', message: scenario.request, time_in_call_secs: 12 },
           ],
-          tool_mock_config: toolMockConfig,
-          dynamic_variables: { system__conversation_id: `live_daily_${scenario.name}` },
+          tool_mock_config: {
+            mocking_strategy: 'all',
+            fallback_strategy: 'raise_error',
+            mocked_tool_ids: [],
+          },
+          dynamic_variables: { system__conversation_id: `access_referral_${scenario.name}` },
         },
         new_turns_limit: 4,
       }),
@@ -240,43 +92,19 @@ async function simulate(scenario) {
 
   const transcript = body.simulated_conversation ?? [];
   const calledTools = transcript.flatMap(({ tool_calls: calls = [] }) => calls.map(({ tool_name: name }) => name));
-  const toolErrors = transcript.flatMap(({ tool_results: results = [] }) =>
-    results.filter(({ is_error: isError }) => isError));
   const followupUserIndex = transcript.findIndex(({ role }, index) => index > 1 && role === 'user');
   const answer = transcript
     .slice(2, followupUserIndex >= 0 ? followupUserIndex : undefined)
     .filter(({ role, message }) => role === 'agent' && message)
     .at(-1)?.message ?? '';
   const issues = scenario.validate(answer);
-  for (const tool of scenario.expectedTools) {
-    if (!calledTools.includes(tool)) issues.push(`outil attendu absent: ${tool}`);
-  }
-  for (const tool of scenario.forbiddenTools) {
-    if (calledTools.includes(tool)) issues.push(`outil interdit appelé: ${tool}`);
-  }
-  const unexpectedToolErrors = scenario.allowResolverError
-    ? toolErrors.filter(({ tool_name: toolName }) => toolName !== 'resolve_official_place')
-    : toolErrors;
-  if (unexpectedToolErrors.length > 0) issues.push(`${unexpectedToolErrors.length} résultat(s) d'outil en erreur`);
-  const trailingAgentMessages = transcript
-    .filter(({ role, message }) => role === 'agent' && message)
-    .map(({ message }) => message)
-    .slice(2);
-  if (trailingAgentMessages.some((message) => /(?:encore|autres?|verdere|andere|weitere) (?:questions?|vragen?|Fragen)|(?:puis-je|kan ik|kann ich) .*aider/iu.test(message))) {
-    issues.push('question de disponibilité ajoutée après une réponse complète');
+  for (const tool of accessTools) {
+    if (calledTools.includes(tool)) issues.push(`outil de localisation interdit appelé: ${tool}`);
   }
   return {
     scenario: scenario.name,
     answer,
     called_tools: calledTools,
-    tool_errors: toolErrors,
-    tool_results: transcript.flatMap(({ tool_results: toolResults = [] }) =>
-      toolResults.map(({ tool_name: toolName, result_value: resultValue, is_error: isError }) => ({
-        tool_name: toolName,
-        result_value: resultValue,
-        is_error: isError,
-      }))),
-    agent_messages: transcript.filter(({ role, message }) => role === 'agent' && message).map(({ message }) => message),
     passed: issues.length === 0,
     issues,
     transcript,

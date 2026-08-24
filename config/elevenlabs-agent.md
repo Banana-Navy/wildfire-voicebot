@@ -10,7 +10,7 @@ Créé le 17 août 2026 dans le workspace ElevenLabs partagé.
 | Langues proposées à l'accueil | FR, NL, DE |
 | Numéro attaché | `+32 71 49 98 17` — inbound, branche principale |
 | Appels sortants | Aucun |
-| Webhooks métier | `resolve_official_place`, puis `get_daily_access_status` |
+| Webhooks d'accès | Temporairement détachés de l'agent ; aucune localisation ni aucun statut de zone |
 | Enregistrement audio | Activé pour les appels de test |
 | Conservation des transcriptions | 30 jours maximum |
 | Knowledge Base | `89AM7w3ggzzZpzmAiiRT` |
@@ -25,11 +25,11 @@ Créé le 17 août 2026 dans le workspace ElevenLabs partagé.
 
 La base ElevenLabs est synchronisée uniquement depuis `knowledge/base-connaissances.md`. Les incidents historiques et documents de conception restent dans le dépôt pour la landing page, mais ne sont plus injectés dans les réponses du bot. Le document distant porte le nom `Feux en Milieu Naturel — Base opérationnelle contrôlée — 2026.08.17`.
 
-Les données variables du jour ne sont jamais copiées dans cette base statique. Un workflow GitHub Actions les relit chaque matin auprès des sources officielles, valide leur structure puis publie un instantané daté sur GitHub Pages. L'agent résout d'abord le lieu prononcé, puis lit le statut correspondant. Toute donnée d'une autre date belge, au-delà du délai de fraîcheur de 36 heures, ambiguë ou en erreur est refusée.
+Les données variables du jour ne sont jamais copiées dans cette base statique. Le workflow GitHub Actions continue de les relire et de les valider afin de préserver le mécanisme pour une réactivation future. Pour la version actuelle, les outils de localisation et de statut sont détachés de l'agent : il ne cherche aucun lieu, ne demande aucune commune et ne donne aucun statut d'accès ou de vigilance.
 
 Le registre couvre les 565 communes Statbel, les cinq provinces flamandes, les cinq provinces wallonnes, 333 domaines naturels de l'Agentschap voor Natuur en Bos, 680 zones naturelles publiées par le SPW et les lieux explicitement nommés dans les mesures actives suivies. Il génère aussi des variantes orales sûres telles que « forêt de Chimay », « bos van… » et « Wald bei… » afin de résoudre une demande naturelle sans inventer un autre lieu. Un code provincial indique le risque mais ne confirme jamais à lui seul qu'un site individuel est ouvert.
 
-Pour la Wallonie, le workflow lit la publication française et sa traduction allemande officielle lorsqu'elle est disponible. Une commune reste distincte d'un cantonnement forestier, d'une route ou d'un barrage homonyme. Lorsqu'aucune mesure ne nomme exactement l'entité demandée, l'agent dit que le lieu ne figure pas parmi les interdictions d'accès recensées aujourd'hui, sans en déduire qu'il est ouvert. Il demande une vérification auprès de la commune ou du gestionnaire local avant le déplacement, car une consigne peut évoluer en cours de journée. Si un nom ne peut pas être résolu, le statut national de repli évite de redemander automatiquement la commune et conserve le nom entendu. Pour une zone étendue comme les Hautes Fagnes, l'agent distingue la présence d'une interdiction dans un périmètre cartographié du statut de l'ensemble de la réserve et refuse toute généralisation.
+Pour toute question d'accès ou d'interdiction, la réponse se limite désormais à indiquer le site officiel de la commune concernée ou les informations du gestionnaire de la zone naturelle. Elle précise que les consignes peuvent évoluer au cours de la journée. Aucun lieu cité par l'appelant n'est repris, résolu ou qualifié d'ouvert, fermé, accessible ou interdit.
 
 ## Téléphonie connectée
 
@@ -44,5 +44,7 @@ L'agent ne prétend pas transférer un appel au 112. Tant qu'aucun outil de tran
 Le sélecteur initial commence par un véritable accueil : « Bonjour et bienvenue. Goedendag en welkom. Guten Tag und herzlich willkommen. Pour continuer, vous préférez le français, Nederlands oder Deutsch ? ». L'accueil utilise Julien comme voix française par défaut. Après le choix, un changement de langue obligatoire applique un preset complet avant toute nouvelle parole : `Julien` en français, `Jeroen Vlaams` en flamand belge et `Otto` en allemand. La stabilité de Julien reste identique à `0,52` avant et après la sélection afin de conserver le même ton d'un tour à l'autre ; seule la vitesse passe de `0,94` à `1,00` pour garder une conversation plus énergique. La présentation française commence d'un seul mouvement par « Bien sûr, nous allons continuer en français » pour éviter l'inflexion hésitante produite par deux petites phrases. Le preset verrouille la langue, la voix et le modèle de conversation.
 
 La ligne se présente uniquement comme « ligne d'information Feux en Milieu Naturel ». Le voicebot ne cite aucune entreprise dans les trois langues. L'optimisation de latence audio est désactivée pour l'accueil et le français afin de privilégier la qualité et la prosodie.
+
+Dans toute réponse française, le nom officiel `BE-Alert` est écrit phonétiquement `bi-alerte` avant synthèse afin d'obtenir la prononciation française demandée et d'éviter « bé-e alerte » ou une lecture anglaise.
 
 Le délai de tour et la réactivité sont configurés pour une conversation téléphonique naturelle. Le délai souple est désactivé : le bot ne doit jamais meubler un silence par « hmm » ou une phrase improvisée.

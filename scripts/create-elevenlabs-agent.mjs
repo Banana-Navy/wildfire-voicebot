@@ -1,6 +1,5 @@
 import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
-import { dailyAccessTools } from './lib/elevenlabs-access-tools.mjs';
 
 const apiKey = process.env.ELEVENLABS_API_KEY;
 if (!apiKey) throw new Error('ELEVENLABS_API_KEY est absent.');
@@ -40,7 +39,7 @@ conversation.agent.prompt.backup_llm_config = {
   preference: 'override',
   order: ['claude-haiku-4-5'],
 };
-conversation.agent.prompt.tools = dailyAccessTools();
+conversation.agent.prompt.tools = [];
 conversation.agent.prompt.tool_ids = [];
 conversation.agent.prompt.mcp_server_ids = [];
 conversation.agent.prompt.native_mcp_server_ids = [];
@@ -120,7 +119,7 @@ for (const [language, settings] of Object.entries(presetMessages)) {
 }
 
 conversation.asr.keywords = [
-  'feu en milieu naturel', 'incendie', 'fumée', 'évacuation', 'BE-Alert', 'cent douze',
+  'feu en milieu naturel', 'incendie', 'fumée', 'évacuation', 'BE-Alert', 'bi-alerte', 'cent douze',
   '071 49 98 17', '1771', 'dix-sept septante-et-un', 'brûlure', 'respirer', 'forêt', 'broussailles',
   'bosbrand', 'natuurbrand', 'Waldbrand', 'wildfire',
   'français', 'Nederlands', 'néerlandais', 'Vlaams', 'Deutsch', 'allemand',

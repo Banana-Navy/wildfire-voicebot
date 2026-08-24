@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
-import { DAILY_ACCESS_TOOL_IDS, dailyAccessTools } from './lib/elevenlabs-access-tools.mjs';
+import { DAILY_ACCESS_TOOL_IDS } from './lib/elevenlabs-access-tools.mjs';
 
 const apiKey = process.env.ELEVENLABS_API_KEY;
 if (!apiKey) throw new Error('ELEVENLABS_API_KEY est absent.');
@@ -31,20 +31,6 @@ const documentResponse = await fetch(`https://api.elevenlabs.io/v1/convai/knowle
 });
 const document = await documentResponse.json();
 if (!documentResponse.ok) throw new Error(`Mise à jour KB impossible (${documentResponse.status}): ${JSON.stringify(document)}`);
-
-for (const tool of dailyAccessTools()) {
-  const toolId = DAILY_ACCESS_TOOL_IDS[tool.name];
-  if (!toolId) throw new Error(`Identifiant distant absent pour l'outil ${tool.name}.`);
-  const toolResponse = await fetch(`https://api.elevenlabs.io/v1/convai/tools/${toolId}`, {
-    method: 'PATCH',
-    headers,
-    body: JSON.stringify({ tool_config: tool }),
-  });
-  const updatedTool = await toolResponse.json();
-  if (!toolResponse.ok) {
-    throw new Error(`Mise à jour de l'outil ${tool.name} impossible (${toolResponse.status}): ${JSON.stringify(updatedTool)}`);
-  }
-}
 
 const agentResponse = await fetch(`https://api.elevenlabs.io/v1/convai/agents/${agentId}`, { headers });
 const agent = await agentResponse.json();
@@ -97,6 +83,7 @@ Beantworten Sie jede allgemeine Frage zu einem Torfbrand, der weiterschwelen ode
 conversation.asr.user_input_audio_format = 'ulaw_8000';
 conversation.asr.keywords = Array.from(new Set([
   ...(conversation.asr.keywords ?? []), '071 49 98 17', 'zéro septante-et-un', 'quarante-neuf', 'nonante-huit',
+  'BE-Alert', 'bi-alerte',
   'français', 'Nederlands', 'néerlandais', 'Vlaams', 'Deutsch', 'allemand',
   'tourbe', 'tourbière', 'Hautes Fagnes', 'feu souterrain',
   'Baraque de Fraiture', 'Baraque Fraiture', 'Vielsalm',
@@ -187,17 +174,11 @@ for (const tool of expandedTools) {
   if (tool?.name === 'language_detection') configureLanguage(tool);
 }
 const existingToolIds = conversation.agent.prompt.tool_ids ?? [];
-if (existingToolIds.length > 0) {
-  conversation.agent.prompt.tool_ids = existingToolIds;
-  delete conversation.agent.prompt.tools;
-} else {
-  conversation.agent.prompt.tool_ids = [];
-  conversation.agent.prompt.tools = [
-    ...expandedTools.filter((tool) =>
-      !['resolve_official_place', 'get_daily_access_status'].includes(tool?.name)),
-    ...dailyAccessTools(),
-  ];
-}
+const disabledDailyAccessToolIds = new Set(Object.values(DAILY_ACCESS_TOOL_IDS));
+conversation.agent.prompt.tool_ids = existingToolIds.filter((toolId) =>
+  !disabledDailyAccessToolIds.has(toolId));
+conversation.agent.prompt.tools = expandedTools.filter((tool) =>
+  !['resolve_official_place', 'get_daily_access_status'].includes(tool?.name));
 
 conversation.language_presets = {};
 for (const [language, settings] of Object.entries(localized)) {
@@ -273,7 +254,8 @@ console.log(JSON.stringify({
   language_tts_models: Object.fromEntries(Object.entries(localized).map(([language, settings]) => [language, settings.modelId ?? conversation.tts.model_id])),
   bootstrap_llm: conversation.agent.prompt.llm,
   language_llms: Object.fromEntries(Object.keys(localized).map((language) => [language, conversation.language_presets[language].overrides.agent.prompt.llm])),
-  daily_access_tool_ids: DAILY_ACCESS_TOOL_IDS,
+  daily_access_tools_attached: false,
+  detached_daily_access_tool_ids: DAILY_ACCESS_TOOL_IDS,
   tts_model: conversation.tts.model_id,
   stability: conversation.tts.stability,
   similarity_boost: conversation.tts.similarity_boost,

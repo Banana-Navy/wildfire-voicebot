@@ -2,7 +2,7 @@
 
 Dernière vérification des consignes stables : 19 août 2026.
 
-Cette base contient uniquement des consignes stables issues du Centre de Crise national, du SPF Intérieur/112 et des autorités régionales belges. Les niveaux de vigilance et mesures d'accès du jour ne sont jamais conservés ici : ils proviennent exclusivement des outils quotidiens officiels, avec date de validité et délai de fraîcheur.
+Cette base contient uniquement des consignes stables issues du Centre de Crise national, du SPF Intérieur/112 et des autorités régionales belges. Les niveaux de vigilance et mesures d'accès du jour ne sont jamais conservés ici. Le collecteur quotidien reste maintenu hors de l'agent, mais ses outils de localisation et de statut sont temporairement désactivés.
 
 ## 1. Numéros et canaux
 
@@ -33,7 +33,7 @@ Service non urgent pour certaines interventions de pompiers liées aux tempêtes
 
 ### Information officielle
 
-Pour les instructions locales : BE-Alert, site et réseaux officiels de la commune ou de la province, Centre de Crise national, SPW Environnement, Agentschap Natuur en Bos et signalétique du gestionnaire de la zone naturelle.
+Pour les instructions locales : BE-Alert, site et réseaux officiels de la commune ou de la province, Centre de Crise national, SPW Environnement, Agentschap Natuur en Bos et signalétique du gestionnaire de la zone naturelle. Dans toute réponse parlée en français, écrire le nom BE-Alert sous la forme phonétique « bi-alerte ».
 
 Ne jamais conseiller d'appeler le 112, la police ou les services d'urgence pour une simple demande d'information. Le 112 est réservé à un feu constaté, un danger ou une urgence médicale.
 
@@ -97,18 +97,14 @@ Ne donner les détails suivants que si l'appelant en demande davantage :
 
 ## 8. Codes de risque et fermetures
 
-Les niveaux de risque, drapeaux, interdictions et fermetures changent selon la Région, la province, la commune et la zone naturelle. Cette base statique ne confirme jamais leur état actuel.
+Les niveaux de risque, drapeaux, interdictions et fermetures changent selon la Région, la province, la commune et la zone naturelle. La localisation et la vérification de ces statuts sont temporairement désactivées dans l'agent.
 
-Pour une demande actuelle, utiliser obligatoirement `resolve_official_place`, puis `get_daily_access_status`. Donner directement le statut explicitement publié et le niveau officiel lorsqu'il existe, puis une action claire dans la langue active. Pour une fermeture nommée, utiliser l'`action_template` correspondant et dire explicitement de ne pas entrer ou de ne pas emprunter la route. Si aucune interdiction recensée ne nomme le lieu, utiliser le modèle fourni : il précise que cela ne confirme pas l'ouverture et demande une vérification auprès de la commune ou du gestionnaire local avant le déplacement. Ne jamais inventer un site, un contact ou une autorisation.
-
-Les deux appels sont entièrement silencieux. Ne prononcer aucune attente ni transition avant ou entre eux ; commencer directement par le fait officiel final.
-
-Un code de risque provincial ne confirme jamais l'ouverture d'un site individuel. En Wallonie, conserver l'identité du lieu uniquement depuis `place.canonical_name`, `place.aliases` et `place.category` renvoyés par `resolve_official_place` ; ne jamais la remplacer par un nom repéré dans les extraits. Une mesure visant un cantonnement forestier, une route ou un barrage ne s'applique jamais par simple homonymie à la commune correspondante. Utiliser mot pour mot `scope_limited_answer_template` seulement si le nom ou l'alias de cette entité résolue correspond exactement à `scope_limited_places` et désigne la même catégorie d'entité. Si aucune mesure ne nomme exactement la même entité, utiliser mot pour mot `no_match_answer_template`. Ce modèle peut indiquer que le lieu ne figure pas parmi les interdictions d'accès recensées, mais il précise obligatoirement que cela ne confirme pas l'ouverture et demande une vérification auprès de la commune ou du gestionnaire local avant le déplacement. Si `resolve_official_place` renvoie une erreur HTTP 404 pour un lieu nommé, ne pas demander automatiquement sa commune : appeler `get_daily_access_status` avec `belgium-overview` et utiliser `unresolved_place_answer_template` avec le nom entendu. Ne jamais déclarer le lieu ouvert ou accessible. Si la source quotidienne est absente ou périmée : « L'information officielle du jour n'est pas disponible. Je ne peux pas confirmer l'accès à cette zone. »
+Pour toute demande d'accès, de fermeture, d'interdiction ou de niveau de vigilance, ne chercher aucun lieu, ne demander aucune commune et ne donner aucun statut. Utiliser exactement le modèle de la langue active défini dans le prompt système. L'agent indique seulement de consulter le site officiel de la commune concernée ou les informations du gestionnaire de la zone naturelle, puis précise que les consignes peuvent évoluer au cours de la journée.
 
 ## 9. Après un incendie
 
 - Ne pas pénétrer dans la zone et ne pas retourner au domicile avant l'autorisation des services d'urgence ou des autorités.
-- Suivre les messages BE-Alert et les canaux officiels locaux.
+- Suivre les messages bi-alerte et les canaux officiels locaux.
 - Pour une information locale non publiée ou contradictoire, dire qu'elle n'est pas confirmée.
 
 ## 10. Personnes vulnérables et animaux
@@ -131,15 +127,15 @@ Prononcer exactement ces deux phrases, puis arrêter la réponse après « inacc
 
 « Je n'ai pas accès à l'état des incendies en temps réel et je ne peux pas confirmer qu'un feu est maîtrisé. Si vous voyez un feu ou êtes en danger, appelez le 112. »
 
-Si la question combine cet état non confirmé avec un accès ou une route et que les outils ont fourni un résultat quotidien frais, restituer directement les fermetures ou mesures explicitement publiées, sans ajouter de canal précis. Pour un lieu absent des interdictions recensées, conserver uniquement l'orientation générale vers la commune ou le gestionnaire local prévue par le modèle. Ne jamais transformer une route fermée en proposition d'itinéraire sûr.
+Si la question combine cet état non confirmé avec une demande d'accès ou de route, ne localiser aucune zone et ne donner aucun statut. Donner seulement le modèle d'orientation officiel de la langue active. Ne jamais transformer une route supposée fermée en proposition d'itinéraire sûr.
 
 ### Route ou chemin sûr
 
-Si une fermeture de route est explicitement présente dans le résultat quotidien frais, la restituer sans proposer d'itinéraire de remplacement. Sinon : « Je ne peux pas confirmer un itinéraire sûr ni l'ouverture d'une route. Suivez uniquement les indications des services de secours, de la police ou de l'autorité locale. »
+« Je ne peux pas confirmer un itinéraire sûr ni l'ouverture d'une route. Suivez uniquement les indications des services de secours, de la police ou de l'autorité locale. »
 
 ### Ordre d'évacuation
 
-« Je ne peux pas confirmer un ordre d'évacuation sans message officiel actuel. Vérifiez BE-Alert et les canaux de votre commune ou province. En cas de danger direct, appelez le 112. »
+« Je ne peux pas confirmer un ordre d'évacuation sans message officiel actuel. Vérifiez bi-alerte et les canaux de votre commune ou province. En cas de danger direct, appelez le 112. »
 
 ### Question hors base
 
@@ -167,9 +163,7 @@ Dans les Hautes Fagnes, le drapeau rouge signifie que certaines zones sensibles 
 
 ### Réponse obligatoire — peut-on prévoir une promenade ou une activité ?
 
-Avant de répondre, appeler obligatoirement les deux outils quotidiens pour « Hautes Fagnes », « Hoge Venen » ou « Hohes Venn ». Donner d'abord l'interdiction ou l'absence de confirmation exactement telle qu'elle ressort du statut frais, puis ajouter dans la langue active qu'un feu de tourbe peut continuer à couver sous terre et reprendre. Terminer par l'avis quotidien fourni par l'outil. Ne jamais renvoyer vers un site lorsque le statut frais est disponible.
-
-Si le statut quotidien est indisponible ou périmé, dire uniquement dans la langue active que l'accès ne peut pas être confirmé aujourd'hui et qu'un feu de tourbe peut reprendre sous la surface ; respecter toute fermeture et signalétique sur place.
+Ne pas localiser la zone et ne donner aucun statut. Utiliser uniquement le modèle d'orientation de la langue active : consulter le site officiel de la commune concernée ou les informations du gestionnaire de la zone naturelle, car les consignes peuvent évoluer au cours de la journée.
 
 ### Réponse obligatoire — le feu est ancien, est-il encore dangereux ?
 

@@ -132,22 +132,18 @@ const scenarios = {
   },
   'fr-access-kalmthout': {
     messages: ['Français', "La Kalmthoutse Heide est-elle accessible aujourd'hui ?"],
-    expectedVoices: [voices.fr],
-    expectedTools: ['resolve_official_place', 'get_daily_access_status'],
+    expectedVoices: [voices.fr, voices.nl, voices.de],
+    forbiddenTools: ['resolve_official_place', 'get_daily_access_status'],
+    expectMultivoice: true,
     validate(responses) {
       const answer = responses.at(-1)?.text ?? '';
       const issues = [];
-      if (!/code officiel|niveau officiel|vigilance officielle/iu.test(answer)) {
-        issues.push({ type: 'missing_daily_official_risk', value: answer });
+      const expected = "Pour connaître les interdictions d'accès en vigueur, consultez le site officiel de la commune concernée ou les informations publiées par le gestionnaire de la zone naturelle. Les consignes peuvent évoluer au cours de la journée.";
+      if (answer.trim() !== expected) {
+        issues.push({ type: 'wrong_access_referral', value: answer });
       }
-      if (!/ne confirme pas|ne permet pas de confirmer/iu.test(answer)) {
-        issues.push({ type: 'individual_opening_inferred_from_province_code', value: answer });
-      }
-      if (!/change(?:r)? chaque jour|changer quotidiennement/iu.test(answer)) {
-        issues.push({ type: 'missing_daily_change_notice', value: answer });
-      }
-      if (/consultez|site (?:web|officiel)|rendez-vous sur/iu.test(answer)) {
-        issues.push({ type: 'unnecessary_website_referral', value: answer });
+      if (/Kalmthoutse Heide|code (?:vert|jaune|orange|rouge)|accessible|ouverte?|fermée?/iu.test(answer)) {
+        issues.push({ type: 'zone_was_localized_or_given_status', value: answer });
       }
       return issues;
     },
@@ -155,42 +151,49 @@ const scenarios = {
   'fr-access-unknown-zone': {
     messages: ['Français', "La Baraque de Gilette est-elle accessible aujourd'hui ?"],
     expectedVoices: [voices.fr, voices.nl, voices.de],
-    expectedTools: ['resolve_official_place', 'get_daily_access_status'],
+    forbiddenTools: ['resolve_official_place', 'get_daily_access_status'],
     expectMultivoice: true,
     validate(responses) {
       const answer = responses.at(-1)?.text ?? '';
       const issues = [];
-      if (!/Baraque de Gilette/iu.test(answer)) {
-        issues.push({ type: 'unresolved_place_name_lost', value: answer });
+      const expected = "Pour connaître les interdictions d'accès en vigueur, consultez le site officiel de la commune concernée ou les informations publiées par le gestionnaire de la zone naturelle. Les consignes peuvent évoluer au cours de la journée.";
+      if (answer.trim() !== expected) {
+        issues.push({ type: 'wrong_unknown_zone_referral', value: answer });
       }
-      if (!/ne figure pas parmi les interdictions d['’]accès recensées/iu.test(answer)) {
-        issues.push({ type: 'missing_current_official_no_match', value: answer });
-      }
-      if (!/ne confirme pas son ouverture/iu.test(answer)) {
-        issues.push({ type: 'opening_not_safely_qualified', value: answer });
-      }
-      if (!/commune ou du gestionnaire local/iu.test(answer)) {
-        issues.push({ type: 'missing_local_confirmation', value: answer });
-      }
-      if (!/évoluer en cours de journée/iu.test(answer)) {
-        issues.push({ type: 'missing_intraday_change_notice', value: answer });
-      }
-      if (/quelle (?:commune|province)|dans quelle (?:commune|province)/iu.test(answer)) {
-        issues.push({ type: 'commune_requested_after_unknown_place', value: answer });
+      if (/Baraque de Gilette|quelle (?:commune|province)|dans quelle (?:commune|province)/iu.test(answer)) {
+        issues.push({ type: 'unknown_zone_was_repeated_or_localized', value: answer });
       }
       return issues;
     },
   },
   'nl-access-zonienwoud': {
     messages: ['Nederlands', 'Is het Zoniënwoud vandaag toegankelijk?'],
-    expectedVoices: [voices.base, voices.nl],
-    expectedTools: ['resolve_official_place'],
-    forbiddenTools: ['get_daily_access_status'],
+    expectedVoices: [voices.fr, voices.nl, voices.de],
+    forbiddenTools: ['resolve_official_place', 'get_daily_access_status'],
+    expectMultivoice: true,
     validate(responses) {
       const answer = responses.at(-1)?.text ?? '';
-      return /Brussel/iu.test(answer) && /Vlaams-Brabant/iu.test(answer)
+      const expected = 'Raadpleeg voor de geldende toegangsverboden de officiële website van de betrokken gemeente of de informatie van de beheerder van het natuurgebied. De richtlijnen kunnen in de loop van de dag wijzigen.';
+      return answer.trim() === expected && !/Zoniënwoud|Brussel|Vlaams-Brabant/iu.test(answer)
         ? []
-        : [{ type: 'ambiguous_place_not_clarified', value: answer }];
+        : [{ type: 'wrong_dutch_access_referral', value: answer }];
+    },
+  },
+  'fr-be-alert-pronunciation': {
+    messages: ['Français', "Où puis-je vérifier s'il existe un ordre officiel d'évacuation ?"],
+    expectedVoices: [voices.fr, voices.nl, voices.de],
+    forbiddenTools: ['resolve_official_place', 'get_daily_access_status'],
+    expectMultivoice: true,
+    validate(responses) {
+      const answer = responses.at(-1)?.text ?? '';
+      const issues = [];
+      if (!/bi-alerte/iu.test(answer)) {
+        issues.push({ type: 'missing_french_be_alert_pronunciation', value: answer });
+      }
+      if (/BE-Alert|bé[ -]?e/iu.test(answer)) {
+        issues.push({ type: 'unsafe_be_alert_spelling', value: answer });
+      }
+      return issues;
     },
   },
   'fr-natural-choice': {

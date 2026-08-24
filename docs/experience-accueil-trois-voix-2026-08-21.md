@@ -87,3 +87,9 @@ Documentation ElevenLabs : [Multi-voice support](https://elevenlabs.io/docs/elev
 L'appel entrant `conv_9401m0htzr32eh89m4xjqv4b2615` a été analysé après un retour signalant des ruptures de ton. Les métadonnées montrent que les `93,4` secondes de français de cet appel ont toutes été produites par l'ancienne voix Adrien : aucune seconde française n'a utilisé Julien et aucun changement de voix française n'a eu lieu. L'appel avait commencé avant la synchronisation de Julien.
 
 Pour éviter que la variabilité prosodique donne malgré tout l'impression d'un changement de personne, Julien utilise désormais une stabilité uniforme de `0.52` dans l'accueil et après le choix du français. La vitesse reste `0.94` pour l'accueil et `1.00` pour la conversation afin de conserver l'énergie demandée. Les réglages de Jeroen et Otto ne sont pas modifiés.
+
+## Orientation d'accès temporaire — 24 août 2026
+
+La localisation et la restitution des statuts des zones naturelles sont temporairement désactivées. Les outils `resolve_official_place` et `get_daily_access_status` sont détachés de l'agent, tout en restant conservés dans le projet pour une éventuelle réactivation.
+
+Pour une question d'accès, l'agent indique uniquement de consulter le site officiel de la commune concernée ou les informations du gestionnaire de la zone naturelle. Il ne reprend pas le lieu prononcé, ne demande pas de commune et n'annonce aucun statut. Dans les réponses françaises, `BE-Alert` est écrit `bi-alerte` avant synthèse afin d'obtenir une prononciation française naturelle.

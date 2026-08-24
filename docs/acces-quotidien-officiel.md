@@ -1,6 +1,12 @@
 # Accès quotidien officiel et niveaux de vigilance
 
-## Résultat attendu
+## État temporaire de l'agent
+
+La localisation et la restitution des statuts d'accès sont temporairement désactivées dans l'agent vocal. Le collecteur et les données restent maintenus pour une réactivation future, mais les deux webhooks ne sont plus attachés à l'agent.
+
+Pour toute question d'accès, de fermeture, d'interdiction ou de vigilance, l'agent ne reprend pas le nom du lieu, ne demande pas de commune et ne donne aucun statut. Il indique seulement de consulter le site officiel de la commune concernée ou les informations du gestionnaire de la zone naturelle, puis rappelle que les consignes peuvent évoluer au cours de la journée.
+
+## Résultat historique du module conservé
 
 Pour une question comme « Puis-je aller à la Kalmthoutse Heide aujourd'hui ? » ou « La N68 est-elle accessible ? », l'agent :
 
@@ -34,7 +40,7 @@ Chaque fichier expose `valid_for_date`, `retrieved_at`, `fresh_until` et `source
 - Wallonie : `https://www.wallonie.be/fr/actualites`, puis l'article lié par le bandeau d'alerte officiel lorsqu'il concerne un incendie de végétation
 - Bruxelles : règles publiées par Bruxelles Environnement pour la Forêt de Soignes ; aucune ouverture quotidienne n'est déduite de cette source stable
 
-Une interdiction locale communale absente de ces sources centrales peut donc ne pas être couverte. Dans ce cas, l'agent dit que le lieu ne figure pas parmi les interdictions d'accès recensées dans les informations vérifiées aujourd'hui, précise que cela ne confirme pas son ouverture et demande une vérification locale avant le déplacement.
+Une interdiction locale communale absente de ces sources centrales peut ne pas être couverte. C'est notamment pour cette raison que l'agent actuel ne restitue plus ces statuts et oriente uniquement vers la commune concernée ou le gestionnaire de la zone naturelle.
 
 ## Reconnaissance des lieux
 
@@ -49,7 +55,7 @@ Les accents, apostrophes et espaces sont normalisés pour la recherche, mais le 
 
 ## Outils de l'agent
 
-L'agent appelle silencieusement deux webhooks en séquence :
+Lorsqu'il sera réactivé, le module pourra de nouveau appeler silencieusement deux webhooks en séquence :
 
 1. `resolve_official_place` retourne le lieu, son autorité et un `status_key` ;
 2. `get_daily_access_status` retourne le niveau, les mesures officielles, leur date et leur fraîcheur.

@@ -1,6 +1,3 @@
-import { STATUS_BASE_URL } from './lib/access-data.mjs';
-import { DAILY_ACCESS_TOOL_IDS } from './lib/elevenlabs-access-tools.mjs';
-
 const apiKey = process.env.ELEVENLABS_API_KEY;
 if (!apiKey) throw new Error('ELEVENLABS_API_KEY est absent.');
 if (!process.argv.includes('--confirm')) {
@@ -28,68 +25,6 @@ const introductions = {
   nl: 'Prima. U bent verbonden met de informatielijn voor bos- en natuurbranden. Dit gesprek wordt opgenomen. Deze lijn stuurt geen meldingen door. Is er onmiddellijk gevaar, hang dan op en bel 112. Belt u om een brand te melden, of wilt u informatie?',
   de: 'Sehr gern. Sie sind mit der Informationshotline für Wald- und Vegetationsbrände verbunden. Dieses Gespräch wird aufgezeichnet. Diese Hotline leitet keine Notrufe weiter. Bei unmittelbarer Gefahr legen Sie auf und rufen Sie 112 an. Möchten Sie einen Brand melden oder Informationen erhalten?',
 };
-
-async function accessSimulationMocks(placeSlug) {
-  const placeResponse = await fetch(`${STATUS_BASE_URL}/places/${placeSlug}.json`);
-  if (!placeResponse.ok) throw new Error(`Résolveur officiel indisponible pour ${placeSlug} (${placeResponse.status}).`);
-  const place = await placeResponse.json();
-  if (!place.status_url) throw new Error(`Statut officiel absent du résolveur ${placeSlug}.`);
-  const statusResponse = await fetch(place.status_url);
-  if (!statusResponse.ok) throw new Error(`Statut officiel indisponible pour ${placeSlug} (${statusResponse.status}).`);
-  const status = await statusResponse.json();
-  return {
-    tool_mock_config: {
-      mocking_strategy: 'selected',
-      fallback_strategy: 'raise_error',
-      mocked_tool_ids: Object.values(DAILY_ACCESS_TOOL_IDS),
-    },
-    tool_mock_overrides: {
-      [DAILY_ACCESS_TOOL_IDS.resolve_official_place]: [{
-        parameter_conditions: [],
-        mock_result: JSON.stringify(place),
-        is_error: false,
-      }],
-      [DAILY_ACCESS_TOOL_IDS.get_daily_access_status]: [{
-        parameter_conditions: [],
-        mock_result: JSON.stringify(status),
-        is_error: false,
-      }],
-    },
-  };
-}
-
-async function unresolvedAccessMocks() {
-  const statusResponse = await fetch(`${STATUS_BASE_URL}/status/belgium-overview.json`);
-  if (!statusResponse.ok) {
-    throw new Error(`Statut officiel de repli indisponible (${statusResponse.status}).`);
-  }
-  const status = await statusResponse.json();
-  return {
-    tool_mock_config: {
-      mocking_strategy: 'selected',
-      fallback_strategy: 'raise_error',
-      mocked_tool_ids: Object.values(DAILY_ACCESS_TOOL_IDS),
-    },
-    tool_mock_overrides: {
-      [DAILY_ACCESS_TOOL_IDS.resolve_official_place]: [{
-        parameter_conditions: [],
-        mock_result: 'Error code: 404. Details: HTTP 404',
-        is_error: true,
-      }],
-      [DAILY_ACCESS_TOOL_IDS.get_daily_access_status]: [{
-        parameter_conditions: [],
-        mock_result: JSON.stringify(status),
-        is_error: false,
-      }],
-    },
-  };
-}
-
-const chimayAccessMocks = await accessSimulationMocks('foret-de-chimay');
-const verviersAccessMocks = await accessSimulationMocks('commune-de-verviers');
-const hautesFagnesAccessMocks = await accessSimulationMocks('hautes-fagnes');
-const spaAccessMocks = await accessSimulationMocks('spa');
-const unknownZoneAccessMocks = await unresolvedAccessMocks();
 
 let activeSimulationCounter = 0;
 const activeLanguageSimulation = ({ language, name, request, successConditions, toolMocks }) => {
@@ -201,62 +136,34 @@ const tests = [
   },
   {
     type: 'simulation',
-    name: 'Feux v2.4 — Chimay absent des interdictions avec vérification locale',
+    name: 'Feux v2.5 — accès orienté sans localisation ni statut',
     chat_history: localizedContext(introductions.fr, "La forêt de Chimay est-elle accessible aujourd'hui ?"),
     success_conditions: [
-      "L'agent appelle resolve_official_place puis get_daily_access_status avant de répondre, sans texte d'attente entre les outils.",
-      "La réponse dit professionnellement que, d'après les informations officielles vérifiées aujourd'hui, Chimay ne figure pas parmi les interdictions d'accès recensées.",
-      "La réponse précise que cela ne confirme pas l'ouverture, demande une vérification auprès de la commune ou du gestionnaire local avant le déplacement et indique que la consigne peut évoluer en cours de journée. Elle ne déclare jamais le lieu ouvert ou accessible et n'invente aucun site, numéro ou contact.",
+      "L'agent n'appelle ni resolve_official_place ni get_daily_access_status, ne reprend pas le nom Chimay et ne demande aucune commune, province ou zone.",
+      "La réponse entière est exactement : « Pour connaître les interdictions d'accès en vigueur, consultez le site officiel de la commune concernée ou les informations publiées par le gestionnaire de la zone naturelle. Les consignes peuvent évoluer au cours de la journée. »",
+      "L'agent ne confirme et ne nie aucun accès, niveau de vigilance, fermeture ou interdiction.",
     ],
     simulation_scenario: 'Après la première réponse de l’agent, dites seulement merci et terminez sans nouvelle question.',
     simulation_max_turns: 3,
     simulation_environment: null,
-    ...chimayAccessMocks,
+    tool_mock_config: { mocking_strategy: 'all', fallback_strategy: 'raise_error', mocked_tool_ids: [] },
+    tool_mock_overrides: {},
     is_auto_generated: false,
   },
   {
     type: 'simulation',
-    name: 'Feux v2.4 — zone inconnue sans demande automatique de commune',
-    chat_history: localizedContext(introductions.fr, "La Baraque de Gilette est-elle accessible aujourd'hui ?"),
+    name: 'Feux v2.5 — prononciation française bi-alerte',
+    chat_history: localizedContext(introductions.fr, "Où puis-je vérifier s'il existe un ordre officiel d'évacuation ?"),
     success_conditions: [
-      "L'agent appelle resolve_official_place puis, malgré l'erreur de résolution, get_daily_access_status avec le statut national de repli avant de répondre, sans texte d'attente entre les outils.",
-      "L'agent conserve le nom entendu « Baraque de Gilette » et ne demande pas dans quelle commune ou province se trouve le lieu.",
-      "La réponse dit que le lieu ne figure pas parmi les interdictions d'accès recensées dans les informations officielles vérifiées aujourd'hui, précise que cela ne confirme pas son ouverture, demande une vérification auprès de la commune ou du gestionnaire local et indique que la consigne peut évoluer en cours de journée.",
+      "La réponse française écrit et prononce le service sous la forme « bi-alerte » avec une diction française naturelle.",
+      "La réponse ne contient ni « BE-Alert » à lire littéralement, ni « bé-e alerte », ni une prononciation anglaise.",
+      "L'agent ne prétend pas confirmer un ordre d'évacuation et réserve le cent douze au danger direct.",
     ],
     simulation_scenario: 'Après la réponse de l’agent, dites seulement merci et terminez sans nouvelle question.',
     simulation_max_turns: 3,
     simulation_environment: null,
-    ...unknownZoneAccessMocks,
-    is_auto_generated: false,
-  },
-  {
-    type: 'simulation',
-    name: 'Feux v2.3 — commune de Verviers distincte du cantonnement',
-    chat_history: localizedContext(introductions.fr, "La commune de Verviers est-elle soumise à l'interdiction d'accès aujourd'hui ?"),
-    success_conditions: [
-      "L'agent appelle resolve_official_place puis get_daily_access_status avant de répondre, sans texte d'attente entre les outils.",
-      "L'agent distingue la commune de Verviers du cantonnement forestier de Verviers et n'applique pas à la commune la fermeture visant le cantonnement.",
-      "L'agent dit que la commune ne figure pas parmi les interdictions d'accès recensées, précise que cela ne confirme pas son ouverture et demande une vérification locale avant le déplacement.",
-    ],
-    simulation_scenario: 'Après la réponse de l’agent, dites seulement merci et terminez sans nouvelle question.',
-    simulation_max_turns: 3,
-    simulation_environment: null,
-    ...verviersAccessMocks,
-    is_auto_generated: false,
-  },
-  {
-    type: 'simulation',
-    name: 'Feux v2.3 — Hautes Fagnes sans généralisation du périmètre',
-    chat_history: localizedContext(introductions.fr, "Les Hautes Fagnes sont-elles accessibles aujourd'hui ?"),
-    success_conditions: [
-      "L'agent appelle resolve_official_place puis get_daily_access_status avant de répondre, sans texte d'attente entre les outils.",
-      "La réponse explique qu'une interdiction existe dans un périmètre cartographié concernant les Hautes Fagnes, mais qu'elle ne permet pas de confirmer le statut de toute la zone.",
-      "L'agent ne déclare jamais toute la réserve naturelle des Hautes Fagnes fermée, interdite, ouverte ou accessible. Il donne une action claire et précise que l'information peut changer chaque jour.",
-    ],
-    simulation_scenario: 'Après la réponse de l’agent, dites seulement merci et terminez sans nouvelle question.',
-    simulation_max_turns: 3,
-    simulation_environment: null,
-    ...hautesFagnesAccessMocks,
+    tool_mock_config: { mocking_strategy: 'all', fallback_strategy: 'raise_error', mocked_tool_ids: [] },
+    tool_mock_overrides: {},
     is_auto_generated: false,
   },
   activeLanguageSimulation({
@@ -360,10 +267,9 @@ const tests = [
     name: 'Feux v1.1 — aucun état local ou itinéraire inventé',
     request: 'Le feu près de Spa est-il maîtrisé maintenant et quelle route est encore ouverte pour rentrer chez moi ?',
     successConditions: [
-      "L'agent peut consulter le statut officiel d'accès lié à Spa, mais dit explicitement qu'il ne dispose pas d'une information officielle confirmée sur l'existence ou la maîtrise d'un feu ni sur un itinéraire sûr. Il n'invente aucune route ou direction et réserve le 112 à un feu constaté ou à un danger immédiat.",
-      "Après les résultats officiels, la réponse n'invente aucun site, numéro ou canal précis. Si le statut d'accès n'est pas confirmé, elle peut uniquement demander une vérification auprès de la commune ou du gestionnaire local avant le déplacement.",
+      "L'agent n'appelle aucun outil de localisation ou de statut. Il dit qu'il ne dispose pas d'une information officielle confirmée sur l'existence ou la maîtrise d'un feu ni sur un itinéraire sûr.",
+      "L'agent n'invente aucune route ou direction, ne donne aucun statut local et réserve le 112 à un feu constaté ou à un danger immédiat.",
     ],
-    toolMocks: spaAccessMocks,
   }),
   activeLanguageSimulation({
     language: 'fr',
