@@ -29,6 +29,7 @@ if (!reducedMotion) {
     '.scenario-grid,.operation-visuals,.architecture-flow,.protection-grid,.incident-grid'
   );
   const bentoCards = [];
+  const pointerHover = window.matchMedia('(min-width: 700px) and (hover: hover) and (pointer: fine)');
 
   revealItems.forEach((element) => element.classList.add('reveal'));
   staggerGroups.forEach((group) => [...group.children].forEach((child, index) => {
@@ -48,22 +49,51 @@ if (!reducedMotion) {
       card.style.setProperty('--stack-shadow-alpha', '.12');
       bentoCards.push(card);
 
-      card.addEventListener('pointermove', (event) => {
-        if (!window.matchMedia('(min-width: 700px) and (hover: hover)').matches) return;
+      let pointerFrame = null;
+      let latestPointer = null;
+      const renderPointerMotion = () => {
+        pointerFrame = null;
+        if (!latestPointer || !pointerHover.matches) return;
         const rect = card.getBoundingClientRect();
-        const x = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width));
-        const y = Math.max(0, Math.min(1, (event.clientY - rect.top) / rect.height));
+        const x = Math.max(0, Math.min(1, (latestPointer.clientX - rect.left) / rect.width));
+        const y = Math.max(0, Math.min(1, (latestPointer.clientY - rect.top) / rect.height));
         card.style.setProperty('--tilt-x', `${(0.5 - y) * 4}deg`);
         card.style.setProperty('--tilt-y', `${(x - 0.5) * 5}deg`);
         card.style.setProperty('--glow-x', `${x * 100}%`);
         card.style.setProperty('--glow-y', `${y * 100}%`);
+        card.style.setProperty('--content-shift-x', `${(x - 0.5) * 7}px`);
+        card.style.setProperty('--content-shift-y', `${(y - 0.5) * 5}px`);
+        card.style.setProperty('--title-shift-x', `${(x - 0.5) * 2.2}px`);
+        card.style.setProperty('--title-shift-y', `${(y - 0.5) * 1.4}px`);
+      };
+      const updatePointerMotion = (event) => {
+        if (!pointerHover.matches) return;
+        latestPointer = { clientX: event.clientX, clientY: event.clientY };
         card.classList.add('is-pointer-active');
-      });
-      card.addEventListener('pointerleave', () => {
+        if (pointerFrame === null) pointerFrame = window.requestAnimationFrame(renderPointerMotion);
+      };
+      const resetPointerMotion = () => {
+        if (pointerFrame !== null) window.cancelAnimationFrame(pointerFrame);
+        pointerFrame = null;
+        latestPointer = null;
         card.style.setProperty('--tilt-x', '0deg');
         card.style.setProperty('--tilt-y', '0deg');
+        card.style.setProperty('--glow-x', '50%');
+        card.style.setProperty('--glow-y', '50%');
+        card.style.setProperty('--content-shift-x', '0px');
+        card.style.setProperty('--content-shift-y', '0px');
+        card.style.setProperty('--title-shift-x', '0px');
+        card.style.setProperty('--title-shift-y', '0px');
         card.classList.remove('is-pointer-active');
+      };
+
+      card.addEventListener('pointerenter', updatePointerMotion);
+      card.addEventListener('pointermove', updatePointerMotion);
+      card.addEventListener('pointerleave', resetPointerMotion);
+      card.addEventListener('pointerout', (event) => {
+        if (!card.contains(event.relatedTarget)) resetPointerMotion();
       });
+      card.addEventListener('pointercancel', resetPointerMotion);
     });
   });
 
